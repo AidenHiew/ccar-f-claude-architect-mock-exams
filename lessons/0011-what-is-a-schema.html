@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 11 — What a schema is</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  pre.schema { font-family: var(--mono); font-size: .8rem; line-height: 1.55; background: var(--code-bg); padding: .9rem 1rem; border-radius: 6px; overflow-x: auto; margin: 1rem 0; }
+  pre.schema .c { color: var(--accent); font-style: italic; }
+  .explain { border-left: 3px solid var(--rule); padding: .1rem 0 .1rem 1.1rem; margin: 1.2rem 0; }
+  .explain p { margin: .35rem 0; }
+  .explain b { font-family: var(--sans); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 11 · Task statements 4.3 and 2.1</p>
+  <h1>What a schema is, and what it can't promise</h1>
+  <p class="subtitle">Objective 22 scored 67% and objective 24 scored 50%. Both depend on this one idea.</p>
+
+  <p>When an application asks for "a JSON record for an invoice", there are many valid ways to write one. Your code can only read one of them. A <strong>schema</strong> is a written description of that one shape: which fields must be present, what type each value is, and which values are allowed. <a href="https://json-schema.org/understanding-json-schema/about">JSON Schema</a> describes itself as "a declarative format for describing the structure of other data". A schema is data, not a program, and it's written in JSON itself.</p>
+
+  <p>Data either <em>validates</em> against a schema (it fits the shape) or it doesn't. That pass-or-fail check is the whole point. Your downstream code can then rely on the shape without checking it again.</p>
+
+  <blockquote class="key">
+    A schema is a contract about <strong>shape</strong>. It can guarantee that a field exists and is a number. It can't guarantee that the number is <strong>true</strong>.
+  </blockquote>
+
+  <h2>Reading one, keyword by keyword</h2>
+  <p>Here is an invoice-extraction schema. Each keyword shown is in the exam guide's JSON Schema list (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide, technologies appendix</a>), which covers required and optional fields, enums, nullable fields, and an "other" value paired with a detail string.</p>
+
+<pre class="schema">{
+  "type": "object",                        <span class="c">← the output is one JSON object</span>
+  "properties": {                          <span class="c">← the fields it may contain</span>
+    "invoice_number": { "type": "string" },
+    "total":          { "type": "number" },  <span class="c">← "42.50" (a string) fails, 42.5 passes</span>
+    "due_date":       { "type": ["string", "null"] },  <span class="c">← nullable: null is a legal answer</span>
+    "doc_type": {
+      "type": "string",
+      "enum": ["invoice", "credit_note", "other", "unclear"]  <span class="c">← only these values</span>
+    },
+    "doc_type_detail": { "type": ["string", "null"] }  <span class="c">← says what "other" means</span>
+  },
+  "required": ["invoice_number", "total", "due_date", "doc_type", "doc_type_detail"],
+  "additionalProperties": false            <span class="c">← no fields beyond the list</span>
+}</pre>
+
+  <p>Note that <code>due_date</code> is in <code>required</code> <em>and</em> nullable. "Required" means the key must appear. Nullable means its value may be <code>null</code>. Together they say: always tell me about the due date, and if there isn't one, say so with <code>null</code>. The type-array syntax <code>["string", "null"]</code> appears in <a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs#schema-complexity-limits">Anthropic's structured-outputs docs</a>, and <code>additionalProperties</code> "must be set to <code>false</code> for objects" there.</p>
+
+  <h2>Where schemas show up in the exam</h2>
+  <table class="cgrid">
+    <tr><th>Place</th><th>What the schema constrains</th></tr>
+    <tr><td><code>tools[].input_schema</code></td><td>The arguments Claude passes when it calls a tool. The <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools">define-tools docs</a>: "A JSON Schema object defining the expected parameters for the tool." An extraction tool uses this as its output shape (guide 4.3).</td></tr>
+    <tr><td><code>strict: true</code> on a tool</td><td>Guarantees that tool's name and inputs match its schema (<a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">structured outputs</a>).</td></tr>
+    <tr><td><code>output_config.format</code></td><td>Claude's own reply: valid JSON matching the schema, returned in a text block (<a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">structured outputs</a>).</td></tr>
+    <tr><td>Claude Code <code>--json-schema</code></td><td>The result of a headless <code>-p</code> run with <code>--output-format json</code>, for CI (guide 3.6).</td></tr>
+  </table>
+  <p>Enforcement works by <em>constrained decoding</em>: the schema is compiled into a grammar, and Claude can only produce tokens that keep the output valid. That's why the docs can say "No more <code>JSON.parse()</code> errors". The guide (v0.2) frames the same idea as tool use with a schema being "the most reliable approach for guaranteed schema-compliant structured output" (4.3).</p>
+
+  <h2>What a schema can't do</h2>
+  <p>JSON Schema's own docs explain the limit. Because a schema can't contain code, there are "constraints on the relationships between data elements that can't be expressed", so real validation has two phases: structural, then semantic. The guide tests exactly this split (4.3, 4.4):</p>
+  <table class="cgrid">
+    <tr><th>Error</th><th>Schema stops it?</th><th>Who catches it</th></tr>
+    <tr><td>Missing brace, wrong type, missing required key</td><td class="y">✓ eliminated</td><td>Constrained decoding</td></tr>
+    <tr><td>Line items sum to 940, <code>total</code> says 1,040</td><td class="n">✗</td><td>Your validation code, then retry with the error</td></tr>
+    <tr><td>Vendor's name in the <code>customer</code> field</td><td class="n">✗</td><td>Your validation code or a reviewer</td></tr>
+    <tr><td>Plausible value invented for an absent field</td><td class="n">✗ <span class="why">the schema can cause this</span></td><td>Schema design (next section)</td></tr>
+  </table>
+
+  <h2>The fabrication trap</h2>
+  <p>Suppose <code>due_date</code> were <code>{"type": "string"}</code> and required, and a document has no due date. Constrained decoding <em>forces</em> a string to appear, so the only valid outputs are invented dates. The schema left Claude no truthful answer. The guide's fix is to make a field optional (nullable) whenever the source documents might lack that information, so the model isn't pushed into fabricating a value just to satisfy a required field (4.3).</p>
+  <p>Enums fail the same way. If <code>doc_type</code> allows only <code>invoice</code> and <code>receipt</code>, a credit note gets filed as one of them. Add <code>"unclear"</code> for ambiguous cases, and <code>"other"</code> plus a detail string for categories you didn't foresee (4.3).</p>
+
+  <div class="trap">
+    <b>Exam pattern.</b> When a stem says extractions contain <em>plausible but wrong</em> values for data that is sometimes missing, the cause is the schema, not the prompt. "Tell the model not to guess" only makes guessing less likely. A nullable field, or an <code>other</code>/<code>unclear</code> enum value, gives Claude a legal way to tell the truth. This is the same reduce-versus-remove distinction from Lesson 5.
+  </div>
+
+  <h2>Explain it back (answer in chat)</h2>
+  <div class="explain">
+    <p><b>1</b> In two sentences: what is a schema, and why does validation need a second, semantic phase?</p>
+    <p><b>2</b> Why can a strict schema make fabrication <em>more</em> likely than a loose prompt? Use the word "required" in your answer.</p>
+    <p><b>3</b> <code>input_schema</code> and <code>output_config.format</code> both hold a JSON Schema. What does each one constrain?</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Retrieve it</h2>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher, so ask me anything.</strong> Paste a schema you've seen in a question or a doc and we'll read it keyword by keyword. Next up is tool descriptions (objective 27, 0%): the schema says what a tool accepts, and the description tells Claude when to call it.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Primary sources:</strong> <a href="https://json-schema.org/understanding-json-schema/about">JSON Schema, "What is a schema?"</a> (a 5-minute read, and the clearest statement of the structural-versus-semantic split), then <a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">Anthropic, Structured outputs</a>; read "How it works" and "JSON Schema limitations". Both fetched 2026-10-03.</p>
+    <p><strong>Exam mapping:</strong> guide task statement 4.3 in <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">the official guide</a>; score-report objectives 21–24. Quick reference: <a href="../reference/json-schema.html">JSON Schema card</a>.</p>
+    <p><strong>Previous:</strong> <a href="0010-tool-choice-and-sequencing.html">Lesson 10 — Who gets which tools, and when they must call one</a> · <strong>Next:</strong> <a href="0012-subagent-context-isolation.html">Lesson 12 — Subagent context isolation</a></p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "A schema declares <code>\"total\": {\"type\": \"number\"}</code> and lists <code>total</code> as required. Which output fails validation?",
+    opts: [
+      "<code>{\"total\": 42.5}</code>",
+      "<code>{\"total\": \"42.50\"}</code>",
+      "<code>{\"total\": 0}</code>",
+      "<code>{\"total\": -3}</code>"
+    ],
+    ok: 1,
+    fb: "\"42.50\" in quotes is a string, not a number. Zero and negative numbers are still numbers. A schema checks type, not whether the value makes sense, which is why -3 passes."
+  },
+  {
+    stem: "An extraction tool uses a strict JSON schema. One invoice's line items sum to 940, but its <code>total</code> field says 1040. What catches this?",
+    opts: [
+      "The JSON schema rejects it before the reply comes back",
+      "Constrained decoding stops sums from disagreeing",
+      "Your own code checks the sum after the schema passes",
+      "Setting tool_choice to any makes the totals agree"
+    ],
+    ok: 2,
+    fb: "Both values are valid numbers, so the shape is correct. A schema can't express relationships between fields; that's the semantic phase, and it's your code's job. On a failure, retry with the specific error attached (guide 4.4). tool_choice controls <em>whether</em> a tool is called, not what's in it."
+  },
+  {
+    stem: "About 30% of contracts have no termination date. The schema makes <code>termination_date</code> a required string. Every extraction comes back with a plausible date. Best fix?",
+    opts: [
+      "Allow null for termination_date in the schema",
+      "Tell the prompt to never invent dates it can't see",
+      "Retry the extraction whenever a date looks odd",
+      "Add a validator that rejects all dates in the past"
+    ],
+    ok: 0,
+    fb: "The schema forces a string, so for those 30% the only valid outputs are invented dates. Allowing null gives Claude a truthful option, which removes the cause. The prompt rule only makes guessing less likely. A retry runs into the same schema. The past-date validator rejects real dates too."
+  },
+  {
+    stem: "<code>doc_type</code> is an enum of invoice, receipt and purchase_order. Credit notes keep arriving and get labelled \"invoice\". Best schema change?",
+    opts: [
+      "Drop the enum and make doc_type a free-text field",
+      "Add a prompt rule that says never to guess the type",
+      "Try to list every possible document type in the enum",
+      "Add an \"other\" value plus a free-text detail field"
+    ],
+    ok: 3,
+    fb: "The guide's pattern (4.3) is \"other\" plus a detail string. Downstream code still gets a fixed set of values, and an unforeseen type is recorded honestly. Free text gives up the consistency the enum was there for. You can't list every type in advance. The prompt rule doesn't help, because the schema has no truthful value to pick."
+  },
+  {
+    stem: "You want Claude's final reply itself to be schema-valid JSON in a text block, with no tool call involved. Which request field carries the schema?",
+    opts: [
+      "<code>output_config.format</code>",
+      "<code>tools[].input_schema</code>",
+      "<code>tool_choice: \"any\"</code>",
+      "<code>strict: true</code> on a tool"
+    ],
+    ok: 0,
+    fb: "output_config.format constrains Claude's own reply. input_schema and strict constrain the arguments of a <em>tool call</em>. tool_choice only decides whether a tool must be called. All four can appear in the same request, but only one is for this job."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

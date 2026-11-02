@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 23 — When does it fire?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+  .tl { display: grid; grid-template-columns: 8.2rem repeat(4, minmax(0, 1fr)); margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .82rem; line-height: 1.35; }
+  .tl > div { border-top: 1px solid var(--rule); padding: .55rem .5rem; min-width: 0; overflow-wrap: anywhere; }
+  .tl .hd { font-weight: 600; color: var(--ink-soft); font-size: .76rem; background: var(--code-bg); border-top: 0; }
+  .tl .lane { font-weight: 700; }
+  .tl .lane small { display: block; font-weight: 400; color: var(--ink-soft); margin-top: .2rem; }
+  .tl .on { background: var(--good-bg); }
+  .tl .on b { color: var(--good); }
+  .tl .gone { color: var(--ink-soft); font-style: italic; }
+  .tl .warn { background: var(--bad-bg); }
+  .tl .warn b { color: var(--bad); }
+  @media (max-width: 38rem) { .tl { grid-template-columns: 4.6rem repeat(4, minmax(0, 1fr)); font-size: .7rem; } .tl > div { padding: .4rem .3rem; } }
+  @media print { .tl .hd, .tl .on, .tl .warn { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 23 · Domains 2 and 3 · Task statements 3.1, 3.3, 2.4</p>
+  <h1>When does it fire?</h1>
+  <p class="subtitle">Lesson 19 gave you two questions: who gets it, and where it loads. Five of your recent misses got both right and still picked the wrong file, because the file switches on at the wrong moment.</p>
+
+  <blockquote class="key">
+    After "who needs it?" and "which projects?", ask a third plain question: <strong>when should it switch on?</strong><br>
+    1. <strong>Every session</strong>, without anyone remembering → <code>CLAUDE.md</code>, <code>~/.claude/CLAUDE.md</code>, <code>CLAUDE.local.md</code>, an <code>@import</code><br>
+    2. <strong>When Claude touches certain files</strong> → a <code>.claude/rules/</code> file with <code>paths</code><br>
+    3. <strong>When someone decides to start a task</strong> → a skill<br>
+    4. <strong>Just now, for this one session</strong> → say it in the prompt, and store nothing
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> Four ways to get a message to someone at work.</p>
+  <ul class="steps">
+    <li><strong>The noticeboard by the door.</strong> Everyone reads it every morning on the way in. (Every session.)</li>
+    <li><strong>A sign taped to the printer.</strong> You only read it when you go to use the printer. (When certain files are touched.)</li>
+    <li><strong>The recipe binder on the shelf.</strong> Nobody reads it until they decide to cook that dish. (When someone starts a task.)</li>
+    <li><strong>Telling a colleague something in person, today.</strong> It's gone tomorrow, and nobody has to take a note down. (This session only.)</li>
+  </ul>
+  <p>"Always sign your emails this way" belongs on the noticeboard, not in the recipe binder: nobody opens the binder before every email. "Today, use the second tray" is said in person; pin it to the noticeboard and people are still following it next week.</p>
+
+  <p><strong>Where this has cost you points.</strong> Five questions, in full, with your pick and the correct answer. The first three picked the wrong <em>trigger</em>. The last two reached for <code>CLAUDE.local.md</code> where it doesn't fit.</p>
+<section class="mc">
+  <p class="mc-h">D2/D3 paper, 19 Oct, Q14</p>
+  <p class="mc-stem">An engineer wants Claude to <mark>write commit messages in their own format</mark>: a 50-character summary, then a bullet list. They work in 6 repositories, <mark>want it in all of them</mark>, and none of the teams in those repositories should be affected. They have started adding the same lines to a CLAUDE.local.md in each repository, one at a time. Where should the instruction live?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>In a skill in ~/.claude/skills/ that they invoke before each commit</div><div class="mc-k"><b>✓ Correct: B</b>In their own ~/.claude/CLAUDE.md, loaded in each of their projects</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>In a CLAUDE.local.md in each of the 6 repositories, kept out of git</span></li><li><span class="mc-l">C</span><span>In each repository's root CLAUDE.md, under a heading with their name</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> who and where were right: just me, all my projects. The miss was <em>when</em>. A skill runs only when someone invokes it, by typing <code>/name</code> or when Claude decides it's relevant. A format for <em>every</em> commit has to be there every session, without anyone remembering. Me × all projects × every session is <code>~/.claude/CLAUDE.md</code>.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D2/D3 paper, 19 Oct, Q16</p>
+  <p class="mc-stem">The monorepo has 5 Django apps, each with its own CLAUDE.md, and 3 standards files: api.md, testing.md and celery.md. Each app's CLAUDE.md <mark>holds pasted copies</mark> of the 1 or 2 standards that apply to it, and after 4 months <mark>the copies differ from the originals in 9 places</mark>. Only the 2 apps that run background jobs need celery.md. What is the best way to organise this?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Turn each standards file into a skill that engineers run when they start work in an app</div><div class="mc-k"><b>✓ Correct: A</b>Have each app's CLAUDE.md @import just the standards files that apply to it</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Paste the 3 standards into the root CLAUDE.md, under headings that name their apps</span></li><li><span class="mc-l">D</span><span>Keep the copies and add a CI check that fails when an app's copy differs from the original</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the real problem was drift between copies, and a skill does fix the copies. But it changes <em>when</em> the standards apply: only when someone remembers to run it. Standards must hold whenever Claude works in the app, so they stay every-session. <code>@import</code> keeps them every-session and gives one source: each app's CLAUDE.md pulls in just the files it needs, and they load with it.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Lesson 21 quiz, 19 Oct, Q6</p>
+  <p class="mc-stem">A 250-line checklist for cutting a release sits in the root CLAUDE.md. Releases happen about once a month, <mark>when someone decides to start one</mark>, and they <mark>aren't tied to editing any particular files</mark>. Where should the checklist go?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A .claude/rules/ file with paths set to release/** for the checklist</div><div class="mc-k"><b>✓ Correct: D</b>A project skill, /cut-release, that people run to start a release</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>An @import of a release.md file from the root CLAUDE.md instead</span></li><li><span class="mc-l">C</span><span>A CLAUDE.md in the release/ folder, loaded when Claude works there</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the mirror image of Q14 and Q16. A <code>paths</code> rule fires when Claude reads or edits a matching file. A release starts when a person decides to start one, and the stem says it isn't tied to any files. Something that starts with a person's choice is on demand: a skill.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D2/D3 paper, 19 Oct, Q7</p>
+  <p class="mc-stem">One of your 14 engineers wants to try an experimental profiling MCP server that is still unstable. They want it <mark>in all 4 repositories they work in</mark>, and <mark>no teammate should see it or be asked to approve it</mark>. The warehouse repository already has a committed .mcp.json with 3 team servers. Where should the server be configured?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>In a CLAUDE.local.md in each of the 4 repositories, as the server's launch command</div><div class="mc-k"><b>✓ Correct: B</b>At user scope in their own ~/.claude.json, added once with claude mcp add --scope user</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>In the warehouse repo's committed .mcp.json, with its entry marked as experimental and optional</span></li><li><span class="mc-l">C</span><span>With claude mcp add run from inside the warehouse repo, leaving the scope at its default setting</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> two things. <code>CLAUDE.local.md</code> holds instructions; Claude Code never starts an MCP server from it. And it covers one repository, so four copies for &ldquo;all my repositories&rdquo;. MCP has its own copy of the map, chosen with <code>--scope</code>: me × all projects is <code>--scope user</code>, kept in <code>~/.claude.json</code>.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D2/D3 paper, 19 Oct, Q22</p>
+  <p class="mc-stem">For a 1-day performance spike, a developer wants Claude to add timing logs around each database call in checkout/reserve.ts, and only in that file. They will try it <mark>in today's session only</mark> and then discard the changes, and <mark>from tomorrow they are back on normal work in that same file</mark>, where timing logs must not be added. A teammate suggests a .claude/rules/ file with paths set to checkout/reserve.ts. What is the best way to give Claude the instruction?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add it to their CLAUDE.local.md, then delete the line after the spike</div><div class="mc-k"><b>✓ Correct: B</b>Say it in today's session prompt and name checkout/reserve.ts as the file</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Create .claude/rules/spike.md with paths set to reserve.ts, left uncommitted</span></li><li><span class="mc-l">D</span><span>Create a /spike-timing skill in ~/.claude/skills/ and run it today</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> just me was right. But <code>CLAUDE.local.md</code> loads at the start of <em>every</em> session in this repo, for any file, until someone deletes the line. The instruction is for today only, and tomorrow's work in the same file must not get it. This-session-only means no file at all: say it in today's prompt.</div>
+</section>
+  <p>In Q14 and Q16 something that must always apply was put somewhere that runs only when started. In lesson 21's Q6 it went the other way: something started by a person was tied to files. Q7 and Q22 picked the one file that sounds "personal", without checking what it holds or when it loads.</p>
+
+  <h2>1 · The four triggers</h2>
+  <p>Read across: when it switches on, what lives there, and the words in a stem that point to it.</p>
+  <table class="cgrid">
+    <tr><th>When it switches on</th><th>What fires this way</th><th>Words in the stem that point here</th></tr>
+    <tr><td><strong>Every session</strong>, at launch</td><td><code>CLAUDE.md</code> / <code>.claude/CLAUDE.md</code>, <code>~/.claude/CLAUDE.md</code>, <code>CLAUDE.local.md</code>, anything they <code>@import</code>, a rules file with no <code>paths</code>. MCP servers too: they're there in every session in their scope.</td><td>"always", "every commit", "standards", "conventions", "preference", "whenever Claude works in…"</td></tr>
+    <tr><td><strong>On file access</strong>, when Claude reads or edits a matching file</td><td>A <code>.claude/rules/</code> file with <code>paths</code>; a <code>CLAUDE.md</code> inside a subfolder</td><td>a kind of file ("every <code>*.sql</code>"), a folder, "only when editing…", spread across many directories</td></tr>
+    <tr><td><strong>On demand</strong>, when someone starts it</td><td>A skill: you type <code>/name</code>, or Claude judges it relevant to your request</td><td>"when someone decides", "once a month", a workflow, a checklist, "run it", "isn't tied to any files"</td></tr>
+    <tr><td><strong>This session only</strong></td><td>What you type in the prompt, including <code>@path/to/file</code></td><td>"today", "one investigation", "then discard", "tomorrow, back to normal"</td></tr>
+  </table>
+  <p>Two details from the docs that the misses turned on:</p>
+  <ul class="steps">
+    <li><strong><code>@import</code> loads at launch</strong>, together with the <code>CLAUDE.md</code> that names it. It doesn't make anything on-demand. It just lets one file be the source for many (Q16).</li>
+    <li><strong>A skill's body loads only when it's used.</strong> That's its strength for a long checklist, and why it's wrong for a rule that has to hold on every commit (Q14).</li>
+  </ul>
+
+  <h2>2 · Why "store it, then delete it later" loses</h2>
+  <p>The timeline below follows one developer across two days. Green means the thing is in Claude's context at that moment. Every stored file comes back at the next launch. Only the prompt goes away by itself.</p>
+  <div class="tl" role="table" aria-label="What is loaded at four moments across two sessions">
+    <div class="hd" role="columnheader"></div>
+    <div class="hd" role="columnheader">Today: session starts</div>
+    <div class="hd" role="columnheader">Claude edits <code>reserve.ts</code></div>
+    <div class="hd" role="columnheader">You type <code>/cut-release</code></div>
+    <div class="hd" role="columnheader">Tomorrow: new session</div>
+
+    <div class="lane" role="rowheader">Every session<small><code>CLAUDE.local.md</code></small></div>
+    <div class="on" role="cell"><b>Loaded</b></div>
+    <div class="on" role="cell"><b>Loaded</b></div>
+    <div class="on" role="cell"><b>Loaded</b></div>
+    <div class="warn" role="cell"><b>Loaded again</b>, unless someone deleted the line</div>
+
+    <div class="lane" role="rowheader">File access<small><code>paths</code> rule on <code>reserve.ts</code></small></div>
+    <div class="gone" role="cell">not yet</div>
+    <div class="on" role="cell"><b>Loads now</b></div>
+    <div class="on" role="cell"><b>Still loaded</b></div>
+    <div class="warn" role="cell"><b>Loads again</b> as soon as the file is touched</div>
+
+    <div class="lane" role="rowheader">On demand<small>skill <code>/cut-release</code></small></div>
+    <div class="gone" role="cell">only its description</div>
+    <div class="gone" role="cell">only its description</div>
+    <div class="on" role="cell"><b>Loads now</b></div>
+    <div class="gone" role="cell">only its description, until run again</div>
+
+    <div class="lane" role="rowheader">This session<small>said in today's prompt</small></div>
+    <div class="on" role="cell"><b>Said</b></div>
+    <div class="on" role="cell"><b>In the chat</b></div>
+    <div class="on" role="cell"><b>In the chat</b></div>
+    <div class="gone" role="cell">gone, nothing to clean up</div>
+  </div>
+  <p>That's Q22. The timing logs were for today only, and tomorrow's work in the same file must not get them. <code>CLAUDE.local.md</code> and a <code>paths</code> rule both show up in the right-hand column. The prompt is the only row that's empty there without anyone having to remember to delete a line.</p>
+
+  <h2>3 · The whole map, with the third question added</h2>
+  <p>Lesson 19's map, as one table. Find the row whose three answers match the stem.</p>
+  <table class="cgrid">
+    <tr><th>Location</th><th>Who gets it</th><th>Which projects</th><th>When it fires</th></tr>
+    <tr><td><code>CLAUDE.md</code> (root or <code>.claude/</code>)</td><td>Team</td><td>This one</td><td>Every session</td></tr>
+    <tr><td><code>@import</code> from a <code>CLAUDE.md</code></td><td>Same as the file that imports it</td><td>Same</td><td>Every session, with that file</td></tr>
+    <tr><td><code>CLAUDE.local.md</code></td><td>Just me</td><td>This one</td><td>Every session, until deleted</td></tr>
+    <tr><td><code>~/.claude/CLAUDE.md</code></td><td>Just me</td><td>All mine</td><td>Every session</td></tr>
+    <tr><td><code>.claude/rules/</code> with <code>paths</code></td><td>Team</td><td>This one</td><td>When a matching file is read or edited</td></tr>
+    <tr><td><code>.claude/skills/</code></td><td>Team</td><td>This one</td><td>On demand</td></tr>
+    <tr><td><code>~/.claude/skills/</code></td><td>Just me</td><td>All mine</td><td>On demand</td></tr>
+    <tr><td>The prompt (incl. <code>@file</code>)</td><td>Just me</td><td>This session</td><td>Now only</td></tr>
+  </table>
+  <p><strong>MCP servers have their own copy of the who/where grid</strong>, chosen with <code>claude mcp add --scope</code>. A server is there in every session wherever its scope applies.</p>
+  <table class="cgrid">
+    <tr><th><code>--scope</code></th><th>Stored in</th><th>Who gets it</th><th>Which projects</th></tr>
+    <tr><td><code>local</code> (the default)</td><td><code>~/.claude.json</code>, under this project's path</td><td>Just me</td><td>This one</td></tr>
+    <tr><td><code>project</code></td><td><code>.mcp.json</code>, committed</td><td>Team (each person approves it once)</td><td>This one</td></tr>
+    <tr><td><code>user</code></td><td><code>~/.claude.json</code></td><td>Just me</td><td>All mine</td></tr>
+  </table>
+  <p>It's the same grid as instructions: <code>local</code> matches <code>CLAUDE.local.md</code>, <code>project</code> matches <code>CLAUDE.md</code>, <code>user</code> matches <code>~/.claude/CLAUDE.md</code>. But the files don't swap. An MCP server only ever goes in an MCP location, which is the first thing wrong with Q7's pick.</p>
+
+  <h2>4 · What <code>CLAUDE.local.md</code> is, and isn't</h2>
+  <p>It is <strong>instructions, for me, in this one repo, in every session, until I delete them</strong>. Each part of that rules something out:</p>
+  <ul class="steps">
+    <li><strong>Instructions</strong>: not MCP config (Q7), not a skill (mock Q19).</li>
+    <li><strong>This one repo</strong>: not "all my repositories" (Q7, Q14's option A). That's <code>~/.claude/CLAUDE.md</code>, or <code>--scope user</code> for a server.</li>
+    <li><strong>Every session, until deleted</strong>: not a note for today (Q22). That's the prompt.</li>
+  </ul>
+  <p>When a stem has two constraints, such as "in all 4 repositories" <em>and</em> "no teammate should see it", check the pick against each one in turn before moving on. In Q7, <code>CLAUDE.local.md</code> passed the second and failed the first.</p>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>Why is a skill the wrong home for a commit-message format you want on every commit?</li>
+    <li>When does an <code>@import</code>ed file load?</li>
+    <li>You want Claude to do something today only, in one file. Why not <code>CLAUDE.local.md</code>?</li>
+  </ol>
+
+  <h2>Retrieval check</h2>
+  <p>Six new cases. For each, answer the three questions before you read the options: who, which projects, and when it should switch on. Then check the pick against every constraint in the stem.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If two options both look like the right box, bring them here and we'll check when each one switches on.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/memory">Claude Code docs: How Claude remembers your project</a> (fetched 2026-10-19). "CLAUDE.md and CLAUDE.local.md files in the directory hierarchy above the working directory are loaded at launch. Files in subdirectories load on demand." Imported files "are expanded and loaded into context at launch alongside the CLAUDE.md that references them". "Rules without a paths field are loaded unconditionally"; a path-scoped rule "loads when Claude uses the Read, Write, or Edit tool on a matching file". Skills "only load when you invoke them or when Claude determines they're relevant to your prompt."<br>
+    <strong>Also cited:</strong> <a href="https://code.claude.com/docs/en/skills">Skills docs</a>: "Unlike CLAUDE.md content, a skill's body loads only when it's used." <a href="https://code.claude.com/docs/en/mcp">MCP docs</a>: a local-scoped server "loads only in the project where you added it and stays private to you", stored in <code>~/.claude.json</code> under that project's path; project scope is <code>.mcp.json</code>, checked in, with an approval prompt before use. Both fetched 2026-10-19.
+    <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 2.4, 3.1, 3.2, 3.3.<br>
+    <strong>Miss history:</strong> learning records 0027 (representative mock), 0030 (lesson 21 Q6), 0031 (D2/D3 paper Q7, Q14, Q16, Q22).<br>
+    <strong>Previous:</strong> <a href="0019-who-gets-it-where-it-loads.html">Lesson 19 — Who gets it, and where does it load?</a> · <a href="0021-use-the-switch-claude-code-has.html">Lesson 21 — Use the switch Claude Code already has</a> · <strong>Reference:</strong> <a href="../reference/scope-map.html">Scope map</a> · <a href="../reference/skills-and-rules.html">Skills and rules cheat sheet</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A developer wants Claude to explain each shell command before running it. They want to set it up once, in one place, and have it in every session in all 5 repositories they work in. None of their teammates should get it. Where should the instruction go?",
+    opts: [
+      "A personal skill in ~/.claude/skills/ that they run each morning",
+      "A CLAUDE.local.md at the root of each of the 5 repositories",
+      "Their own ~/.claude/CLAUDE.md, which loads in each session",
+      "Each repository's root CLAUDE.md, under a heading with their name"
+    ],
+    ok: 2,
+    fb: "Three answers: just me, all my projects, every session. That's ~/.claude/CLAUDE.md. A is the Q14 pick: a skill runs only when started, and 'each morning' is someone remembering. B fails 'in one place': CLAUDE.local.md is one repo, so it needs 5 copies, and the next repo needs a sixth. D is shared with each team."
+  },
+  {
+    stem: "Database migrations live in db/migrations/ in each of 3 services. The team's 80 lines of migration rules sit in the root CLAUDE.md, so they load in every session. They should apply for everyone whenever Claude edits a migration, and stay out of other sessions. What is the best fix?",
+    opts: [
+      "A project skill, /migration-rules, that engineers run first",
+      "A .claude/rules/ file with paths set to **/db/migrations/**",
+      "An @import of migrations.md from the root CLAUDE.md file",
+      "The same 80 lines in each engineer's own CLAUDE.local.md"
+    ],
+    ok: 1,
+    fb: "Two constraints: everyone, and only when a migration is touched. A paths rule fires on file access and is committed for the team. C passes 'everyone' but fails the second: an @import loads at launch with CLAUDE.md, so every session still pays. A depends on someone remembering to run it. D loads in every session too, and it's 3 or more copies to keep in step."
+  },
+  {
+    stem: "Once a quarter a team lead decides to run a 90-line access review: list who has admin rights, compare with HR's list, and draft removals. Any of the 8 engineers might run it. It isn't tied to any particular files, and it shouldn't cost tokens in daily sessions. Where should it go?",
+    opts: [
+      "A .claude/rules/ file with paths set to the infra/iam/ folder",
+      "The 90 lines in the root CLAUDE.md under an Access heading",
+      "An @import of access-review.md from the root CLAUDE.md",
+      "A project skill in .claude/skills/, named /access-review"
+    ],
+    ok: 3,
+    fb: "When does it switch on? When a person decides to start it. That's on demand: a skill, committed so all 8 have it. A is the lesson 21 Q6 pick: it fires on file access, and the stem says no files are involved. B and C both load at launch, so every daily session pays for a quarterly job."
+  },
+  {
+    stem: "A developer is chasing a flaky test. For this afternoon only, they want Claude to run the test 20 times after each change to src/queue.ts. From tomorrow, normal edits to that file should run it once, as usual. How should they tell Claude?",
+    opts: [
+      "Say it in this afternoon's prompt, naming src/queue.ts",
+      "Add it to their CLAUDE.local.md, and delete it tonight",
+      "A .claude/rules/ file with paths set to src/queue.ts",
+      "A personal skill, /flaky-20, run after each change today"
+    ],
+    ok: 0,
+    fb: "This session only, so nothing is stored: say it in the prompt. B is the Q22 pick: CLAUDE.local.md loads at every launch until someone remembers to delete the line, and tomorrow's work would get it. C loads again tomorrow the moment queue.ts is opened. D is a reusable workflow for something that happens once, and it stays in their folder afterwards."
+  },
+  {
+    stem: "A contractor wants a read-only Postgres MCP server for one client's project, using their own login. It must not appear in their other projects, and teammates on that client's project must not see it. How should they add it?",
+    opts: [
+      "claude mcp add --scope user, saved in their ~/.claude.json",
+      "claude mcp add --scope project, saved in the repo .mcp.json",
+      "claude mcp add at default local scope, from that project",
+      "A CLAUDE.local.md in that project with the launch command"
+    ],
+    ok: 2,
+    fb: "Just me, this one project: local scope, the default. It's kept in ~/.claude.json under that project's path. A passes 'teammates must not see it' but fails 'not in other projects': user scope is all my projects. B is shared with the team through git. D is the Q7 pick: CLAUDE.local.md holds instructions, and Claude Code never starts a server from it."
+  },
+  {
+    stem: "The team's API error-format standard, 40 lines, lives in docs/errors.md. Engineers want Claude to follow it in every session in this repo, and the docs team wants docs/errors.md kept as the only copy. What should they do?",
+    opts: [
+      "Add @docs/errors.md to the root CLAUDE.md and commit that",
+      "Paste the 40 lines into the root CLAUDE.md; delete the doc",
+      "Make docs/errors.md a project skill that Claude can call",
+      "A .claude/rules/ file with paths set to docs/errors.md"
+    ],
+    ok: 0,
+    fb: "Two constraints: every session, and one copy. An @import loads at launch with CLAUDE.md, and the content stays in docs/errors.md. B is every session but moves the source out of the docs team's file. C is the Q16 pick: a skill applies only when used, not in every session. D fires only when someone touches the standard's own file, not when Claude writes API code."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

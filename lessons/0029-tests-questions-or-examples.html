@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 29 — Tests, questions or examples?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  dl.words { margin: 1rem 0 1.6rem; }
+  dl.words dt { font-weight: 700; margin-top: .7rem; }
+  dl.words dd { margin: .15rem 0 0 1.2rem; }
+  .check { background: var(--code-bg); border-radius: 6px; padding: .8rem 1rem; margin: 1rem 0 1.4rem; }
+  .flows { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .82rem; line-height: 1.35; }
+  .flows > div { border: 1px solid var(--rule); border-radius: 6px; padding: .7rem .8rem; }
+  .flows h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 .2rem; }
+  .flows .clue { color: var(--ink-soft); font-style: italic; margin: 0 0 .6rem; }
+  .flows .st { border: 1px solid var(--rule); border-radius: 5px; padding: .3rem .45rem; margin: 0; background: var(--good-bg); }
+  .flows .st.ask { background: #fbf3c9; }
+  .flows .ar { text-align: center; color: var(--ink-soft); margin: .1rem 0; }
+  .flows .use { margin: .6rem 0 0; font-weight: 600; }
+  @media (max-width: 40rem) { .flows { grid-template-columns: 1fr; } }
+  @media print { .flows .st, .check { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 29 · Domains 3 and 4 · Task statements 3.5 and 4.2 (the exam is split into 5 domains, its main topic areas, and each domain into numbered task statements)</p>
+  <h1>Tests, questions or examples?</h1>
+  <p class="subtitle">Between 20 and 25 October you lost 7 questions on two topics, across 5 practice papers. This page shows all 7 in full; you don't need to remember any of them. Part 1 has 3 about which way to improve Claude's code (one of them you saw in Lesson 28). Part 2 has 1 about fixing several problems at once or one at a time. Part 3 has 3 about what to add to a prompt when rules aren't working.</p>
+  <p>Two topic numbers from the exam guide (the official guide that lists what the exam tests) are on this page. <strong>3.5</strong> is improving Claude's work round by round in Claude Code. <strong>4.2</strong> is putting examples in a prompt. They are your last 2 weak topics. On your September exam score report, the 3.5 objective came back at 25%.</p>
+
+  <p><strong>The plain question.</strong> Claude's output is wrong, or might be. What is missing: the cases to check, the knowledge of what the cases even are, or a picture of what right looks like?</p>
+
+  <p><strong>An everyday example.</strong> You're ordering a cake.</p>
+  <ul>
+    <li><strong>You know exactly what it should look like.</strong> Words keep getting it wrong ("3 tiers, not 3 layers"), so you show the baker a photo. That's examples.</li>
+    <li><strong>You have a list of must-haves:</strong> gluten-free, serves 40, ready by 2 pm. You check the cake against the list before you pay. That's tests.</li>
+    <li><strong>You've never ordered a wedding cake.</strong> You don't know what you don't know: will it melt in a marquee in summer? How does it travel? You let the baker ask <em>you</em> questions first. That's the interview.</li>
+  </ul>
+
+  <blockquote class="key">
+    <strong>The one idea:</strong> name what is missing, then pick the fix that supplies it.<br>
+    • The cases are known and listed → write tests first.<br>
+    • You know the right output, but words keep failing → show input/output examples.<br>
+    • Nobody knows the cases yet (a new area) → have Claude interview you.<br>
+    For prompts (4.2): no rules written yet → write the rules. Rules written, and new cases still slip past → 2–4 hard cases, each with the reason. And when a stem asks what to add <em>to the prompt</em>, an option that sends cases to a person is not a prompt change.
+  </blockquote>
+
+  <h2>Words to start with</h2>
+  <dl class="words">
+    <dt>Stem</dt><dd>The question's own text, above the four options.</dd>
+    <dt>Prompt</dt><dd>The written instructions given to the model for a task.</dd>
+    <dt>Tests first, share the failures</dt><dd>Write a set of automatic checks (a test suite) for what the code must do, before Claude changes it. Run them on each new version and paste the ones that fail back to Claude, until all pass.</dd>
+    <dt>Edge case</dt><dd>An unusual input that code must still handle, such as a public holiday or an empty field.</dd>
+    <dt>Input/output examples</dt><dd>A few real inputs, each with the exact output it should become. They show Claude the change instead of describing it.</dd>
+    <dt>The interview pattern</dt><dd>Before building, you ask Claude to question <em>you</em>: what could fail, what happens in odd cases, what the business cares about. It brings out things you hadn't thought of. The exam guide's examples are failure modes and cache invalidation (when stored copies of data go stale), in an area that is new to the developer.</dd>
+    <dt>Plan mode</dt><dd>A Claude Code mode where Claude explores the code and writes a plan, and edits nothing until you approve it. It plans how to build; it never runs or checks anything (Lesson 28).</dd>
+    <dt>Few-shot examples</dt><dd>Worked examples written into the prompt itself: an input, the right answer, and (for hard cases) why that answer and not the others. It is the same idea as input/output examples, used in a prompt instead of a coding chat.</dd>
+    <dt>Rules (the guide also says "explicit criteria")</dt><dd>Lines in the prompt that say what counts, for example which kinds of code change to flag and which to skip. Lesson 27 covers when to write them.</dd>
+    <dt>Consistency on 2 runs</dt><dd>Run the same document through twice; how often both runs give the same answer. A low number means the model is unsure on those cases.</dd>
+  </dl>
+  <p><strong>Words that appear in the past questions</strong> (you need these only to read the questions):</p>
+  <ul>
+    <li><em>Webhook:</em> a message one company's system sends to yours when something happens, such as "refund failed".</li>
+    <li><em>Merchandising team:</em> the people who plan which products to promote. <em>Demand model:</em> code that predicts how much will sell.</li>
+    <li><em>Portal, column header, query, help footer:</em> parts of a web app: a page, a table heading, a database lookup, the links at the bottom of a page.</li>
+    <li><em>In production:</em> in the live system. <em>ms:</em> milliseconds (1,000 ms = 1 second).</li>
+    <li><em>Tie-break rule:</em> a rule for which answer wins when a report fits more than one. <em>Assessor:</em> a person who checks insurance claims.</li>
+    <li><em>Subagent:</em> a second Claude run that the main agent gives one job to.</li>
+    <li><em>Fuel surcharge, port fees:</em> kinds of charge on a shipping invoice. "BAF" is a fuel charge.</li>
+  </ul>
+
+  <h2>Part 1 · Which way to improve Claude's code (3.5)</h2>
+  <div class="flows" aria-label="Diagram: three ways to improve Claude's output, with the stem clue for each">
+    <div>
+      <h3>Tests first</h3>
+      <p class="clue">"about 30 edge cases", a speed target, "the break was found in production" (question 15 below)</p>
+      <p class="st">Write tests for the known cases</p><p class="ar">↓</p><p class="st">Claude writes code</p><p class="ar">↓</p><p class="st">Paste failures back ↺</p>
+      <p class="use">The cases are known. Check every one, every round.</p>
+    </div>
+    <div>
+      <h3>Input/output examples</h3>
+      <p class="clue">Typical wording: "after 3 rounds of describing it in words, each attempt fixes one case and breaks another"</p>
+      <p class="st">Input → exact output</p><p class="ar">+</p><p class="st">Input → exact output</p><p class="ar">↓</p><p class="st">Claude matches the pattern</p>
+      <p class="use">You know the right output. Words keep failing.</p>
+    </div>
+    <div>
+      <h3>The interview</h3>
+      <p class="clue">"has never worked on retail forecasting", "Neither had occurred to the developer" (the two questions below)</p>
+      <p class="st ask">Claude asks you questions</p><p class="ar">↓</p><p class="st ask">Unknown cases come out</p><p class="ar">↓</p><p class="st">Then Claude builds</p>
+      <p class="use">Nobody knows the cases yet. Find them first.</p>
+    </div>
+  </div>
+  <p>The tell between tests and the interview is one question: <strong>could you write the test?</strong> If the stem lists the cases, yes, so write them. If the stem says the developer is new to the area and the misses were things nobody thought of, no: you can't write a test for a case nobody has thought of. That is the interview's job.</p>
+  <p>Each past question below starts with the name of the practice paper it came from and its number there; the full question is right under it. The next two are questions where the interview was the right answer. On the first you picked examples; on the second, tests.</p>
+
+<section class="mc">
+  <p class="mc-h">D2/D3 Paper 2, 20 Oct, question 29</p>
+  <p class="mc-stem">A developer who <mark>has never worked on retail forecasting</mark> must add promotion handling to the demand model. The ticket says only 'account for promotions'. On a similar ticket last quarter, the first version <mark>missed 2 effects the merchandising team cared about</mark> and was rewritten twice. The developer <mark>can't yet say which promotion effects matter</mark>. What should the developer do first?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>Give Claude 3 examples of promotion weeks and the expected output</div><div class="mc-k"><b>✓ Correct: B</b>Ask Claude to interview them about promotions before any code</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Ask Claude to implement it from the ticket, then review the result</span></li><li><span class="mc-l">C</span><span>Write tests first for the promotion cases they already know about</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>What is missing here is <em>knowledge</em>: the developer can't yet say which promotion effects matter, and last quarter the first version missed 2 effects nobody had thought of.</li><li>Examples (your pick) show Claude a change you can already describe: this input should become that output. You can't write the expected output for an effect you haven't thought of yet.</li><li>B, the interview: Claude asks <em>you</em> questions before writing any code (what counts as a promotion, what happens to demand the week after, and so on). That is how the effects nobody listed come out before the build, not after it.</li></ul></div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 4, 25 Oct, question 13</p>
+  <p class="mc-stem">A developer who <mark>has never worked with payment webhooks</mark> must add refunds for cancelled concerts through the payment provider. Last week, in plan mode, Claude wrote a plan the developer approved, but testing showed it missed that the provider can send the same webhook twice and that a refund can fail 1 hour after it starts. <mark>Neither had occurred to the developer</mark>. How should they start the next feature in this area?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Write tests for the refund flow first, then share the failures</div><div class="mc-k"><b>✓ Correct: B</b>Have Claude ask them about failure cases before it builds anything</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Use plan mode again, with a longer description of the refund flow</span></li><li><span class="mc-l">D</span><span>Give Claude 2 example refunds with the expected result of each</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The two failures (the same webhook sent twice, a refund failing an hour in) were ones the developer didn't know could happen. The next feature will have more like them.</li><li>Tests first (your pick) only check the cases you write down. Nobody writes a test for a duplicate webhook they've never heard of, so the tests would pass and the gap would stay.</li><li>Plan mode (A) was already tried: the approved plan missed both failures, because a plan is built from what the developer asked for.</li><li>B, the interview, is what brings the unknown cases out: Claude asks about failure cases before it builds anything.</li></ul></div>
+</section>
+
+  <p>Now the same line from the other side: a question where the cases <em>were</em> known, so tests were the answer and plan mode was your pick.</p>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 3, 24 Oct, question 15</p>
+  <p class="mc-stem">A developer wants Claude to rewrite the delivery-slot allocation function to run in under 50 ms for 5,000 orders; it takes 900 ms today. The function has <mark>about 30 edge cases</mark>, including order cut-off times, public holidays and drivers' maximum shifts. Last quarter a faster version from Claude broke public-holiday handling, and <mark>the break was found in production</mark>. How should the developer approach the rewrite?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Use plan mode to have Claude design the faster algorithm before coding it</div><div class="mc-k"><b>✓ Correct: A</b>Write tests for the edge cases and the 50 ms target first, then share failures</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Give Claude 3 orders with the exact slots each should get, holidays included</span></li><li><span class="mc-l">D</span><span>Ask Claude to explain in prose how its new version handles each edge case</span></li></ul></details>
+  <div class="mc-why"><strong>The other side of the same line</strong> (you saw this card in Lesson 28):<ul><li>Here the cases <em>are</em> known: about 30 edge cases, named (cut-off times, public holidays, drivers' maximum shifts), plus a 50 ms target. Nothing needs asking about.</li><li>What went wrong last time was a break nobody noticed until it was live. Only running tests catches that: write tests for the 30 cases and the 50 ms target first, run them on each new version, and paste the failures back to Claude.</li><li>Plan mode (your pick) designs the algorithm but never runs anything. The interview would ask questions the team can already answer.</li></ul></div>
+</section>
+
+  <div class="check"><strong>The check:</strong> before the options, finish the sentence "The cases are ___": "listed in the stem" (tests first), "known, but Claude keeps misreading them" (input/output examples), or "not known yet, the area is new" (the interview).</div>
+
+  <h2>Part 2 · All in one message, or one at a time? (3.5)</h2>
+  <p>When review finds several problems, the stem tells you whether the fixes touch each other.</p>
+  <table class="cgrid">
+    <tr><th>The stem says</th><th>Do this</th><th>Why</th></tr>
+    <tr><td>"All 3 change the same steps", "fixing one changes where the others go"</td><td>Describe all of them in one detailed message</td><td>Fixed one at a time, each fix would undo or clash with the last.</td></tr>
+    <tr><td>"Different files", "don't affect each other", "check each fix before moving on"</td><td>Fix them one at a time, checking each</td><td>Each fix is small and can be checked on its own.</td></tr>
+  </table>
+  <p>Lesson 18 covers this in full. Here is the miss:</p>
+
+<section class="mc">
+  <p class="mc-h">D2/D3 Paper 4, 21 Oct, question 28</p>
+  <p class="mc-stem">After a release, a developer found 3 problems in the portal: a misspelt column header on the results page, a slow query on the audit screen and a broken link in the help footer. <mark>They are in different files and don't affect each other</mark>. The developer <mark>wants each fix checked before moving on</mark>. How should they raise them with Claude?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>In 3 parallel sessions, all started at the same time</div><div class="mc-k"><b>✓ Correct: B</b>Separately and in turn, checking each of the 3 fixes first</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>All 3 in one detailed message, handled as a single task</span></li><li><span class="mc-l">D</span><span>The slow query in plan mode, then the other 2 together</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The 3 problems don't touch each other: different files, and fixing one changes nothing about the others. Separate problems are fixed one at a time.</li><li>3 sessions at once (your pick) means 3 setups for 3 small fixes, and none is checked before the next starts. The stem asked for each fix to be checked before moving on.</li><li>B: raise them in turn and check each fix before the next.</li><li>The opposite case is when the fixes <em>do</em> affect each other (fixing one changes where the others must go). Then you describe all of them in one message, so Claude can fix them together.</li></ul></div>
+</section>
+
+  <h2>Part 3 · What to add to the prompt (4.2)</h2>
+  <p>4.2 questions describe a model making uneven decisions and ask what to add to the prompt. Read two things in the stem: <strong>were rules already tried?</strong> and <strong>what does the question ask for?</strong></p>
+  <table class="cgrid">
+    <tr><th>What the stem shows</th><th>Add to the prompt</th><th>Not</th></tr>
+    <tr><td>Only a vague line ("flag risky changes"); nobody has written down what counts</td><td>The rules: what to flag and what to skip (4.1, Lesson 27)</td><td>Examples first. Without written rules, they show cases but never say where the line is.</td></tr>
+    <tr><td>Rules written, a new rule barely moved the number, and new cases keep slipping past</td><td>2–4 hard cases, each with the answer and why not the others</td><td>Another rule; many easy examples; a score the model gives itself</td></tr>
+    <tr><td>The format of the output varies even though the prompt describes it</td><td>2 or so complete outputs in the exact format</td><td>The description repeated, or written louder</td></tr>
+    <tr><td>A field comes back empty on documents laid out differently</td><td>Examples of those other layouts, with the value found</td><td>Making the field required. That forces an answer, which invites made-up values.</td></tr>
+  </table>
+  <p><strong>The person trap.</strong> Sending hard cases to a person is a real fix. It belongs to a different exam topic (Domain 5, human review), which is about which cases people should check. But when the question asks "what should you add to the prompt?", a step that routes cases to a person isn't something you write into a prompt, so it is out. This is the pick on two of the three cards below.</p>
+
+<section class="mc">
+  <p class="mc-h">Representative Mock 2, 22 Oct, question 11</p>
+  <p class="mc-stem">The system prompt <mark>lists 9 rules</mark> for when a damaged box earns a full refund, a partial credit or a replacement. <mark>On mixed cases the agent applies them unevenly</mark>: in a review of 150 chats where one item was spoiled and the rest were fine, the same situation got all three outcomes. <mark>A 10th rule added last week made no difference</mark>. What should the team add?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A severity score from 1 to 10 the agent assigns before choosing an outcome</div><div class="mc-k"><b>✓ Correct: C</b>3 worked mixed cases, each showing why one outcome beat the other two</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>An 11th rule ranking the 3 outcomes for boxes with more than one problem</span></li><li><span class="mc-l">D</span><span>A refund_decision subagent that applies the 9 rules to each damaged box</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>Rules were written (9 of them), a 10th made no difference, and the mixed cases are still decided unevenly. That is the moment for examples: 2–4 worked mixed cases, each showing <em>why</em> one outcome beat the other two.</li><li>A severity score the agent gives itself (your pick) is one more judgement it makes unevenly. It doesn't show the agent what a right decision looks like.</li><li>B, an 11th rule, is more of what already failed.</li></ul></div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 3, 24 Oct, question 30</p>
+  <p class="mc-stem">The pipeline classifies each claim's cause of loss as drought, frost, hail or other. Last month the team <mark>added 8 tie-break rules</mark> for reports that mention more than one cause, and the share of mixed reports that get the same cause on 2 runs <mark>rose only from 75% to 78%</mark>. Assessors keep finding mixed cases, such as frost damage on a crop already stressed by a dry month, <mark>that no rule settles</mark>. <mark>What should you add to the prompt?</mark></p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A step that sends each mixed report to an assessor to pick the cause</div><div class="mc-k"><b>✓ Correct: A</b>3 mixed reports, each with the cause chosen and why not the others</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A ninth tie-break rule for frost damage on a crop stressed by drought</span></li><li><span class="mc-l">C</span><span>20 examples: 5 clear-cut reports for each of the 4 causes</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The question asks what to add <em>to the prompt</em>. A step that sends reports to an assessor is not something you write into the prompt. It hands the decision to people and leaves the model just as unsure.</li><li>Rules were tried: 8 of them moved consistency only from 75% to 78%, and new mixed cases keep turning up that no rule settles. So, examples: 3 mixed reports, each with the cause chosen and why not the others (A).</li><li>C has examples too, but of easy cases. Nothing in them shows how to decide a mixed report.</li><li>When we went over this question in chat on 25 Oct, you put it as: no rules → set rules; rules set and still wrong → give examples.</li></ul></div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 4, 25 Oct, question 18</p>
+  <p class="mc-stem">The pipeline sorts each charge on a carrier invoice into freight, fuel surcharge, port fees or other. <mark>After 11 rules were added</mark> for charges with unclear names, the share of those charges that land in the same category on 2 runs <mark>rose only from 68% to 71%</mark>. Reviewers keep finding new names, such as &quot;BAF adj. Q3 emergency&quot;, <mark>that no rule covers</mark>. <mark>What should you add to the prompt?</mark></p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>A step that sends each unclear charge to a reviewer to pick</div><div class="mc-k"><b>✓ Correct: A</b>3 hard charge names, each with its category and the reason</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A 12th rule for charges that combine &quot;BAF&quot; with other words</span></li><li><span class="mc-l">D</span><span>40 examples: 10 clearly named charges for each of the 4 categories</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The same shape as the card above, and the same pick: sending the hard ones to a person.</li><li>When we went over this question in chat on 25 Oct, you named the clue for A: "rules added but still no good". That is right, and it is why A beats B (a 12th rule).</li><li>What rules out C is the question itself: "What should you add to the prompt?" Sending charges to a reviewer isn't a change to the prompt. When a stem asks for a prompt change, any option that adds a person or a step outside the prompt is out.</li></ul></div>
+</section>
+
+  <div class="check"><strong>The check:</strong> read the question's last line first. If it says "add to the prompt", cross out any option that adds a person, a step or a new agent. Then ask "were rules tried?": no → rules; yes, and cases still slip past → hard cases with the reason.</div>
+
+  <h2>Summary</h2>
+  <table class="cgrid">
+    <tr><th>If the stem says…</th><th>Pick</th><th>Not</th></tr>
+    <tr><td>The cases or a speed target are listed; a past break went live</td><td>Tests first, share the failures each round</td><td>Plan mode; the interview; more prose</td></tr>
+    <tr><td>Written corrections fix one case and break another</td><td>2–3 inputs with their exact outputs</td><td>Plan mode; more prose</td></tr>
+    <tr><td>New area; the misses were things nobody thought of</td><td>Have Claude interview you before it builds</td><td>Tests (you can't test a case you haven't thought of); examples; plan mode</td></tr>
+    <tr><td>Fixes touch each other</td><td>All in one detailed message</td><td>One at a time</td></tr>
+    <tr><td>Fixes are separate</td><td>One at a time, check each</td><td>One big message; several sessions at once</td></tr>
+    <tr><td>No rules written for what counts</td><td>Write the rules</td><td>Examples first</td></tr>
+    <tr><td>Rules tried, new cases still slip past</td><td>2–4 hard cases with the reason</td><td>Another rule; easy examples; a person (when it asks for a prompt change)</td></tr>
+    <tr><td>Output format varies</td><td>Complete example outputs</td><td>The description again</td></tr>
+  </table>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>A developer new to an area keeps finding failures nobody thought of. Why are tests first the wrong fix?</li>
+    <li>A stem asks "what should you add to the prompt?" and one option sends hard cases to a reviewer. Why is it out?</li>
+  </ol>
+
+  <h2>Seven new practice questions</h2>
+  <p>Before you read the options, finish the sentence "What is missing is ___". After you answer, a short explanation appears under the question.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If tests and the interview both look right, bring the question and we'll ask "could you write the test?" together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> the official exam guide (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 3.5, 4.1, 4.2.<br>
+    <strong>Course notes:</strong> <a href="../notes/domain-3-claude-code-config.md">notes/domain-3-claude-code-config.md</a> §3.5 · <a href="../notes/domain-4-prompt-engineering.md">notes/domain-4-prompt-engineering.md</a> §4.1 and §4.2.<br>
+    <strong>Miss history:</strong> learning records 0040 (Representative Mock 2), 0045 (Weak Rows Paper 3) and 0046 (Weak Rows Paper 4); D2/D3 Papers 2 and 4 in <a href="../tutor/question-bank.md">tutor/question-bank.md</a>.<br>
+    <strong>Previous:</strong> <a href="0028-same-steps-or-decide-as-you-go.html">Lesson 28 — Same steps every time, or decide as you go?</a> · <a href="0027-write-down-the-line-or-show-hard-cases.html">Lesson 27 — Write down the line, or show the hard cases?</a> · <a href="0018-one-message-or-one-at-a-time.html">Lesson 18 — One message or one at a time</a> · <a href="0013-io-examples.html">Lesson 13 — Input/output examples</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A developer who has only built shop websites must add seat-upgrade bidding to an airline's app. The product owner's ticket says only \"handle the usual cases\". On the last airline feature, the first version missed 2 fare rules the airline cared about, and nobody on the team had known about either. What should the developer do first?",
+    opts: [
+      "Write tests for the bidding cases they know of, then share failures",
+      "Give Claude 3 example bids, each with the result it should give",
+      "Have Claude ask them questions about bidding before it writes code",
+      "Use plan mode to have Claude plan the bidding feature, then approve"
+    ],
+    ok: 2,
+    fb: "What is missing is knowledge of the cases: the area is new, and last time's misses were rules nobody knew about. The interview brings those out before any code. A tests only the cases they already know of. B shows an output they can describe, not the cases they can't. D plans from the same ticket that says only \"the usual cases\"."
+  },
+  {
+    stem: "Claude is rewriting the parking-fee function. The council has listed 12 cases it must get right, including free Sundays, a $15 daily cap and half price for permit holders. It must also run within 20 ms. Last year a faster version broke the daily cap, and drivers noticed before the team did. How should the developer drive the rewrite?",
+    opts: [
+      "Have Claude ask them questions about parking fees before it starts",
+      "Give Claude 2 example days covering the $15 cap and a free Sunday",
+      "Use plan mode to have Claude design the faster function, then approve",
+      "Write tests for every case and the time limit first, then share failures"
+    ],
+    ok: 3,
+    fb: "The cases are listed, and a speed target is given, so you can write every test now. Run them each round and paste failures back. A asks questions the council has already answered. B shows 2 days; it can't check 12 cases or the speed. C designs but never runs anything, and the last break went unnoticed."
+  },
+  {
+    stem: "A developer asked Claude to turn recipe lines such as \"2 cups flour, sifted\" and \"1 tbsp butter (soft)\" into structured ingredients. After 2 rounds of describing the format in words, each new version still handles some lines differently. The developer knows the right result for every kind of line. What should they give Claude next?",
+    opts: [
+      "A longer description of the format, with each part explained in turn",
+      "3 recipe lines, each with the exact output it should give",
+      "Questions from Claude about cooking before it rewrites the function",
+      "A plan-mode session to design the parser before it changes any code"
+    ],
+    ok: 1,
+    fb: "What is missing is a picture of the output: words keep being read differently, and the developer knows every right answer. Show 3 inputs with their exact outputs. A is more of the words that already failed. C asks about things the developer already knows. D designs from the same misreading."
+  },
+  {
+    stem: "Review found 3 bugs in Claude's invoice total. Tax is added before the discount, the discount is rounded before tax, and shipping is added after rounding. All 3 sit in the same 5 lines, and fixing any one changes where the other 2 must go. How should the developer give Claude the fixes?",
+    opts: [
+      "Fix them one at a time, running the tests after each fix",
+      "Start 3 sessions, one per bug, and merge the results at the end",
+      "Have Claude ask questions about invoices before it fixes anything",
+      "Describe the 3 bugs together in one detailed message"
+    ],
+    ok: 3,
+    fb: "The fixes touch each other: same 5 lines, and each changes where the others go. Give them all in one detailed message so Claude can find one order that fixes all 3. A and B fix them separately, so each fix would clash with the next. C asks questions about a problem that is already understood."
+  },
+  {
+    stem: "A help-desk tool labels each ticket billing, technical or account. The prompt has 10 rules for tickets that could be more than one. After the last 3 rules were added, the share of those tickets labelled the same on 2 runs rose only from 66% to 69%. Staff keep finding new kinds, such as a refund request caused by a login bug. What should you add to the prompt?",
+    opts: [
+      "An 11th rule for refund requests that are caused by a login problem",
+      "30 example tickets: 10 clearly labelled ones for each of the 3 kinds",
+      "3 borderline tickets, each with its label and why not the other two",
+      "A step that sends each borderline ticket to a team lead to label"
+    ],
+    ok: 2,
+    fb: "Rules were tried (10 of them, 3 recent ones barely helped) and new kinds keep slipping past. So: hard cases with the reason. A covers this week's kind only. D isn't a prompt change; it hands the decision to people. B shows only easy tickets."
+  },
+  {
+    stem: "A contract-review prompt says only \"flag unclear wording\". Lawyers dismiss half of the flags, and when 2 lawyers rated the same 30 flags, they disagreed on 9. Both say it depends on whether the wording changes a payment date or an amount, but nothing in the prompt says that. What should you add to the prompt first?",
+    opts: [
+      "Named kinds of wording to flag, and kinds to leave alone",
+      "3 example clauses, each marked unclear or fine, with the reason",
+      "A step that sends each flag to a lawyer before it reaches the client",
+      "A rule to flag any clause that is longer than 40 words"
+    ],
+    ok: 0,
+    fb: "No rules have been written: the prompt has one vague line, and the lawyers' own test (does it change a payment date or amount?) isn't in it. Write the rules the lawyers actually use first. B is the next step, once rules exist and hard cases still slip past. C isn't a prompt change. D is a rule, but not the one the lawyers use: length isn't what makes wording unclear here."
+  },
+  {
+    stem: "Each support call gets a summary with 3 parts: the problem, what was tried, and the next step. The prompt describes these parts in a paragraph. Across 300 calls last week, some summaries left out the next step, some merged the parts, and 10% added a part nobody uses. What should you add to the prompt?",
+    opts: [
+      "The paragraph again, at the end of the prompt, in capital letters",
+      "2 complete summaries written in exactly the format the team uses",
+      "A step that sends each summary to a supervisor to reformat it",
+      "A line asking the model to keep every summary short and tidy"
+    ],
+    ok: 1,
+    fb: "The description is already there and the format still varies. Show the format: 2 complete example summaries. A repeats what isn't working. C isn't a prompt change, and it costs a person's time on every call. D is vaguer than the paragraph."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 13 — Show, don't re-describe</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .io { font-family: var(--mono); font-size: .84rem; background: var(--code-bg); border-radius: 6px; padding: .8rem 1rem; margin: 1rem 0 1.4rem; line-height: 1.75; }
+  .io .note { font-family: var(--sans); color: var(--ink-soft); font-size: .8rem; }
+
+  /* A · gap map */
+  .scroll { overflow-x: auto; }
+  table.gap { width: 100%; border-collapse: collapse; margin: 1rem 0 .5rem; font-family: var(--sans); font-size: .82rem; line-height: 1.35; }
+  table.gap th { font-weight: 600; color: var(--ink-soft); font-size: .74rem; text-align: left; padding: .4rem; }
+  table.gap td { border-top: 1px solid var(--rule); padding: .45rem .4rem; vertical-align: top; }
+  table.gap td.in { font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
+  table.gap td.guess { color: var(--accent); font-weight: 600; }
+  table.gap td.out { font-family: var(--mono); font-size: .76rem; }
+  table.gap td.diff { background: var(--bad-bg); }
+  table.gap tr.same td { color: var(--ink-soft); }
+  table.gap tr.same td.guess { color: var(--ink-soft); font-weight: 400; font-style: italic; }
+  .caption { font-family: var(--sans); font-size: .8rem; color: var(--ink-soft); margin: 0 0 1.6rem; }
+
+  /* B · blank → filled */
+  .fill { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin: 1rem 0 1.6rem; font-family: var(--sans); font-size: .82rem; }
+  .fill .card { border: 1px solid var(--rule); border-radius: 6px; padding: .7rem .8rem; background: #fffffb; text-align: center; }
+  .fill .blank { border: 1.5px dashed var(--rule); border-radius: 4px; padding: .3rem; color: var(--accent); font-weight: 600; }
+  .fill .down { color: var(--accent); font-size: 1.1rem; line-height: 1.6; }
+  .fill code { display: block; background: var(--good-bg); padding: .35rem; border-radius: 4px; font-size: .76rem; }
+
+  /* C · bug triple */
+  .triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .4rem 0; font-family: var(--sans); }
+  .triple div { border: 1px solid var(--rule); border-radius: 6px; padding: .55rem .7rem; background: #fffffb; min-height: 3.2rem; }
+  .triple b { display: block; font-size: .7rem; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: .25rem; }
+  .triple code { background: none; padding: 0; font-size: .8rem; }
+  .triple .actual { background: var(--bad-bg); border-color: #e4c8c3; }
+  .triple.empty div { border-style: dashed; background: transparent; color: var(--ink-soft); font-size: .8rem; font-style: italic; }
+  .rowlabel { font-family: var(--sans); font-size: .78rem; font-weight: 600; margin: 1rem 0 .2rem; }
+  .rowlabel.good { color: var(--good); }
+  .rowlabel.bad { color: var(--bad); }
+
+  .explain { border-left: 3px solid var(--rule); padding: .1rem 0 .1rem 1.1rem; margin: 1.2rem 0; }
+  .explain p { margin: .35rem 0; }
+  .explain b { font-family: var(--sans); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+
+  @media (max-width: 560px) {
+    .fill, .triple { grid-template-columns: 1fr; }
+    table.gap td.in { white-space: normal; }
+  }
+  @media print { table.gap, .fill, .triple { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 13 · Task 3.5 (Domain 3)</p>
+  <h1>Show, don't re-describe</h1>
+  <p class="subtitle">When Claude reads your rule differently each time, more words won't fix it. A couple of examples will.</p>
+
+  <p>You give Claude a rule in words, and sometimes it reads that rule differently from one run to the next. The fix isn't more words. It's two or three examples with the answer written next to them. This lesson shows that one move twice: before Claude writes anything, and after it gets something wrong.</p>
+
+  <blockquote class="key">
+    Words leave gaps, and Claude fills each gap with a guess. <strong>An example is a gap with the answer already filled in, so put your examples exactly where Claude would otherwise guess.</strong>
+  </blockquote>
+
+  <h2>1 · A rule with gaps</h2>
+  <div class="io"><span class="note">Prompt:</span> "Reformat each customer name as Last, First."</div>
+  <p>That sentence seems clear until a name doesn't fit the pattern you pictured. Here are four names and three plausible ways Claude could read the rule (made-up readings, to show the idea):</p>
+
+  <div class="scroll"><table class="gap">
+    <tr><th>Input</th><th>What Claude has to guess</th><th>Run 1</th><th>Run 2</th><th>Run 3</th></tr>
+    <tr><td class="in">Mary Ann Lee</td><td class="guess">Is "Ann" a middle name?</td><td class="out diff">Lee, Mary Ann</td><td class="out diff">Ann Lee, Mary</td><td class="out diff">Lee, Mary A.</td></tr>
+    <tr><td class="in">Ludwig van Beethoven</td><td class="guess">Where does "van" go?</td><td class="out diff">Beethoven, Ludwig van</td><td class="out diff">van Beethoven, Ludwig</td><td class="out diff">Beethoven, Ludwig</td></tr>
+    <tr><td class="in">Cher</td><td class="guess">No surname. Now what?</td><td class="out diff">Cher,</td><td class="out diff">Cher</td><td class="out diff">, Cher</td></tr>
+    <tr class="same"><td class="in">John Smith</td><td class="guess">nothing to guess</td><td class="out">Smith, John</td><td class="out">Smith, John</td><td class="out">Smith, John</td></tr>
+  </table></div>
+  <p class="caption">Shaded = the runs disagree. The rule isn't wrong. It just leaves three gaps, and each run fills them its own way.</p>
+
+  <p>You could try to close the gaps with more words: "keep middle names with the first name, keep particles like van with the surname, leave single names alone…" Every one of those phrases has gaps of its own, though, and you have to predict every awkward name in advance.</p>
+
+  <h2>2 · Fill each gap with one example</h2>
+  <p>An example can't be read two ways. It's one real case with the answer already written down. Put one example on each gap and nothing is left to guess:</p>
+
+  <div class="fill">
+    <div class="card"><div class="blank">middle name?</div><div class="down">↓</div><code>Mary Ann Lee → Lee, Mary Ann</code></div>
+    <div class="card"><div class="blank">where does "van" go?</div><div class="down">↓</div><code>Ludwig van Beethoven → van Beethoven, Ludwig</code></div>
+    <div class="card"><div class="blank">only one name?</div><div class="down">↓</div><code>Cher → Cher</code></div>
+  </div>
+
+  <p>The exam guide treats concrete input/output examples as the best way to convey an expected transformation when prose descriptions keep being read differently, and says to give <strong>2–3</strong> of them (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide §3.5</a>). Anthropic's prompting docs add that examples should be relevant, varied enough to cover the edge cases, and wrapped in <code>&lt;example&gt;</code> tags so Claude doesn't mistake them for instructions (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#use-examples-effectively">prompting best practices</a>).</p>
+
+  <p><strong>Where the examples go matters most.</strong> Look at the John Smith row again: every run already gets it right, so an example there teaches Claude nothing. Ten names like John Smith tell it no more than one. Choose the inputs where the runs <em>disagree</em>.</p>
+
+  <h2>3 · The same move, after something breaks</h2>
+  <p>Now Claude has written something and got it wrong. Say a migration script turns a null <code>discount</code> into <code>0</code>. Don't tell it "be careful with nulls". Give it the bug as three facts:</p>
+
+  <p class="rowlabel good">✓ A useful message fills all three boxes</p>
+  <div class="triple">
+    <div><b>INPUT</b><code>{ id: 7, discount: null }</code></div>
+    <div><b>SHOULD BE</b><code>discount = NULL</code></div>
+    <div class="actual"><b>ACTUALLY IS</b><code>discount = 0</code></div>
+  </div>
+
+  <p class="rowlabel bad">✗ "Be careful with nulls" fills none of them</p>
+  <div class="triple empty">
+    <div>which row?</div>
+    <div>what's right?</div>
+    <div>what went wrong?</div>
+  </div>
+
+  <p>That's an example again, this time pointed at a failure. The guide describes this skill as supplying test cases that pair a concrete input with the output you expect, as a way to repair edge-case behaviour (for instance null values in migration scripts) (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide §3.5</a>).</p>
+  <p>It's also why test-driven iteration works. A failing test already has those three boxes filled in, so pasting the failure tells Claude exactly what to fix. Claude Code's docs give the same advice: instead of "implement a function that validates email addresses", list test cases like <code>user@example.com</code> → true and <code>user@.com</code> → false, then ask Claude to run them (<a href="https://code.claude.com/docs/en/best-practices#give-claude-a-way-to-verify-its-work">Claude Code best practices</a>).</p>
+
+  <h2>4 · When examples are <em>not</em> the fix</h2>
+  <p>Examples fix one kind of problem. The exam builds its distractors from the other two:</p>
+
+  <table class="cgrid">
+    <tr><th>What the stem tells you</th><th>The real problem</th><th>The fix</th></tr>
+    <tr class="win"><td>The instruction exists, but output is <em>inconsistent</em>, <em>varies between runs</em>, is <em>interpreted differently</em>, or misses an edge case</td><td>Claude reads it inconsistently</td><td><strong>2–3 examples</strong> at the gaps</td></tr>
+    <tr><td>Tools have <em>minimal descriptions</em> and the wrong one gets picked</td><td>The information isn't there</td><td><strong>Fix the source</strong>: expand the descriptions (guide sample Q2)</td></tr>
+    <tr><td>Something must <em>never</em> or <em>always</em> happen</td><td>You need a guarantee</td><td><strong>A code gate</strong> (Lesson 5)</td></tr>
+  </table>
+
+  <div class="trap">
+    <b>The usual distractor:</b> "rewrite the instructions in more detail." That's the prose that already failed, only longer. And in sample Q2, "add 5–8 routing examples" is wrong because examples cost extra tokens and leave the real problem untouched (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide</a>).
+  </div>
+
+  <h2>Explain it back (answer in chat)</h2>
+  <div class="explain">
+    <p><b>1</b> A prompt says "convert dates to ISO format" and the results are mixed. Which three input dates would you pick as examples, and which gap does each one fill?</p>
+    <p><b>2</b> In sample Q2 the agent picks tools inconsistently, yet "add examples" is the wrong answer. Use the table above to explain why.</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Retrieve it: five fresh cases</h2>
+  <p>Before you click, ask: is the instruction there and being read inconsistently, is the information missing, or does the rule need a guarantee?</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher, so ask me anything.</strong> If any example here felt like it could go either way, bring it to chat. Arguing about where an example belongs is the quickest way to learn to pick good ones.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Why this lesson:</strong> score-report objective 8, which you scored 25% on, sits under guide task statement 3.5 (iterative refinement). This lesson covers input/output examples and targeted feedback on failures. Batching is in <a href="0018-one-message-or-one-at-a-time.html">lesson 18</a>.</p>
+    <p><strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a>. Read "Give Claude a way to verify its work" and "Provide specific context in your prompts": every before/after row in those tables swaps a description for something concrete. Then read <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide §3.5</a>, which is nine lines.</p>
+    <p><strong>Reference:</strong> <a href="../reference/iterative-refinement.html">Iterative refinement, on one page</a>. <strong>Builds on</strong> Lesson 5 and Lesson 8.</p>
+    <p><strong>Previous:</strong> <a href="0012-subagent-context-isolation.html">Lesson 12 — Subagent context isolation</a> · <strong>Next:</strong> <a href="0014-glob-vs-grep.html">Lesson 14 — Glob finds files, Grep finds lines</a></p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "A prompt says \"Summarise each ticket's root cause in one short phrase.\" Some runs name the failing component, others describe what the user saw. The instruction is otherwise fine. Most effective fix?",
+    opts: [
+      "Add a paragraph defining root cause in much more detail",
+      "Ask for two phrases per ticket and keep the shorter one",
+      "Show three tickets, each paired with the phrase you want",
+      "Add \"be consistent across tickets\" to the end of the prompt"
+    ],
+    ok: 2,
+    fb: "The instruction is there and read two ways, so examples are the fix. Pick tickets where component and symptom would differ, so each example fills a gap. A is more of the prose that already drifted. B picks between two drifting outputs. D asks for consistency without showing what consistent looks like."
+  },
+  {
+    stem: "You're adding examples to the prompt \"Reformat each customer name as Last, First.\" Which three examples pin the rule down best?",
+    opts: [
+      "John Smith, Jane Doe and Bob Jones, each with its output",
+      "Mary Ann Lee, Ludwig van Beethoven and Cher, with outputs",
+      "One long name, plus a paragraph explaining every choice",
+      "Ten common two-word names, each paired with its output"
+    ],
+    ok: 1,
+    fb: "Examples go on the gaps: a middle name, a particle and a single name. Every run already gets A right, so it teaches nothing. D is ten more of A. C goes back to prose, which is what was being read inconsistently in the first place."
+  },
+  {
+    stem: "Claude's migration script turns a null discount into 0. Which message to Claude fixes this most reliably?",
+    opts: [
+      "\"Please handle null values carefully throughout the script.\"",
+      "\"Rewrite the migration script from scratch with strict types.\"",
+      "\"Add a comment that warns future readers about null values.\"",
+      "\"Row 7 discount null should give NULL, but it currently gives 0.\""
+    ],
+    ok: 3,
+    fb: "All three boxes are filled: input, should be, actually is. It's the guide's own example (§3.5). A fills none of them. B starts over without saying what was wrong. C documents the bug and leaves it in place."
+  },
+  {
+    stem: "Policy: a refund over $500 must never be issued without human approval. Logs show the agent occasionally issues one anyway. Best fix?",
+    opts: [
+      "Block refund calls over $500 in code until approval exists",
+      "Add three examples of large refunds sent to an approver",
+      "Restate the refund policy in the prompt in bolder terms",
+      "Give the agent a checklist to review before each refund"
+    ],
+    ok: 0,
+    fb: "\"Must never\" needs a guarantee, and examples only change the odds. That's the trap built for this lesson: B is the right technique for a different problem. C and D are instructions too. A code gate makes the bad refund impossible (Lesson 5)."
+  },
+  {
+    stem: "Claude's CSV parser matches your description but fails on quoted fields that contain commas. Your test suite catches it. Best next message?",
+    opts: [
+      "Explain again, in prose, how CSV quoting is meant to work",
+      "Ask Claude to review its own parser for any possible bugs",
+      "Paste the failing test's input, expected and actual output",
+      "Ask Claude to rewrite the parser with another approach"
+    ],
+    ok: 2,
+    fb: "This is test-driven iteration: send the failure itself, with all three boxes filled. A repeats the description the parser already matches. B is an unfocused search. D throws away working code without saying what broke."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

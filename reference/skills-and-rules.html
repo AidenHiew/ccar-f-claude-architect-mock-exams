@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Skills and rules</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main class="page">
+  <p class="eyebrow">CCA Foundations · Quick reference · 3.2, 3.3</p>
+  <h1>Skills and rules</h1>
+  <p class="subtitle">Ask: does Claude Code already have a setting that does exactly this? If so, that setting beats a skill plus a hook, an instruction, or a clean-up step.</p>
+
+  <table class="cgrid">
+    <tr><th>Need</th><th>Built-in switch</th><th>Usual distractor</th></tr>
+    <tr><td>Conventions for one kind of file, in many folders</td><td><code>.claude/rules/</code> file with <code>paths: **/*.test.ts</code> (loads on Read/Write/Edit of a match)</td><td>Skill + hook; a CLAUDE.md per folder</td></tr>
+    <tr><td>Skill's working-out clutters the chat</td><td><code>context: fork</code>: runs in its own subagent, only the result returns</td><td>"Keep the report short"; <code>/compact</code> after</td></tr>
+    <tr><td>My own version of a team skill</td><td><code>~/.claude/skills/</code> under a <strong>new name</strong></td><td>Same name (hides the team's from you); CLAUDE.local.md instruction</td></tr>
+    <tr><td>People forget the argument</td><td><code>argument-hint: [pr-number]</code></td><td>A line telling Claude to ask</td></tr>
+    <tr><td>Used when someone starts a task</td><td>A skill (on demand)</td><td>CLAUDE.md (loads every session)</td></tr>
+    <tr><td>Team-wide command from the repo</td><td><code>.claude/commands/</code> or <code>.claude/skills/</code>, committed</td><td>Copies in each <code>~/.claude/</code></td></tr>
+  </table>
+
+  <h2>Same name, two places</h2>
+  <table class="cgrid">
+    <tr><th>Order</th><th>Effect</th></tr>
+    <tr><td>Enterprise &gt; personal &gt; project</td><td>Same-name personal skill runs in <em>your</em> sessions and hides the project one from you. Teammates unaffected.</td></tr>
+  </table>
+
+  <h2>Check the switch fits</h2>
+  <table class="cgrid">
+    <tr><th>Switch</th><th>Does</th><th>Doesn't</th></tr>
+    <tr><td><code>context: fork</code></td><td>Separates conversation context</td><td>Restrict tools by itself (the agent type decides); see your chat history</td></tr>
+    <tr><td><code>paths</code> rule</td><td>Loads on file access</td><td>Fire when someone decides to start a task</td></tr>
+    <tr><td><code>allowed-tools</code></td><td>Exam guide: limits the skill's tools. Current docs: pre-approves listed tools; <code>disallowed-tools</code> removes</td><td>On the exam, go with the guide</td></tr>
+  </table>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Lesson: <a href="../lessons/0021-use-the-switch-claude-code-has.html">L21 — Use the switch Claude Code already has</a> · See also <a href="scope-map.html">Scope map</a> and <a href="match-the-tool.html">Match the tool</a>.</p>
+    <p>Sources: <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">official exam guide §3.2, §3.3</a> · <a href="https://code.claude.com/docs/en/skills">Claude Code skills docs</a> · <a href="https://code.claude.com/docs/en/memory">Claude Code memory docs</a> (path-specific rules), fetched 2026-10-19.</p>
+  </div>
+</main>
+</body>
+</html>

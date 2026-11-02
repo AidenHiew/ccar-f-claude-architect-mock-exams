@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Escalation triggers</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ref dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1.2rem 0; align-items: baseline; }
+  .ref dt { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; }
+  .ref dd { margin: 0; font-size: 1rem; }
+  .yes { color: var(--good); font-weight: 600; }
+  .no { color: var(--bad); font-weight: 600; }
+</style>
+</head>
+<body>
+<main class="page ref">
+  <p class="eyebrow">CCA Foundations · Quick reference · 5.2</p>
+  <h1>Escalation triggers</h1>
+  <p class="subtitle">Run this list on every escalation question. If no trigger fires, do not escalate.</p>
+
+  <h2><span class="yes">Escalate</span> — three triggers</h2>
+  <dl>
+    <dt>1 · explicit</dt><dd>Customer asks for a human → escalate <strong>immediately</strong>, no investigation first.</dd>
+    <dt>2 · policy gap</dt><dd>Policy is silent or ambiguous on the request → escalate; the agent does not adjudicate it.</dd>
+    <dt>3 · stuck</dt><dd>Agent cannot make meaningful progress → escalate. (Hard-but-doable ≠ stuck.)</dd>
+  </dl>
+
+  <h2><span class="no">Do not escalate</span> — the two baits</h2>
+  <dl>
+    <dt>emotion</dt><dd>Frustration/sentiment is not a trigger. Simple in-policy request → acknowledge &amp; resolve; escalate only if they then reiterate wanting a human.</dd>
+    <dt>confidence</dt><dd>A low self-reported confidence score is poorly calibrated → not an escalation signal.</dd>
+  </dl>
+
+  <h2>Adjacent rule</h2>
+  <dl>
+    <dt>ambiguity</dt><dd>Multiple customer matches → <strong>ask for another identifier</strong>. Never guess heuristically; not an escalation.</dd>
+  </dl>
+
+  <h2>Exam tells</h2>
+  <p><strong>"put me through / speak to someone"</strong> → escalate now. <strong>"policy covers X but is silent on Y"</strong>, Y is asked → escalate. Any option where the agent <em>approves, declines, or gathers-info-then-decides</em> a case the policy never addressed is the wrong-problem distractor. <strong>"angry / frustrated / upset"</strong> with a routine request → resolve, don't escalate.</p>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Source: <a href="../notes/domain-5-context-reliability.md">domain-5 notes §5.2</a> (audited vs official guide) · Lesson: <a href="../lessons/0002-escalation-triggers.html">The escalation trigger list</a></p>
+  </div>
+</main>
+</body>
+</html>

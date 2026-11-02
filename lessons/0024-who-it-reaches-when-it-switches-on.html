@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 24 — Who it reaches, and when it switches on</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+  dl.words { margin: 1rem 0 1.6rem; }
+  dl.words dt { font-weight: 700; margin-top: .7rem; }
+  dl.words dd { margin: .15rem 0 0 1.2rem; }
+  details.more { border: 1px solid var(--rule); border-radius: 6px; padding: .5rem .9rem; margin: 1rem 0 1.6rem; }
+  details.more > summary { cursor: pointer; font-family: var(--sans); font-weight: 600; }
+  .check { background: var(--code-bg); border-radius: 6px; padding: .8rem 1rem; margin: 1rem 0 1.4rem; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 24 · Claude Code setup and tool design</p>
+  <h1>Who it reaches, and when it switches on</h1>
+  <p class="subtitle">On the practice papers and quizzes you sat on 19 and 20 October, you lost points in four ways. Each one is shown below in full, with your pick and the correct answer, so you don't need to remember any of them.</p>
+
+  <p><strong>The plain question.</strong> When you write an instruction into a file, will Claude see it in the right projects, at the right moment, and nowhere else?</p>
+
+  <p><strong>An everyday example.</strong> You stick a note on your fridge at home. At the top you write "FOR TUESDAY'S PARTY ONLY". You still see the whole note every time you open the fridge, on every day of the week. The label tells <em>you</em> what it's for; it doesn't hide the note on other days. Now picture a different note, taped inside the door of the storeroom at work. People read it only when they walk into the storeroom, for any reason. Someone who decides at their desk to start a stock-take never sees it before they start.</p>
+  <p>Claude Code files work the same way. A file reaches the same people, in full, whatever headings are inside it. And a file tied to a folder is read only when Claude goes into that folder.</p>
+
+  <h2>Words to start with</h2>
+  <dl class="words">
+    <dt>CLAUDE.md</dt><dd>A file of standing instructions that Claude reads when a session starts. <code>~/.claude/CLAUDE.md</code> is your own copy, for all your projects. <code>my-repo/CLAUDE.md</code> is the team's copy, for one project; questions call it the <em>root</em> CLAUDE.md because it sits at the top of the project folder. A CLAUDE.md can also sit inside a sub-folder; then it loads only when Claude reads or edits a file in that folder.</dd>
+    <dt><code>~/</code> and <code>my-repo/</code></dt><dd><code>~/</code> is your home folder on your own computer; nobody else's sessions read it. <code>my-repo/</code> stands for the project's folder. Files there that are <em>committed</em> (saved into git, the project's shared history) reach every teammate.</dd>
+    <dt>At launch</dt><dd>The moment a Claude Code session starts, before you type anything. Some questions say "at startup"; it means the same.</dd>
+    <dt>Reach and trigger</dt><dd>Reach is <em>who</em> gets an instruction and in which projects; it depends on where the file is saved. Trigger is <em>when</em> the file switches on; it depends on what kind of file it is.</dd>
+    <dt>Exam guide</dt><dd>The official document from Anthropic that lists what the exam covers. This page quotes it in plain words so you can check the facts; you don't need to open it.</dd>
+  </dl>
+  <p>Other words are explained in the section where they first come up.</p>
+
+  <h2>1 · A heading doesn't limit where a file loads</h2>
+  <p>The question below asked for two things with different reach: one for all your repositories, one for this repo only. Words you'll meet in it:</p>
+  <ul class="steps">
+    <li><strong><code>CLAUDE.local.md</code></strong>: a CLAUDE.md for just you, in one repo. It sits in <code>my-repo/</code> but is kept out of git, so teammates never get it. It loads at launch in every session in that repo, until you delete the line.</li>
+    <li><strong>Skill</strong>: a saved set of instructions for one task, which loads only when someone starts that task. <code>~/.claude/skills/</code> holds your own. More on skills in the next section.</li>
+    <li><strong>Monorepo</strong>: one repository that holds several projects. <strong>Docstrings</strong>: the comment at the top of a function that describes it. <strong>Airflow</strong>: a tool for running data jobs; "connection dev_local_ag" is the developer's saved login for it. You don't need to know these; they are just the setting.</li>
+  </ul>
+<section class="mc">
+  <p class="mc-h">Practice paper 2, 20 Oct, question 20</p>
+  <p class="mc-stem">A developer wants 2 things from Claude: <mark>Google-style docstrings in each of the 4 repositories they work in</mark>, and, <mark>in this monorepo only</mark>, tests run against their personal Airflow connection dev_local_ag. <mark>Teammates must get neither</mark>. Where should each instruction live?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Both in their own ~/.claude/CLAUDE.md, under a heading per repository</div><div class="mc-k"><b>✓ Correct: D</b>Docstrings in ~/.claude/CLAUDE.md, the connection in this repo's CLAUDE.local.md</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Both in this repo's CLAUDE.local.md, copied to the other 3 repos later</span></li><li><span class="mc-l">C</span><span>Docstrings in a ~/.claude/skills/ skill, the connection in CLAUDE.local.md</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the docstrings part was right. It is only for you, in all 4 repositories, in every session, which is <code>~/.claude/CLAUDE.md</code>. But that file loads <em>whole</em> in every project you open. A heading such as <code>## monorepo</code> is only a label for a human reader; it does not stop the lines under it loading in the other 3 repositories. So the personal Airflow connection would leak into those 3. The connection needs its own file whose reach is just this repo and just you: <code>CLAUDE.local.md</code> in the monorepo.</div>
+</section>
+  <p>Remember the fridge note labelled "FOR TUESDAY'S PARTY ONLY": you still see it every day. The heading <code>## monorepo</code> is that label. Claude still reads the whole of <code>~/.claude/CLAUDE.md</code> in every repository you open. The exam guide says instructions in <code>~/.claude/CLAUDE.md</code> apply to you, in every project. A heading doesn't change that.</p>
+  <div class="check"><strong>The check:</strong> when the question asks for two things, work out for each one who gets it and in which projects. If the answers differ, they need two different files.</div>
+
+  <h2>2 · When does it switch on?</h2>
+  <p>Words for this section:</p>
+  <ul class="steps">
+    <li><strong>Rules file</strong>: a file in <code>my-repo/.claude/rules/</code> with instructions for one topic.</li>
+    <li><strong>Frontmatter</strong>: a short block of settings at the very top of a file, between two <code>---</code> lines.</li>
+    <li><strong><code>paths:</code></strong>: a frontmatter setting in a rules file that lists which files the rule is for. For example, a rules file that starts with<br><code>---</code><br><code>paths: tests/fixtures/**</code><br><code>---</code><br>loads only when Claude reads or edits a file under <code>tests/fixtures/</code> (the <code>**</code> is explained under Glob, just below). A rules file with no <code>paths:</code> loads at launch in every session.</li>
+    <li><strong><code>~/.claude/rules/</code></strong>: your own private rules files, for all your projects.</li>
+    <li><strong>Glob</strong>: a file-name pattern used in <code>paths:</code>. <code>*</code> stands for any name; <code>**</code> means "every file and folder below here". So <code>tests/fixtures/**</code> means every file under <code>tests/fixtures/</code>, and <code>**/*.sql</code> means every <code>.sql</code> file anywhere.</li>
+    <li><strong>Skill</strong>: a <code>SKILL.md</code> file of instructions for one task. It loads only when the task is started: usually by a person typing its name, such as <code>/regen-fixtures</code>. Claude can also start it when a request clearly matches it.</li>
+    <li><strong><code>@import</code></strong>: a line such as <code>@docs/release.md</code> inside a CLAUDE.md pulls that file's text in. It loads at launch, together with the CLAUDE.md.</li>
+    <li><strong>dbt</strong> and <strong>FastAPI</strong>: tools for SQL data models and for web services; they are just the setting. <strong>Test fixtures</strong>: saved sample data that tests read. <strong>Ticket</strong>: a task card in the team's to-do tracker. <strong>A model's features</strong>: the inputs a forecasting model uses.</li>
+  </ul>
+  <p>The next two cards, from 20 and 19 October, share one mistake. In both, the job starts when a person decides to start it. Your pick put it in a file that only switches on when Claude reads or edits a certain file. Those two don't match.</p>
+  <p>In the first one, "a .claude/rules/ file with paths set to tests/fixtures/**" means a rules file that loads only when Claude reads or edits a file under <code>tests/fixtures/</code>. "Loads in 40% of sessions" means it switched on in 4 of every 10 sessions, usually ones that didn't need it.</p>
+<section class="mc">
+  <p class="mc-h">Practice paper 2, 20 Oct, question 25</p>
+  <p class="mc-stem">A 70-line procedure for regenerating forecast test fixtures sits in a .claude/rules/ file with paths set to tests/fixtures/**. It's needed about once a month, <mark>when someone decides a model's features have changed</mark>. The rule loads in 40% of sessions because tests read fixtures, yet <mark>regenerations start from a ticket, before any fixture is opened</mark>, and Claude often lacks the procedure. Where should it live?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>A CLAUDE.md inside tests/fixtures/, loaded when Claude works there</div><div class="mc-k"><b>✓ Correct: D</b>A project skill, /regen-fixtures, committed in .claude/skills/</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>The same rule, with its paths widened to tests/** to load sooner</span></li><li><span class="mc-l">B</span><span>The root CLAUDE.md, where it loads at the start of each session</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> a CLAUDE.md inside <code>tests/fixtures/</code> loads when Claude reads or edits a file in that folder. That is the same trigger as the <code>paths</code> rule that was already failing: it fires on file access. The job starts from a person's decision, before any file is opened, so a file-based trigger is either too late or fires for the wrong reason (tests read fixtures all the time). Something a person decides to start is a skill.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Lesson 21 quiz, 19 Oct, question 6</p>
+  <p class="mc-stem">A 250-line checklist for cutting a release sits in the root CLAUDE.md. Releases happen about once a month, <mark>when someone decides to start one</mark>, and they <mark>aren't tied to editing any particular files</mark>. Where should the checklist go?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A .claude/rules/ file with paths set to release/** for the checklist</div><div class="mc-k"><b>✓ Correct: D</b>A project skill, /cut-release, that people run to start a release</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>An @import of a release.md file from the root CLAUDE.md instead</span></li><li><span class="mc-l">C</span><span>A CLAUDE.md in the release/ folder, loaded when Claude works there</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the same mistake as the card just before it: a person starts the job, but the pick used a file-based trigger. A <code>paths</code> rule fires when Claude reads or edits a matching file. A release starts when a person decides to start one, and the question says releases aren't tied to editing any particular files. A job a person decides to start belongs in a skill.</div>
+</section>
+  <p>A CLAUDE.md in a folder and a rules file with <code>paths:</code> look different, but they switch on the same way: when Claude reads or edits a file in the right place. Words like "when someone decides" or "starts from a ticket" point to the other trigger: a person starting it. That is what a skill is for. The exam guide describes skills as workflows you start when you need them.</p>
+  <p>The next question is the opposite case. In this one the rules were meant to load only for certain files, but none of the rules files had a <code>paths:</code> line.</p>
+<section class="mc">
+  <p class="mc-h">Practice paper 2, 20 Oct, question 24</p>
+  <p class="mc-stem">A teammate split the 600-line root CLAUDE.md into 9 topic files in .claude/rules/: dbt.md, airflow.md, fastapi.md and 6 more, <mark>none with frontmatter</mark>. Sessions that only touch the FastAPI service <mark>still load all 600 lines at startup</mark>. The dbt, Airflow and FastAPI conventions <mark>each apply to their own files only</mark>. What should change?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Move the 9 files into ~/.claude/rules/, out of the project's own folder</div><div class="mc-k"><b>✓ Correct: C</b>Add paths: frontmatter to the file-specific rules, such as models/**/*.sql for dbt.md</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Turn the 9 files into skills that engineers run for that kind of work</span></li><li><span class="mc-l">D</span><span>Merge them back into CLAUDE.md under a clear heading for each part of the repo</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> a file in <code>.claude/rules/</code> with no <code>paths:</code> line at the top loads at launch, in every session, just like CLAUDE.md. That is why splitting saved nothing. Moving the files to <code>~/.claude/rules/</code> changes <em>who</em> gets them (only you, so teammates lose them) but not <em>when</em>: still at launch. Adding <code>paths:</code> changes <em>when</em>: each file then loads only when Claude reads or edits a matching file.</div>
+</section>
+  <p>The fact behind it, as the Claude Code docs put it: a rules file without <code>paths:</code> loads at launch, just like CLAUDE.md. A rules file with <code>paths:</code> loads when Claude reads or edits a matching file. The exam guide says the same from the other side: <code>paths:</code> is how you make a rule load only when matching files are being edited.</p>
+  <div class="check"><strong>The check:</strong> ask "what starts this?" A session starting → CLAUDE.md, or a rules file with no <code>paths:</code>. Claude reading or editing certain files → a rules file with <code>paths:</code>, or a CLAUDE.md in that folder. A person deciding to start a job → a skill. Just for today → say it in your prompt and store nothing (for example, adding timing logs for one day only).</div>
+
+  <h2>3 · Look at what loaded before you add anything</h2>
+  <p>Words for this section:</p>
+  <ul class="steps">
+    <li><strong><code>/memory</code></strong>: a command you type in a Claude Code session. It lists the instruction files (CLAUDE.md, CLAUDE.local.md and the rest) that this session actually loaded. Some questions call these "memory files".</li>
+    <li><strong><code>CLAUDE.local.md</code></strong> (explained earlier): instructions, for you only, in this one repo, in every session until you delete them.</li>
+    <li><strong>Hook</strong>: a script that runs automatically just before Claude uses a tool, such as editing a file (a PreToolUse hook), or just after (a PostToolUse hook).</li>
+    <li><strong>MCP server</strong>: an add-on program that gives Claude extra tools, such as access to a database. One of the optional questions below uses it.</li>
+    <li><strong>Field injection</strong>: a coding style the team has banned. What it is doesn't matter here.</li>
+  </ul>
+  <p>In this question, one person's sessions behaved differently from everyone else's.</p>
+<section class="mc">
+  <p class="mc-h">Practice paper 2, 20 Oct, question 16</p>
+  <p class="mc-stem"><mark>In one engineer's sessions</mark> Claude keeps using field injection, which the team's committed CLAUDE.md forbids. <mark>The other 17 engineers on the same branch don't see this</mark>, and the engineer says they have the file. A teammate suggests they copy the rule into their CLAUDE.local.md as well. <mark>What should they do first?</mark></p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Copy the rule into their CLAUDE.local.md, as the teammate suggests</div><div class="mc-k"><b>✓ Correct: D</b>Run /memory in a session of theirs to see which memory files actually load</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Rewrite the rule in capitals at the top of the CLAUDE.md, with 2 examples of it</span></li><li><span class="mc-l">C</span><span>Add a PostToolUse hook that rejects any edit that adds field injection back</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> 17 people get the rule from the same committed CLAUDE.md (the team's shared file), so the rule itself is fine. Something about this one engineer's setup is different, and nobody knows what yet. <code>/memory</code> lists the memory files a session actually loaded, so it shows the cause. Copying the rule into <code>CLAUDE.local.md</code> (their private file for this repo) treats a cause you haven't found, and leaves a second copy that will drift. The question's word "first" asks for the check, not a fix.</div>
+</section>
+  <p>The exam guide names this exact step: use the <code>/memory</code> command to check which instruction files are loaded when sessions behave differently from one person to the next.</p>
+  <p>You picked <code>CLAUDE.local.md</code> in four questions. In this one it was too early, because the cause wasn't known yet. In the other three it breaks one of its four parts. Those three are in the box below, each in full. Opening it is optional. <code>CLAUDE.local.md</code> has four parts:</p>
+  <ol class="steps">
+    <li>It holds instructions, not a skill or a server.</li>
+    <li>It is for you only.</li>
+    <li>It covers this one repo only.</li>
+    <li>It applies in every session until you delete it.</li>
+  </ol>
+  <p>In the box: the incident-summary question (full practice exam, question 19) breaks part 1, because it needed a skill. The profiling-server question (practice paper 1, question 7) breaks parts 1 and 3, because it needed an MCP server in 4 repos. The timing-logs question (practice paper 1, question 22) breaks part 4, because it was for one day only.</p>
+  <details class="more">
+    <summary>Optional: the other three times (full questions)</summary>
+    <p>Words in these three: a <strong>spike</strong> is a short experiment you throw away afterwards. <code>.mcp.json</code> is the team's committed list of MCP servers. <code>claude mcp add --scope</code> adds a server for a chosen group: <code>user</code> (only you, all your projects, saved in <code>~/.claude.json</code>), <code>project</code> (the whole team, in <code>.mcp.json</code>), or <code>local</code>, the default (only you, this project).</p>
+<section class="mc">
+  <p class="mc-h">Full practice exam, 19 Oct, question 19</p>
+  <p class="mc-stem">The team shares an /incident-summary skill in .claude/skills/. One engineer wants a version that writes in a terser style <mark>for their own notes</mark>, and <mark>must not change what the other 11 engineers get</mark>. They tried editing the shared SKILL.md locally, but kept nearly committing it. Where should the personal version live?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>In CLAUDE.local.md, as an instruction to write incident summaries tersely for this engineer</div><div class="mc-k"><b>✓ Correct: A</b>In the engineer's ~/.claude/skills/ under a different name, such as /incident-summary-terse</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>In the root CLAUDE.md, as a line asking for terse incident summaries for this engineer</span></li><li><span class="mc-l">C</span><span>In .claude/skills/ next to the team skill, with a note in its description that it is personal</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> <code>CLAUDE.local.md</code> holds instructions, not skills, and its line would change <em>every</em> incident summary in that repo for this engineer, including when they want the team style. A personal version of a team skill goes in <code>~/.claude/skills/</code> under a different name.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Practice paper 1, 19 Oct, question 7</p>
+  <p class="mc-stem">One of your 14 engineers wants to try an experimental profiling MCP server that is still unstable. They want it <mark>in all 4 repositories they work in</mark>, and <mark>no teammate should see it or be asked to approve it</mark>. The warehouse repository already has a committed .mcp.json with 3 team servers. Where should the server be configured?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>In a CLAUDE.local.md in each of the 4 repositories, as the server's launch command</div><div class="mc-k"><b>✓ Correct: B</b>At user scope in their own ~/.claude.json, added once with claude mcp add --scope user</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>In the warehouse repo's committed .mcp.json, with its entry marked as experimental and optional</span></li><li><span class="mc-l">C</span><span>With claude mcp add run from inside the warehouse repo, leaving the scope at its default setting</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> <code>CLAUDE.local.md</code> holds instructions; Claude Code never starts an MCP server from it. It also covers one repository, not all 4. A server for only you, in all your projects, is added with <code>--scope user</code> and stored in <code>~/.claude.json</code>.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Practice paper 1, 19 Oct, question 22</p>
+  <p class="mc-stem">For a 1-day performance spike, a developer wants Claude to add timing logs around each database call in checkout/reserve.ts, and only in that file. They will try it <mark>in today's session only</mark> and then discard the changes, and <mark>from tomorrow they are back on normal work in that same file</mark>, where timing logs must not be added. A teammate suggests a .claude/rules/ file with paths set to checkout/reserve.ts. What is the best way to give Claude the instruction?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add it to their CLAUDE.local.md, then delete the line after the spike</div><div class="mc-k"><b>✓ Correct: B</b>Say it in today's session prompt and name checkout/reserve.ts as the file</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Create .claude/rules/spike.md with paths set to reserve.ts, left uncommitted</span></li><li><span class="mc-l">D</span><span>Create a /spike-timing skill in ~/.claude/skills/ and run it today</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> <code>CLAUDE.local.md</code> loads in every session in the repo until someone deletes the line, so tomorrow's work would get it too. Today only means nothing stored: say it in today's prompt.</div>
+</section>
+  </details>
+  <div class="check"><strong>The check:</strong> before you pick <code>CLAUDE.local.md</code>, test each of its four parts against the question. Is it an instruction (not a skill, not an MCP server)? Only you? Only this repo? Wanted in every session until removed? One "no" rules it out.</div>
+
+  <h2>4 · Make every problem impossible, not just one</h2>
+  <p>Words for this section:</p>
+  <ul class="steps">
+    <li><strong>Tool</strong>: an action an agent can call, such as "save this claim" or "run this query". A <strong>narrow tool</strong> can do only the agent's real job and nothing else.</li>
+    <li><strong>PreToolUse hook</strong>: a script that runs <em>before</em> a tool call. It can stop that call.</li>
+    <li><strong>PostToolUse hook</strong>: a script that runs <em>after</em> a tool call has already happened. It can only clean up or hide the result.</li>
+    <li><strong>System prompt</strong>: the standing instructions given to an agent. <strong>Subagent</strong>: a second agent the main one hands work to. <strong>WHERE clause</strong>: the part of a database query that picks which rows. <strong>Claim</strong>: an insurance claim record; <strong>adjusters</strong> are the staff who review claims.</li>
+  </ul>
+  <p>Two questions where the agent had a tool that could do far more than its job. The first question names two problems, and the hook fixes only one. The second names one requirement: the agent must be unable to <em>reach</em> other customers' rows. A hook that runs after the query can't give that, because the rows were already reached.</p>
+<section class="mc">
+  <p class="mc-h">Practice paper 2, 20 Oct, question 4</p>
+  <p class="mc-stem">The extraction agent saves its results with update_claim, a general tool that can set any field on any claim. In 1,200 runs it <mark>changed approved_payout 4 times</mark>, overwriting amounts adjusters had approved, and <mark>once edited a different claim with a similar number</mark>. Its job is to fill the 11 extraction fields on the claim it is processing. The adjusters want it <mark>unable to change anything else, not just warned</mark>. What is the best fix?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Add a PreToolUse hook that blocks any update_claim call whose input sets approved_payout</div><div class="mc-k"><b>✓ Correct: B</b>Replace update_claim with save_extraction, which takes only the 11 fields for the current claim</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>Add a PostToolUse hook that reverts changes to approved_payout and alerts the adjuster</span></li><li><span class="mc-l">D</span><span>Add a system prompt rule that only adjusters set payouts, with 2 examples of correct saves</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the question names two problems: it changed the payout field, <em>and</em> it edited the wrong claim. The hook blocks the payout field only. <code>update_claim</code> can still change any other field and any other claim. Replacing it with <code>save_extraction</code>, which accepts only the 11 extraction fields for the current claim, makes both problems impossible at once.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Practice paper 1, 19 Oct, question 6</p>
+  <p class="mc-stem">To read account data, the support agent was given run_sql, a generic tool that runs any read-only query against the customer database. In an audit of 900 chats, <mark>7 queries returned rows for other customers</mark>, and 2 of those details were read out to the wrong person. The agent needs only the current customer's account, plan and last 10 bills, and the security team wants it <mark>unable to reach other customers' rows, not just to hide them</mark>. What is the best fix?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Add a PostToolUse hook that drops returned rows whose customer ID doesn't match the session's</div><div class="mc-k"><b>✓ Correct: C</b>Replace run_sql with get_my_account, which takes no customer ID and returns only the session customer's data</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Add a system prompt rule that run_sql queries must filter on the customer ID taken from the session</span></li><li><span class="mc-l">D</span><span>Route each run_sql query through a reviewer subagent that checks the WHERE clause before it runs</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the hook runs <em>after</em> the query, so the agent has already reached other customers' rows; the hook only hides them. The question asked for "unable to reach". A narrow tool, <code>get_my_account</code>, takes no customer ID at all, so there is nothing to reach.</div>
+</section>
+  <p>A hook is written for one kind of call, so it covers the one problem you had in mind. A narrow tool can only do the agent's actual job, so everything else becomes impossible, including problems nobody has listed yet. The exam guide lists two ways to do this: replace a general tool with a narrow one (its example: replace a tool that fetches any web address with one that only loads valid documents), and give each agent only the tools its role needs.</p>
+  <div class="check"><strong>The check:</strong> before reading the options, write down each problem the question names, one per line. Then cross out every option that leaves one of them still possible. A hook that blocks one thing, or cleans up afterwards, usually leaves something possible.</div>
+
+  <h2>Summary table</h2>
+  <p>Every place you can put an instruction, who it reaches, and when it switches on.</p>
+  <table class="cgrid">
+    <tr><th>Place (full path)</th><th>Who it reaches</th><th>When it switches on</th></tr>
+    <tr><td><code>~/.claude/CLAUDE.md</code></td><td>Only you, in every project you open</td><td>At launch, every session</td></tr>
+    <tr><td><code>my-repo/CLAUDE.md</code> or <code>my-repo/.claude/CLAUDE.md</code></td><td>The whole team, in this repo</td><td>At launch, every session</td></tr>
+    <tr><td><code>my-repo/CLAUDE.local.md</code> (kept out of git)</td><td>Only you, in this repo only</td><td>At launch, every session, until you delete the line</td></tr>
+    <tr><td><code>my-repo/tests/fixtures/CLAUDE.md</code> (a CLAUDE.md inside a sub-folder)</td><td>The whole team, in this repo</td><td>When Claude reads or edits a file in that folder</td></tr>
+    <tr><td>A file pulled in with <code>@import</code>, such as <code>@docs/api.md</code></td><td>The same people as the file that imports it</td><td>At launch, together with that file</td></tr>
+    <tr><td><code>my-repo/.claude/rules/dbt.md</code> with <strong>no</strong> <code>paths:</code></td><td>The whole team, in this repo</td><td>At launch, every session</td></tr>
+    <tr><td><code>my-repo/.claude/rules/dbt.md</code> <strong>with</strong> <code>paths: models/**/*.sql</code></td><td>The whole team, in this repo</td><td>When Claude reads or edits a matching file</td></tr>
+    <tr><td><code>~/.claude/rules/dbt.md</code></td><td>Only you, in every project</td><td>At launch if there is no <code>paths:</code>; when Claude reads or edits a matching file if there is</td></tr>
+    <tr><td><code>my-repo/.claude/skills/regen-fixtures/SKILL.md</code></td><td>The whole team, in this repo</td><td>When someone types <code>/regen-fixtures</code> (or Claude sees the request matches it)</td></tr>
+    <tr><td><code>~/.claude/skills/regen-fixtures/SKILL.md</code></td><td>Only you, in every project</td><td>When you type <code>/regen-fixtures</code> (or Claude sees the request matches it)</td></tr>
+    <tr><td>What you type in the prompt</td><td>Only you, this session</td><td>Now only; gone next session</td></tr>
+  </table>
+  <p>The middle column comes from where the file is saved: <code>~/</code> or <code>my-repo/</code>. The right column comes from the kind of file. Change the folder and you change who gets it. Change the kind of file and you change when it switches on.</p>
+
+  <blockquote class="key">
+    <strong>The four checks, in one place:</strong><br>
+    1. A file loads whole. A heading inside it does not limit where it loads.<br>
+    2. Match the trigger to what starts the job. Claude reading or editing a file → a rules file with <code>paths:</code> or a folder CLAUDE.md. A person deciding to start a job → a skill. A rules file without <code>paths:</code> loads at launch, like CLAUDE.md.<br>
+    3. When one person's sessions behave differently, run <code>/memory</code> before adding any file.<br>
+    4. When the question names two problems, or says the agent must be unable to do something, the fix must make every problem impossible. A narrow tool usually does; a hook usually blocks one thing or cleans up after it.
+  </blockquote>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>Why doesn't a heading in <code>~/.claude/CLAUDE.md</code> keep a line out of your other projects?</li>
+    <li>A CLAUDE.md inside a folder switches on when Claude reads or edits a file in that folder. Why is that the wrong home for a job that starts when someone decides to start it?</li>
+    <li>Why does a narrow tool beat a hook when a question names two problems?</li>
+  </ol>
+
+  <h2>Six new practice questions</h2>
+  <p>Before you read the options, answer for yourself: who should get it, which projects, and what should switch it on. If the question names more than one problem, list them first. After you answer, a short explanation appears under the question.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If two options both look right, bring them here and we'll check each against every problem in the question.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/memory">Claude Code docs: How Claude remembers your project</a>. Its loading rules are summarised in this repo at <code>notes/2026-09-docs-delta.md</code>, section 3.1: CLAUDE.md and CLAUDE.local.md load at launch from the working folder and every folder above it; files in folders below load only when Claude reads files there; rules without <code>paths:</code> load at launch with the same priority as <code>.claude/CLAUDE.md</code>; rules with <code>paths:</code> load when a matching file is read; skills load on demand.<br>
+    <strong>Official exam guide</strong> (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 2.3, 3.1, 3.2, 3.3.<br>
+    <strong>Miss history:</strong> learning records 0030 (lesson 21), 0031 (first D2/D3 paper), 0033 (D2/D3 Paper 2).<br>
+    <strong>Previous:</strong> <a href="0023-when-does-it-fire.html">Lesson 23 — When does it fire?</a> · <a href="0021-use-the-switch-claude-code-has.html">Lesson 21 — Use the switch Claude Code already has</a> · <strong>Reference:</strong> <a href="../reference/scope-map.html">Scope map</a> · <a href="../reference/skills-and-rules.html">Skills and rules cheat sheet</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A developer's own ~/.claude/CLAUDE.md has a heading '## billing-api' with one line under it: 'Use pnpm, never npm'. The billing-api team switched to pnpm last month. In the developer's 5 other repositories, which still use npm, Claude now runs pnpm and installs fail. The 7 other billing-api engineers never got the line either. What is the best fix?",
+    opts: [
+      "Rename the heading to 'billing-api only, skip elsewhere'",
+      "Move the line into billing-api's committed CLAUDE.md",
+      "Move the line into a CLAUDE.local.md in billing-api",
+      "Turn the line into a personal skill run before installs"
+    ],
+    ok: 1,
+    fb: "Two problems: the line reaches the wrong repos, and it misses the right people. Moving it to billing-api's committed CLAUDE.md fixes both: everyone in that repo, and nowhere else. Renaming the heading (A) doesn't help: the whole file still loads in all 6 repos. A CLAUDE.local.md (C) stops the leak but still leaves the 7 teammates without it. A personal skill (D) changes when it fires: only if someone remembers to start it."
+  },
+  {
+    stem: "A teammate adds my-repo/.claude/rules/sql-style.md with 30 lines of SQL conventions and no frontmatter. They expect it to apply only when Claude works on .sql files. What actually happens?",
+    opts: [
+      "It loads when Claude reads or edits a .sql file",
+      "It loads when someone types /sql-style in a session",
+      "It loads at launch, in every session in this repo",
+      "It stays off until someone adds a paths: line to it"
+    ],
+    ok: 2,
+    fb: "A rules file with no paths: loads at launch, just like CLAUDE.md, so all 30 lines are in every session. A is what they wanted; for that the file needs a paths: **/*.sql line in a frontmatter block at the top. B describes a skill, not a rules file. D is wrong: it does load, just in every session."
+  },
+  {
+    stem: "The team wants Claude to use the shared structured logger, never print statements, whenever it writes a log line. Log lines get written in almost any of the repo's 900 source files, across Python, Go and TypeScript. A teammate suggests a rules file with paths set to src/logging/**. Where should the rule go?",
+    opts: [
+      "A .claude/rules/ file with paths set to src/logging/**",
+      "A project skill, /use-logger, run before writing logs",
+      "The repo's committed root CLAUDE.md, loaded each session",
+      "A CLAUDE.md inside src/logging/, next to the logger code"
+    ],
+    ok: 2,
+    fb: "What should switch it on? Claude writing a log line, which can happen in almost any file. No file pattern picks out the files where a log line will be written, so a file-based trigger misses most of them: A and D only switch on when Claude reads or edits a file in src/logging/. B only works if someone starts it, or Claude happens to match the request to it, before each log line. A rule that must hold in nearly every session belongs in the team's root CLAUDE.md."
+  },
+  {
+    stem: "In one developer's sessions, Claude ends every commit message with a party emoji; their teammates don't see this. They run /memory, and it shows their own ~/.claude/CLAUDE.md holds the line 'End commit messages with a party emoji', which they added for a side project. They want it only in that side project, which 2 friends also work on and who don't want it. That project's .gitignore already lists CLAUDE.local.md. What should they do?",
+    opts: [
+      "Move the line into the side project's CLAUDE.local.md file",
+      "Put the line under a '## side project' heading where it is",
+      "Add 'no emoji in commits' to the work repo's CLAUDE.md file",
+      "Move the line into the side project's committed CLAUDE.md"
+    ],
+    ok: 0,
+    fb: "/memory found the cause; now pick the right reach. Just me, one project, every session: CLAUDE.local.md in the side project. It passes all four parts of the CLAUDE.local.md check. B doesn't help: ~/.claude/CLAUDE.md still loads whole in every project, whatever the heading. C piles a second rule on top instead of removing the cause. D reaches the 2 friends, who don't want it."
+  },
+  {
+    stem: "A developer keeps the team's 45-line procedure for rotating the payment provider's test keys in their own ~/.claude/CLAUDE.md. Two complaints: the other 6 engineers don't get it, and it loads in every session, though a rotation only happens when the provider emails a reminder that keys are expiring, about every 6 weeks. Where should the procedure go?",
+    opts: [
+      "The team's committed CLAUDE.md, under a 'Key rotation' heading",
+      "A personal skill in ~/.claude/skills/, named /rotate-test-keys",
+      "A .claude/rules/ file with paths set to the config/keys/ folder",
+      "A project skill in .claude/skills/, named /rotate-test-keys"
+    ],
+    ok: 3,
+    fb: "Two problems: the wrong people get it, and it loads at the wrong time. A project skill fixes both: it is committed, so all 7 have it, and it loads only when someone starts a rotation. The team CLAUDE.md (A) fixes who gets it but still loads in every session. A personal skill (B) fixes the timing but still leaves the other 6 without it. A paths rule (C) loads when Claude reads or edits key files, not when the reminder email arrives."
+  },
+  {
+    stem: "A developer wants 2 things. First, Claude should use British spelling in every repository they work in; their teammates use American spelling. Second, in the orders repository, everyone's sessions should follow the API error format the team agreed on last week. Where should each instruction live?",
+    opts: [
+      "Both in their ~/.claude/CLAUDE.md, under a heading for each",
+      "Both in the orders repo's committed CLAUDE.md, for everyone",
+      "Spelling in ~/.claude/CLAUDE.md, the format in orders' CLAUDE.md",
+      "Spelling in a CLAUDE.local.md, the format in ~/.claude/CLAUDE.md"
+    ],
+    ok: 2,
+    fb: "Find each reach on its own. Spelling: only you, all your repos, every session, which is ~/.claude/CLAUDE.md. Error format: the whole team, orders only, which is the committed CLAUDE.md there. A fails twice: teammates never get the format, and a heading doesn't stop it loading in your other repos. B gives everyone British spelling. D has both reaches backwards."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Scope map</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  table.cgrid code, .map code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main class="page">
+  <p class="eyebrow">CCA Foundations · Quick reference · 3.1, 3.2, 2.4</p>
+  <h1>Scope map</h1>
+  <p class="subtitle">Ask in order: is it needed again, or just now? Who needs it? Where should it load?</p>
+
+  <table class="cgrid">
+    <tr><th></th><th>Team · this project (committed)</th><th>Me · this project</th><th>Me · all my projects</th></tr>
+    <tr><td><strong>Instructions</strong></td><td><code>CLAUDE.md</code> or <code>.claude/CLAUDE.md</code></td><td><code>CLAUDE.local.md</code> (add to <code>.gitignore</code>)</td><td><code>~/.claude/CLAUDE.md</code></td></tr>
+    <tr><td><strong>Skills</strong></td><td><code>.claude/skills/</code></td><td>—</td><td><code>~/.claude/skills/</code></td></tr>
+    <tr><td><strong>Commands</strong></td><td><code>.claude/commands/</code></td><td>—</td><td><code>~/.claude/commands/</code></td></tr>
+    <tr><td><strong>MCP servers</strong></td><td><code>.mcp.json</code> (project scope)</td><td>local scope (default)</td><td>user scope, <code>~/.claude.json</code></td></tr>
+  </table>
+
+  <h2>Rules that decide close calls</h2>
+  <table class="cgrid">
+    <tr><th>If the stem says…</th><th>Then</th></tr>
+    <tr><td>Needed once (one log, one investigation)</td><td><code>@path</code> in the prompt. Not CLAUDE.md, not a rules file.</td></tr>
+    <tr><td>Team needs it, but each person has their own token</td><td>Still <code>.mcp.json</code>, with <code>${VAR}</code> for the token. The token doesn't make the server personal.</td></tr>
+    <tr><td>Shared config works for everyone but one person</td><td>Fix that person's environment (set the variable). Don't copy the server into their <code>~/.claude.json</code>.</td></tr>
+    <tr><td>My own variant of a team skill</td><td><code>~/.claude/skills/</code> under a <strong>different name</strong>. Same name → the personal one runs in your sessions instead of the team's.</td></tr>
+    <tr><td>Personal notes for one repo only</td><td><code>CLAUDE.local.md</code>. <code>~/.claude/CLAUDE.md</code> also loads in every other repo.</td></tr>
+    <tr><td>Personal or experimental MCP server</td><td>User scope (<code>~/.claude.json</code>). Never the committed <code>.mcp.json</code>.</td></tr>
+    <tr><td>Standard integration (GitLab, Jira, GitHub)</td><td>Use a community server; build custom only for team-specific workflows.</td></tr>
+  </table>
+  <p>Path tell: <code>~/…</code> = only you. A path in the repo = the team, once committed (except <code>CLAUDE.local.md</code>, which you add to <code>.gitignore</code>).</p>
+
+  <p class="footer">Lesson: <a href="../lessons/0019-who-gets-it-where-it-loads.html">Lesson 19 — Who gets it, and where does it load?</a> · Sources: <a href="https://code.claude.com/docs/en/memory">memory</a>, <a href="https://code.claude.com/docs/en/mcp">MCP</a>, <a href="https://code.claude.com/docs/en/skills">skills</a> docs (fetched 2026-10-19); exam guide lines 278–286, 314–333.</p>
+</main>
+</body>
+</html>

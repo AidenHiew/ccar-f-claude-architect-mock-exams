@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Match the tool</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main class="page">
+  <p class="eyebrow">CCA Foundations · Quick reference · 2.5, 3.1, 3.3, 3.4</p>
+  <h1>Match the tool</h1>
+  <p class="subtitle">Ask what the stem names. Small job → the light tool. The heavier tool only when the stem names what it's built for.</p>
+
+  <table class="cgrid">
+    <tr><th>Job</th><th>Light tool (small, named job)</th><th>Heavier tool is right when the stem names…</th></tr>
+    <tr><td><strong>Change code</strong> (3.4)</td><td>Direct execution, with a test. One function, a clear stack trace, a diff you can say in one sentence.</td><td>Plan mode: many files (45+), several valid approaches, an architectural choice, unfamiliar code. Then execute the plan directly.</td></tr>
+    <tr><td><strong>Find your way</strong> (2.5)</td><td>Grep for the entry point (route, function, error message), Read it, follow the calls.</td><td>Explore subagent: a long, verbose discovery phase with no known start, where the output would fill the main context. Never "read every file up front".</td></tr>
+    <tr><td><strong>Give context</strong> (3.1, 3.3)</td><td><code>@file</code> in this session's prompt: needed once.</td><td><code>.claude/rules/</code> with <code>paths</code>: needed whenever matching files are read or edited. <code>CLAUDE.md</code>: needed in every session.</td></tr>
+  </table>
+
+  <h2>Words that don't change the answer</h2>
+  <table class="cgrid">
+    <tr><th>Stem word</th><th>What to do with it</th></tr>
+    <tr><td>"business-critical", "regulated", "production"</td><td>Check the change harder (add the test). Don't add a planning phase to a one-line fix.</td></tr>
+    <tr><td>"220 files", "large codebase"</td><td>Irrelevant if a starting point is named. Trace one path.</td></tr>
+    <tr><td>"a teammate suggests…"</td><td>Setup, not a fact about the task.</td></tr>
+    <tr><td>a subagent for bulk reading</td><td>Changes <em>where</em> the reading happens, not <em>how much</em>.</td></tr>
+  </table>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Lesson: <a href="../lessons/0020-match-the-tool-to-the-stem.html">L20 — Match the tool to what the stem names</a> · See also <a href="iterative-refinement.html">Iterative refinement</a> (3.5) and <a href="scope-map.html">Scope map</a> (3.1 who/where).</p>
+    <p>Sources: <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">official exam guide §2.5, §3.1, §3.3, §3.4</a> · <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a> ("If you could describe the diff in one sentence, skip the plan") · <a href="https://code.claude.com/docs/en/memory">Claude Code memory docs</a> (path-scoped rules), fetched 2026-10-19.</p>
+  </div>
+</main>
+</body>
+</html>

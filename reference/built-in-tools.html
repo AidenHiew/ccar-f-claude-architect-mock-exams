@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Built-in tools</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ref dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1.2rem 0; align-items: baseline; }
+  .ref dt { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; }
+  .ref dd { margin: 0; font-size: 1rem; }
+</style>
+</head>
+<body>
+<main class="page ref">
+  <p class="eyebrow">CCA Foundations · Quick reference · 2.5 (with 5.4)</p>
+  <h1>Built-in tools</h1>
+  <p class="subtitle">Pick the tool by what you already know about the target.</p>
+
+  <h2>One job each</h2>
+  <dl>
+    <dt>Glob</dt><dd>Matches file <strong>paths</strong> by name or extension pattern, e.g. <code>**/*.test.tsx</code>. Never opens a file.</dd>
+    <dt>Grep</dt><dd>Matches <strong>lines inside files</strong>: function names, callers, error messages, imports. Can be scoped to files with a glob or a language type.</dd>
+    <dt>Read</dt><dd>Loads a whole file (or a line range). Every Read uses context.</dd>
+    <dt>Write</dt><dd>Creates a file or overwrites the whole of it.</dd>
+    <dt>Edit</dt><dd>Targeted change, anchored on a <strong>unique</strong> text match.</dd>
+    <dt>Bash</dt><dd>Runs commands: tests, builds, git.</dd>
+  </dl>
+
+  <h2>Decision test</h2>
+  <dl>
+    <dt>know the name</dt><dd>→ Glob</dd>
+    <dt>know some text</dt><dd>→ Grep</dd>
+    <dt>both</dt><dd>→ Grep with a file filter (one call, not Glob then Read each)</dd>
+    <dt>Edit anchor not unique</dt><dd>→ Read the whole file, then Write it back</dd>
+  </dl>
+
+  <h2>Exploration loop (context-limited)</h2>
+  <dl>
+    <dt>1 · Grep</dt><dd>for a concrete entry point: route, error string, function.</dd>
+    <dt>2 · Read</dt><dd>only the hits.</dd>
+    <dt>3 · follow</dt><dd>imports and calls, then Grep the next name.</dd>
+    <dt>wrappers</dt><dd>list every exported name first, then Grep each one (re-exports rename things).</dd>
+  </dl>
+
+  <div class="trap">
+    <b>Distractor shapes.</b> "Read all files up front" (complete but blows the context) · Glob used to find <em>callers</em> (a name match for a content question) · Grep only the original name through a wrapper (misses aliases) · an MCP tool ignored in favour of Grep → improve the MCP tool's description (2.4).
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Sources: <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">exam guide task statement 2.5</a>; <a href="https://code.claude.com/docs/en/tools-reference">Claude Code tools reference</a> (fetched 2026-10-08). Lesson: <a href="../lessons/0014-glob-vs-grep.html">14 · Glob finds files, Grep finds lines</a>.</p>
+  </div>
+</main>
+</body>
+</html>

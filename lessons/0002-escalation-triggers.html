@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 — The escalation trigger list</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .triggers { list-style: none; padding: 0; margin: 1.2rem 0; counter-reset: t; }
+  .triggers li { position: relative; padding: .7rem 0 .7rem 2.4rem; border-top: 1px solid var(--rule); }
+  .triggers li::before { counter-increment: t; content: counter(t); position: absolute; left: 0; top: .7rem;
+    font-family: var(--mono); font-weight: 600; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 50%; width: 1.5rem; height: 1.5rem; display: grid; place-items: center; font-size: .8rem; }
+  .nontriggers { background: var(--bad-bg); border: 1px solid #e4c8c3; border-radius: 6px; padding: .9rem 1.2rem; margin: 1.2rem 0; }
+  .nontriggers b { color: var(--bad); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 2 · Task statement 5.2</p>
+  <h1>The escalation trigger list</h1>
+  <p class="subtitle">One rule ends every escalation question. You've now missed this three times — in <em>both</em> directions.</p>
+
+  <p>Your escalation misses look random until you line them up. On the mock you had an explicit "get me a human" and you tried to solve it yourself — you <strong>under-escalated</strong>. Just now, a merely-annoyed customer with a routine request, and you escalated — you <strong>over-escalated</strong>. Same root cause: you're judging each case on feel instead of checking it against a fixed list. This lesson gives you that list, so the feel stops mattering.</p>
+
+  <blockquote class="key">
+    <strong>Escalate if and only if</strong> one of three things is true. Emotion is never one of them.
+  </blockquote>
+
+  <h2>The three triggers — memorize as a positive list</h2>
+  <ol class="triggers">
+    <li><strong>The customer explicitly asks for a human.</strong> Honor it <em>immediately</em> — do not investigate or attempt a fix first. <cite>[1]</cite></li>
+    <li><strong>A policy gap or exception.</strong> The policy is silent or ambiguous on this request (e.g. it covers own-site price adjustments but says nothing about matching a competitor). Not the agent's call to invent. <cite>[1]</cite></li>
+    <li><strong>The agent cannot make meaningful progress.</strong> It's genuinely stuck, not just facing a hard-but-doable task. <cite>[1]</cite></li>
+  </ol>
+
+  <div class="nontriggers">
+    <p style="margin:0 0 .5rem"><b>These are NOT triggers</b> — both are unreliable proxies the exam baits you with:</p>
+    <p style="margin:0"><b>Frustration / sentiment.</b> An upset customer with a simple, in-policy request → <em>acknowledge the frustration and resolve it</em>. Escalate only if they then reiterate they want a human. Sentiment ≠ complexity.<br>
+    <b>Low self-confidence score.</b> The model is poorly calibrated and confidently wrong on exactly the hard cases — a confidence number is not an escalation signal.</p>
+  </div>
+
+  <p>Watch how the one rule dissolves all three of your misses:</p>
+  <div class="facts">
+    <div class="fact"><div class="n">"get me a human"</div><div class="l">Trigger 1 present → escalate now. (You solved it instead → wrong.)</div></div>
+    <div class="fact"><div class="n">angry, routine fix</div><div class="l">No trigger — emotion doesn't count → resolve it. (You escalated → wrong.)</div></div>
+    <div class="fact"><div class="n">policy silent</div><div class="l">Trigger 2 present → escalate. (You decided it yourself → wrong.)</div></div>
+    <div class="fact"><div class="n">two customer matches</div><div class="l">Don't guess — ask for another identifier. (Bonus rule.) <cite>[1]</cite></div></div>
+  </div>
+
+  <div class="trap">
+    <b>The tell for a policy-gap question:</b> the stem says the policy covers X but is <em>silent</em> on the very thing being asked. Any option where the agent <em>decides the silent case itself</em> — approve, decline, or "ask for proof then decide" — is the <span class="tag">wrong-problem</span> distractor. A gap the policy never addressed is escalated, not adjudicated by the agent.
+  </div>
+
+  <hr class="rule">
+
+  <h2>Retrieve it — run the list on each</h2>
+  <p>For every question, silently ask: <em>explicit request? policy gap? stuck?</em> If none → don't escalate. Answer, then read the feedback.</p>
+
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher — ask me anything.</strong> Want the edge case where a frustrated customer becomes a valid escalation? Or how "can't make progress" differs from "this is hard"? Ask in the chat — that's where the rule gets sharp.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Primary source:</strong> the escalation &amp; ambiguity section of your <a href="../notes/domain-5-context-reliability.md">domain-5 notes</a> (§5.2), audited against the official exam guide — the authoritative statement of the three triggers and the two non-triggers.</p>
+    <p><strong>Reference card:</strong> <a href="../reference/escalation.html">Escalation quick reference</a>.</p>
+    <p><strong>Miss history:</strong> learning record 0002 · the elaborate-option bias in 0003.</p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "Halfway through, a customer types \"stop, just put me through to a person.\" The agent could resolve their issue in one more step. What should it do?",
+    opts: [
+      "Finish the one remaining step first, then escalate if they still want it",
+      "Confirm they truly want a human before routing them onward to one",
+      "Escalate to a human immediately, without attempting the final step first",
+      "Escalate only if the request itself turns out to be genuinely complex"
+    ],
+    ok: 2,
+    fb: "Trigger 1: an explicit request for a human is honored immediately, no investigation or last step first. The other three all delay or condition what the customer stated plainly."
+  },
+  {
+    stem: "A customer is clearly angry but their request is a routine, in-policy shipping-address update the agent can do right now. They have not asked for a human. Correct action?",
+    opts: [
+      "Resolve the update now while acknowledging that the customer is frustrated",
+      "Escalate to a human, because that level of frustration warrants a handoff",
+      "Ask the customer to calm down first and then make the requested update",
+      "Escalate once a sentiment score on the message crosses a set threshold"
+    ],
+    ok: 0,
+    fb: "Frustration is NOT a trigger — sentiment isn't complexity. A simple in-policy request gets resolved (with empathy); you'd escalate only if they then reiterate wanting a human. Sentiment scores are the classic distractor."
+  },
+  {
+    stem: "Policy details refunds for defective items but is entirely silent on refunds for buyer's remorse. A customer requests a remorse refund. What should the agent do?",
+    opts: [
+      "Decline it, because whatever the policy does not permit defaults to a refusal",
+      "Approve it when the amount is small, treating it as low-risk goodwill spending",
+      "Request the order details first and then decide on the refund independently",
+      "Escalate, because the policy is silent on this case and it isn't the agent's call"
+    ],
+    ok: 3,
+    fb: "Trigger 2: a policy gap (silent/ambiguous) is escalated, never adjudicated by the agent. Declining, approving, or 'gather info then decide alone' all have the agent resolving a case the policy never addressed."
+  },
+  {
+    stem: "An account lookup returns two different customers who both match the name the caller gave. How should the agent proceed?",
+    opts: [
+      "Pick the account that is statistically the more likely of the two matches",
+      "Ask the customer for an additional identifier to disambiguate the two matches",
+      "Escalate the whole conversation to a human to choose between the accounts",
+      "Proceed with both accounts merged so no relevant record is ever missed"
+    ],
+    ok: 1,
+    fb: "Multiple matches → ask for another identifier; never guess heuristically. This isn't an escalation case (no trigger fired) — it's a disambiguation step the agent handles by asking."
+  }
+];
+
+const LAB = ["A","B","C","D"];
+const root = document.getElementById("quiz");
+QUIZ.forEach((q, qi) => {
+  const div = document.createElement("div");
+  div.className = "q";
+  div.innerHTML = `<p class="stem"><span class="qn">Q${qi+1}</span>${q.stem}</p>` +
+    `<div class="opts">` + q.opts.map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}"><span class="lab">${LAB[oi]}</span><span>${o}</span><span class="mk"></span></button>`).join("") + `</div>` +
+    `<div class="fb" id="fb-${qi}"></div>`;
+  root.appendChild(div);
+});
+root.addEventListener("click", e => {
+  const btn = e.target.closest(".opt");
+  if (!btn) return;
+  const qi = +btn.dataset.q, oi = +btn.dataset.o, q = QUIZ[qi];
+  const wrap = btn.closest(".q");
+  if (wrap.dataset.done) return;
+  wrap.dataset.done = "1";
+  wrap.querySelectorAll(".opt").forEach((b, bi) => {
+    b.disabled = true;
+    if (bi === q.ok) { b.classList.add("correct"); b.querySelector(".mk").textContent = "✓"; }
+    if (bi === oi && oi !== q.ok) { b.classList.add("wrong"); b.querySelector(".mk").textContent = "✗"; }
+  });
+  const fb = document.getElementById("fb-"+qi);
+  fb.innerHTML = (oi === q.ok ? "<b>Correct.</b> " : "<b>Not quite.</b> ") + q.fb;
+  fb.setAttribute("data-show", "1");
+});
+</script>
+</body>
+</html>

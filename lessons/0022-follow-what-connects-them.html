@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 22 — Follow what connects them, not how many</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+  .swing { margin: 1.4rem 0 1.8rem; font-family: var(--sans); font-size: .84rem; line-height: 1.4; }
+  .swing .scale { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  .swing .end { padding: .5rem .7rem; font-size: .76rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); background: var(--code-bg); }
+  .swing .end.r { text-align: right; border-left: 1px solid var(--rule); }
+  .swing .side { padding: .5rem .6rem; border-top: 1px solid var(--rule); }
+  .swing .side.r { border-left: 1px solid var(--rule); }
+  .swing .chip { display: block; border: 1px solid var(--bad); background: var(--bad-bg); border-radius: 5px; padding: .35rem .5rem; margin: .35rem 0; }
+  .swing .chip b { color: var(--bad); }
+  .swing .keys { margin-top: .8rem; border: 1px solid var(--good); background: var(--good-bg); border-radius: 6px; padding: .55rem .75rem; }
+  .swing .keys b { color: var(--good); }
+  .swing .keys ul { margin: .35rem 0 0; padding-left: 1.1rem; }
+  @media (max-width: 34rem) { .swing .scale { grid-template-columns: 1fr; } .swing .end.r, .swing .side.r { border-left: 0; text-align: left; } }
+  @media print { .swing .chip, .swing .keys, .swing .end { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 22 · Domains 2 and 3 · Task statements 2.5, 3.5</p>
+  <h1>Follow what connects them, not how many</h1>
+  <p class="subtitle">You've practised these two topics more than any other weak row, and they're still weak. Your misses show why: each pick chose an amount, and each correct answer followed a connection.</p>
+
+  <blockquote class="key">
+    When Claude faces many things at once (many files to read, many bugs to hand back), ask one plain question: <strong>what connects them?</strong><br>
+    The right option follows that connection. "How many at a time" isn't the decision. It comes out of the answer.
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> There's a water stain on your ceiling.</p>
+  <ul class="steps">
+    <li><strong>The right move:</strong> start at the stain and follow the pipe back until you reach the joint that's leaking. You open only the bits of wall the pipe runs through.</li>
+    <li><strong>Tempting move 1:</strong> open every wall in the house. You'll find the leak eventually, but you've wrecked the place doing it.</li>
+    <li><strong>Tempting move 2:</strong> look closely at the stain and nothing else. It's quick and tidy, but the cause isn't there.</li>
+  </ul>
+  <p>The plumber then finds three problems: the leaking joint, a rotten board that the leak has been dripping on, and a squeaky door in another room. The joint and the board go in one job, because fixing the joint changes what happens to the board. The door is a separate job. Whether they share a room doesn't matter. The pipe is what connects them.</p>
+
+  <p><strong>Where this has cost you points.</strong> Five questions, in full, in the order you answered them, with your pick and the correct answer.</p>
+
+<section class="mc">
+  <p class="mc-h">Exam-style drill, 8 Oct, Scenario 6 (3.5)</p>
+  <p class="mc-stem">(Scenario 6) Dates arrive in six formats. After each run the developer says &quot;the dates are still wrong, fix it.&quot; <mark>Each round fixes some formats and breaks others</mark>; five rounds, no improvement. What next?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Fix one failing document per round so each change is easy to review</div><div class="mc-k"><b>✓ Correct: C</b>Send all failing cases at once, each with input and expected output</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Ask Claude to rewrite the whole prompt with much more emphasis on dates</span></li><li><span class="mc-l">D</span><span>Add &quot;be very careful with date formats&quot; in capitals to the prompt</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> B sets the amount to <em>one</em>: one document per round, small and easy to review. But the stem says the formats are connected: fixing one breaks another. Claude can't keep a format working that it never sees, so the key sends every failing case at once, each with its input and expected output.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D3 quiz, 16 Oct, Q10 (3.5)</p>
+  <p class="mc-stem">Reviewing Claude's rewrite of a CSV importer, you find three problems. Dates are parsed in UTC instead of the account's timezone. <mark>The dedup key is built from the parsed date</mark>, and so late-evening rows collide with the next day's rows. Rows with a null email are <mark>also dropped by the dedup step</mark>. How should you hand these back?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Open three separate sessions, one per problem, and then merge the three diffs together</div><div class="mc-k"><b>✓ Correct: B</b>Describe all three in one message, explaining how the date bug feeds the dedup key</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Fix the timezone bug first and raise the dedup problems after that change is verified</span></li><li><span class="mc-l">D</span><span>Ask for a fresh rewrite of the importer, noting that dates and nulls need extra care</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> C splits the work three ways, one session each. The stem names the connection: the date feeds the dedup key, and the null rule lives in that same dedup step. Three sessions each fix their piece without seeing the others. The key keeps them in one message and says how they connect.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Lesson 18 quiz, 17 Oct, Q4 (3.5)</p>
+  <p class="mc-stem">Claude's change to an order service introduced two bugs. Which fact about them is the strongest reason to describe both in a single message?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Both bugs are in the same repository and were logged the same day</div><div class="mc-k"><b>✓ Correct: D</b>The second bug reads the value that the first bug calculates wrongly</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Both bugs were found by the same reviewer during the same afternoon</span></li><li><span class="mc-l">C</span><span>Both bugs throw the same error type and show up in the same log file</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> After two misses for splitting, the pick swung the other way. B bundles because the bugs sit close together: same repository, same day. Closeness isn't a connection. D is the only option where one bug's output is the other bug's input, so fixing the first changes the second.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q26 (3.5)</p>
+  <p class="mc-stem">Claude is rewriting the function that rounds route distances for driver pay. Over 4 rounds of chat feedback, <mark>each fix breaks a case fixed earlier</mark>: one round broke zero-length legs, another broke distances near the 0.5 km boundary. <mark>The team knows the expected output for 15 such cases</mark>. What should the developer do?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Describe the 15 cases in one long prose message and ask Claude to handle them together</div><div class="mc-k"><b>✓ Correct: A</b>Write tests for the 15 cases first, then iterate by giving Claude the failing tests</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>Fix the rounding by hand and ask Claude only to tidy the code style around the function</span></li><li><span class="mc-l">D</span><span>Give Claude 2 input and output pairs for the hardest cases and go on as before</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> B gets the amount right (all 15 at once) but in a form that is told once and never checked again. What connects the rounds is the set of cases that must keep passing. Tests hold that set and re-check every case on every round, so a re-broken case shows up straight away.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q43 (2.5)</p>
+  <p class="mc-stem">An engineer asks how a booking cancellation flows from the API to the refund. The agent's first move was to Read all 220 files under app/, and by file 140 its context was full and its answers became vague. <mark>The cancel endpoint is a single controller action</mark>. How should the agent explore instead?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Spawn a subagent to Read all 220 files and return one summary of the whole app</div><div class="mc-k"><b>✓ Correct: C</b>Grep for the cancel action's route or method name, Read that action, then follow its calls</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Read the 220 files in batches of 40 and summarise each batch before the next one</span></li><li><span class="mc-l">D</span><span>Glob app/**/*.rb, then Read the files whose names suggest a cancellation, refund or booking</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> B still reads all 220 files; it just does the reading in a subagent. The stem hands you the starting point: one controller action. The key finds it with Grep, reads it, and follows its calls to the refund. You read only the files the flow actually passes through.</div>
+</section>
+
+  <h2>1 · Your picks swing; the keys don't</h2>
+  <p>Put your five picks on a line from "a little at a time" to "everything at once". The 3.5 picks moved from one end to the other: split twice, then bundle twice. The 2.5 pick sits at the far end. The correct answers aren't on this line at all. Each one follows something the stem names.</p>
+  <div class="swing" role="group" aria-label="Your picks on an amount scale, and what each correct answer followed instead">
+    <div class="scale">
+      <div class="end">A little at a time</div>
+      <div class="end r">Everything at once</div>
+      <div class="side">
+        <span class="chip"><b>8 Oct</b> · one document per round</span>
+        <span class="chip"><b>16 Oct</b> · three sessions, one bug each</span>
+      </div>
+      <div class="side r">
+        <span class="chip"><b>17 Oct</b> · both bugs, same repo and day</span>
+        <span class="chip"><b>19 Oct</b> · all 15 cases in one prose message</span>
+        <span class="chip"><b>19 Oct</b> · all 220 files, via a subagent</span>
+      </div>
+    </div>
+    <div class="keys"><b>What each correct answer followed</b>
+      <ul>
+        <li>8 Oct: the formats that kept breaking each other → every failing case, with its expected output</li>
+        <li>16 Oct: the date feeds the dedup key → one message that says so</li>
+        <li>17 Oct: one bug reads the value the other gets wrong → that, not the repo or the day</li>
+        <li>19 Oct, Q26: the cases that must keep passing → tests that re-check them each round</li>
+        <li>19 Oct, Q43: one controller action → Grep for it, Read it, follow its calls</li>
+      </ul>
+    </div>
+  </div>
+  <p>This is why practice hasn't stuck. Each lesson gave you a correct rule ("send them together", "don't read everything"), and the next question that looked similar got the rule as an amount. The fix isn't another amount rule. It's a habit: before the options, find the words in the stem that say what connects to what.</p>
+
+  <h2>2 · In 2.5, the connection is how the code links up</h2>
+  <p>A few plain words first. A <strong>caller</strong> is code that runs a function. An <strong>entry point</strong> is where a flow starts, such as the handler for a route. A <strong>base class</strong> is shared code that other classes build on (they <strong>extend</strong> it), and each of them can replace one of its methods with their own version (they <strong>override</strong> it).</p>
+  <p>Every 2.5 skill in the exam guide has the same shape: find one known starting point, then follow its links. The guide's own wording, with the link each one follows:</p>
+  <table class="cgrid">
+    <tr><th>What the guide says to do</th><th>The link you follow</th><th>What the distractors do instead</th></tr>
+    <tr><td>Start with Grep for entry points, then Read to follow imports and trace flows, instead of reading every file first</td><td>The calls and imports out of the entry point</td><td>Read everything (in one go, in batches or in a subagent); read files whose names look right</td></tr>
+    <tr><td>Trace a function across wrapper modules: list all its exported names first, then search for each one</td><td>Every name the function goes by</td><td>Search only the original name; read every file that imports the module</td></tr>
+    <tr><td>Grep: search inside file contents for things such as function names, error messages or import statements</td><td>A name or string inside files</td><td>Glob, which only sees file names and paths</td></tr>
+    <tr><td>Glob for "finding files by name or extension patterns", e.g. <code>**/*.test.tsx</code></td><td>Where files are and what they're called</td><td>Grep for a word, which also hits every file that merely mentions it</td></tr>
+  </table>
+  <p>One more 2.5 fact, which isn't about links but is in the guide: Edit changes a file by matching a piece of <strong>unique</strong> text. When Edit fails because that text appears more than once, the fallback is Read to load the whole file, then Write to save it back with the change.</p>
+
+  <h2>3 · In 3.5, the connection is between problems, or between rounds</h2>
+  <p>Refinement asks two kinds of "what connects them?"</p>
+  <p><strong>Between problems:</strong> does fixing one change another? If one bug's output is another's input, or they're handled in the same step, they go in one detailed message that says how they connect. If not, they go one at a time, each fix checked before the next. Same file, same reviewer, same day or same log isn't a connection.</p>
+  <p><strong>Between rounds:</strong> what has to stay true from one round to the next? That decides the form of your feedback:</p>
+  <table class="cgrid">
+    <tr><th>What the stem says</th><th>The move (guide 3.5)</th></tr>
+    <tr><td>Prose instructions get a different result each run</td><td>2–3 concrete input/output examples</td></tr>
+    <tr><td>Fixes keep re-breaking cases, and you know what each case should output</td><td>Write the tests first, then iterate by sharing the failing tests</td></tr>
+    <tr><td>One kind of input fails (the guide's example: null values in a migration script)</td><td>That input and its expected output, as a specific test case</td></tr>
+    <tr><td>Unfamiliar domain; you don't yet know which questions matter</td><td>The interview pattern: Claude asks you questions before it implements</td></tr>
+  </table>
+  <p>Notice that none of these rows says "one" or "all". Each says what Claude needs to keep in view. The amount follows.</p>
+
+  <h2>4 · The check, for exam day</h2>
+  <ol class="steps">
+    <li>Before you read the options, underline the words that link things: <em>calls</em>, <em>imports</em>, <em>re-exports</em>, <em>extends</em>, <em>is built from</em>, <em>reads the value</em>, <em>breaks a case fixed earlier</em>, <em>knows the expected output</em>.</li>
+    <li>Pick the option that follows those words.</li>
+    <li>Be suspicious of an option whose only selling point is an amount: everything at once, one at a time, in batches, only the lines that match. And of one that groups by closeness: same file, same folder, same day.</li>
+  </ol>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>Two bugs were found in the same repository on the same day. Why isn't that a reason to send them in one message?</li>
+    <li>An agent has to explain one flow in a 2,000-file repo. What does it read first, and how does it decide what to read next?</li>
+    <li>Fixes keep re-breaking cases you already know the answers to. Why do tests beat one long message listing every case?</li>
+  </ol>
+
+  <h2>Retrieval check</h2>
+  <p>Six new cases. Before you read the options, find the words in the stem that say what connects to what.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If an option looks right because it reads "less" or "more", bring it here and we'll find what the stem says connects.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 2.5, 3.5.<br>
+    <strong>Miss history:</strong> learning records 0017 (8 Oct, one document per round), 0022 (16 Oct D3 quiz Q10), 0025 (lesson 18 quiz, bundling on closeness), 0027 (mock Q26 and Q43), 0029 (lesson 20 tie-break between tests and one message).<br>
+    <strong>Previous:</strong> <a href="0014-glob-vs-grep.html">Lesson 14 — Glob vs Grep</a> · <a href="0018-one-message-or-one-at-a-time.html">Lesson 18 — One message, or one at a time?</a> · <a href="0020-match-the-tool-to-the-stem.html">Lesson 20 — Match the tool to what the stem names</a> · <strong>Reference:</strong> <a href="../reference/built-in-tools.html">Built-in tools cheat sheet</a> · <a href="../reference/iterative-refinement.html">Iterative refinement cheat sheet</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "An engineer asks how an uploaded profile photo ends up resized in storage. The agent has already used Grep to find the POST /photo handler and has read it. The handler calls resizePhoto and storePhoto, which are defined in other files. Context is limited. What should the agent do next?",
+    opts: [
+      "Read where resizePhoto and storePhoto are defined, then follow their calls",
+      "Glob for files with photo or image in their names, then Read each match",
+      "Read every file in the handler's folder to see the code that sits beside it",
+      "Grep for the word photo across the repo and Read every file that matches"
+    ],
+    ok: 0,
+    fb: "The stem names the links: the handler calls resizePhoto and storePhoto. Follow those calls and you read only the files the flow passes through, as the guide says: Grep for the entry point, then Read to follow imports and trace flows. B picks files by name, which misses helpers named something else. C picks files by closeness, not by any link. D reads every file that mentions a common word."
+  },
+  {
+    stem: "Claude's edit to a signup function left two bugs in the same 40-line function. It no longer trims spaces from usernames, and it logs failed signups at debug level instead of warning. The log line records only that a signup failed, never the username. How should you hand them back?",
+    opts: [
+      "Both bugs in one message, handled as one change to the function",
+      "Two parallel sessions, one per bug, then merge the two diffs",
+      "One at a time, checking the first fix before raising the second",
+      "Ask for a fresh rewrite of the function with more care taken"
+    ],
+    ok: 2,
+    fb: "What connects them? Nothing: the log line never touches the username, so neither fix can change the other. Independent problems go one at a time, each fix checked before the next. A bundles them because they sit in the same function, which is closeness, not a connection. B splits them into parallel sessions editing the same 40 lines. D is vague feedback with no specific failures."
+  },
+  {
+    stem: "You must add retry behaviour to every notification channel. A base class, Notifier, defines send(). EmailNotifier, SmsNotifier and PushNotifier each extend it and override send(), and the code spans 12 files. Context is limited. How should the agent build its understanding?",
+    opts: [
+      "Read all 12 files in order, start to finish, before planning any change",
+      "Grep for the word retry and Read only the lines around each of the hits",
+      "Glob for *notifier* files and Read the largest ones first, then the rest",
+      "Read Notifier, Grep for classes that extend it, then Read each send()"
+    ],
+    ok: 3,
+    fb: "The stem names the link: three classes extend Notifier and override send(). Start at the base class, then find and read each override; that's building understanding incrementally from a known starting point. A reads everything upfront. B reads the least it can: you're adding retry, so the word may not be in the code at all, and the lines around a hit lose the class they sit in. C picks files by name and size, and neither tells you what connects to send()."
+  },
+  {
+    stem: "Claude's migration script copies customer records into a new table. Most rows come out right, but rows whose middle_name is null get the literal word null inside the new full_name column. What should your next message to Claude contain?",
+    opts: [
+      "A note in prose asking it to take more care with any missing values",
+      "One row with a null middle name, and the exact full name it should get",
+      "Ten rows that came out right, each with the full name it produced",
+      "A fresh rewrite of the script that treats null values as a known risk"
+    ],
+    ok: 1,
+    fb: "One kind of input fails, and you know what it should produce. The guide's move for edge cases, with null values in migration scripts as its own example, is a specific test case: that input and its expected output. A is vague prose. C shows Claude cases that already work, not the one that fails. D asks for new code without saying what correct looks like."
+  },
+  {
+    stem: "You asked Claude, in prose, to turn product titles into URL slugs. Across runs it handles accents, ampersands and repeated spaces differently each time. Two rounds of reworded prose haven't helped. What should your next message contain?",
+    opts: [
+      "Three example titles, each paired with the exact slug it should give",
+      "A longer prose rule set that covers accents, ampersands and spaces",
+      "One title at a time, confirming each slug before sending the next",
+      "Every title that failed in the last run, sent without expected slugs"
+    ],
+    ok: 0,
+    fb: "Prose is being read differently each run, which is the guide's signal for 2 to 3 concrete input/output examples. Examples show the exact result you want for the cases that vary. B is more of the prose that already failed twice. C and D are both amounts, one at a time and every failure at once, and neither tells Claude what the output should be."
+  },
+  {
+    stem: "The agent must list every database migration added in 2026. Migration files are named like 20260314_add_index.sql and live in db/migrate/ and in services/*/db/migrate/. Many other .sql files contain the text 2026. Which approach finds exactly these files?",
+    opts: [
+      "Grep for 2026 in **/*.sql files and keep each one of the files it hits",
+      "Read db/migrate/ and every services/*/db/migrate/ folder by hand",
+      "Glob for the path pattern **/db/migrate/2026*.sql and list the hits",
+      "Grep for CREATE TABLE in **/*.sql and keep the files dated 2026"
+    ],
+    ok: 2,
+    fb: "What the files share is where they live and what they're called, so a path pattern finds exactly them: Glob for file name and path patterns. A and D search contents, and the stem says many other .sql files contain 2026. B does by hand, folder by folder, what one pattern does, and is easy to get wrong across every service."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

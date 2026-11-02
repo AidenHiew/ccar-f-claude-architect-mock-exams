@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Iterative refinement</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ref dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1.2rem 0; align-items: baseline; }
+  .ref dt { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; }
+  .ref dd { margin: 0; font-size: 1rem; }
+  .pending { color: var(--ink-soft); font-style: italic; }
+  @media (max-width: 560px) { .ref dl { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="page ref">
+  <p class="eyebrow">CCA Foundations · Quick reference · 3.5</p>
+  <h1>Iterative refinement</h1>
+  <p class="subtitle">Five moves from guide §3.5. Find the one whose symptom matches the stem.</p>
+
+  <h2>Symptom → move</h2>
+  <dl>
+    <dt>read inconsistently</dt><dd>The prose instruction exists, but output varies between runs → <strong>2–3 concrete input→output examples</strong>, placed where the readings split. <a href="../lessons/0013-io-examples.html">L13</a></dd>
+    <dt>edge case wrong</dt><dd>One kind of input fails (e.g. a null in a migration) → send <strong>that input, its expected output, and its actual output</strong>. Not "be careful with X". <a href="../lessons/0013-io-examples.html">L13</a></dd>
+    <dt>keeps regressing</dt><dd>Fixes keep breaking cases that worked before, and the expected outputs are known → write the <strong>tests first</strong> (expected behaviour, edge cases, performance), then iterate by sharing the failing tests. Beats one long prose message: the tests re-check every case on every round. <a href="../lessons/0020-match-the-tool-to-the-stem.html">L20</a></dd>
+    <dt>unfamiliar domain</dt><dd><strong>Interview pattern</strong>: have Claude ask you questions (cache invalidation, failure modes) before it implements anything. Tests need known expected behaviour; the interview is for when you don't know it yet. <a href="../lessons/0020-match-the-tool-to-the-stem.html">L20</a></dd>
+    <dt>several issues</dt><dd>Fixes that interact → <strong>one detailed message</strong> covering all of them. Independent fixes → <strong>one at a time</strong>. Tangled if one's output feeds another, they share a step, or fixing one broke another. Tie-break: fixes keep breaking each other <em>and</em> expected outputs are known → tests first (row above). <a href="../lessons/0018-one-message-or-one-at-a-time.html">L18</a></dd>
+  </dl>
+
+  <h2>Picking examples</h2>
+  <dl>
+    <dt>where</dt><dd>At the forks: inputs where plausible readings give different outputs. An example every reading already gets right teaches nothing.</dd>
+    <dt>how many</dt><dd>2–3 for a transformation (guide §3.5); 2–4 for ambiguous judgement calls (guide §4.2).</dd>
+    <dt>shape</dt><dd>Relevant, diverse, wrapped in <code>&lt;example&gt;</code> tags (<a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#use-examples-effectively">prompting docs</a>).</dd>
+  </dl>
+
+  <h2>When examples are the distractor</h2>
+  <dl>
+    <dt>info missing</dt><dd>Minimal tool descriptions → expand the descriptions, not the examples (guide sample Q2; objective 2.1).</dd>
+    <dt>must never</dt><dd>A hard rule needs a code gate. Examples change the odds; they don't guarantee anything (L5).</dd>
+    <dt>"more detail"</dt><dd>Rewriting the instruction at greater length is the prose that already failed, only longer.</dd>
+  </dl>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Sources: <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">official exam guide §3.5, §4.2, sample Q2</a> · <a href="https://code.claude.com/docs/en/best-practices">Claude Code best practices</a> · <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#use-examples-effectively">Claude prompting best practices</a>.</p>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 14 — Glob finds files, Grep finds lines</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .loop { padding-left: 1.3rem; }
+  .loop li { margin-bottom: .55rem; }
+  .aside { font-family: var(--sans); font-size: .86rem; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: .8rem; margin-top: 1.6rem; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 14 · Task statement 2.5 (with 5.4)</p>
+  <h1>Glob finds files, Grep finds lines</h1>
+  <p class="subtitle">Objective 13 on your score report came back 50%.</p>
+
+  <p>The exam guide gives each of the six built-in tools one job (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">task statement 2.5</a>). This lesson covers two of them, which do similar-sounding jobs, and the order you use them in when you don't know a codebase. The Claude Code docs sum up the split in one line: <em>"Where Glob finds files by name, Grep finds lines inside them."</em> (<a href="https://code.claude.com/docs/en/tools-reference#grep-tool-behavior">Tools reference</a>)</p>
+
+  <blockquote class="key">
+    Ask what you already know about the thing you're looking for. <strong>If you know its file name, use Glob. If you know some text inside the file, use Grep.</strong>
+  </blockquote>
+
+  <h2>Two tools, two kinds of match</h2>
+  <table class="cgrid">
+    <tr><th>You know…</th><th>Tool</th><th>Example (from the guide)</th></tr>
+    <tr><td>a name or extension pattern</td><td class="y">Glob</td><td><code>**/*.test.tsx</code>, every test file at any depth</td></tr>
+    <tr><td>a function name</td><td class="y">Grep</td><td>every caller of <code>calculateRefund</code></td></tr>
+    <tr><td>an error message</td><td class="y">Grep</td><td>where <code>"Invalid session token"</code> is raised</td></tr>
+    <tr><td>an import</td><td class="y">Grep</td><td>every file importing <code>payments/client</code></td></tr>
+  </table>
+
+  <p>Glob only looks at paths. It never opens a file, so it can't tell you whether a file <em>contains</em> anything. Grep opens files and matches lines. Its default output is just the paths of matching files, and it shows the matching lines only when asked (<a href="https://code.claude.com/docs/en/tools-reference#grep-tool-behavior">output modes</a>).</p>
+
+  <div class="trap">
+    <b>The word-overlap trap.</b> "Find the config files" and "find where config is loaded" both say <em>config</em>. The first is a name, so use Glob (<code>**/*config*</code>). The second is behaviour in the code, so use Grep (<code>loadConfig</code>). A Glob for <code>*refund*</code> finds <code>refund_service.py</code> and misses <code>checkout.py</code>, which calls <code>calculateRefund()</code>.
+  </div>
+
+  <p>You can also combine them. Grep takes a file filter, so "the error text, but only in Python files" is a single Grep scoped to <code>*.py</code>, not a Glob followed by reading every match.</p>
+
+  <h2>The exploration loop: search narrow, then read</h2>
+  <p>The second half of the objective is "<em>under context-window constraints</em>". Every file you Read takes up context space. The guide's skill statement is to build understanding <strong>incrementally</strong>: begin with Grep to locate entry points, then use Read to follow imports and trace the flow, instead of reading every file first.</p>
+  <ol class="loop">
+    <li><strong>Grep</strong> for something concrete: a route string, an error message, a function name. You get back a short list of files.</li>
+    <li><strong>Read</strong> only those hits.</li>
+    <li>Follow what you find there (an import, a call), then <strong>Grep</strong> again for the next name.</li>
+    <li>Stop when you can answer the question. You'll never have read most of the repo, and you didn't need to.</li>
+  </ol>
+  <p><strong>Wrapper modules.</strong> Sometimes <code>utils/index.ts</code> re-exports <code>fmt</code> under the name <code>formatDate</code>. Grepping for <code>fmt</code> then misses every caller that imports <code>formatDate</code>. The guide's move is to <em>"first identify all exported names, then search for each name"</em>.</p>
+
+  <div class="trap">
+    <b>At exam time.</b> Options that say "read every file", "read the whole directory first" or "load the repo into context" fail the context requirement, even though they're complete (the Lesson 8 grid: complete ✓, within context ✗). An option that Globs a name pattern to find <em>callers</em> fails the other way, because callers aren't named after what they call. The key is nearly always a narrow Grep followed by Read.
+  </div>
+
+  <p class="aside"><strong>Not needed for the exam, but true:</strong> Grep skips gitignored files and Glob doesn't by default. Results from Glob are sorted by modification time and capped at 100. Grep uses ripgrep regex, so <code>interface{}</code> has to be escaped. On recent Claude Code builds for macOS and Linux, Glob and Grep are left out of the default tool set and Claude runs <code>find</code> and <code>grep</code> through Bash instead. The exam guide still treats them as built-in tools, so answer the way the guide does. (<a href="https://code.claude.com/docs/en/tools-reference#glob-tool-behavior">Tools reference</a>, fetched 2026-10-08)</p>
+
+  <h2>Explain it back (answer in chat)</h2>
+  <div class="explain">
+    <p><b>1</b> In one sentence each: what does Glob match against, and what does Grep match against?</p>
+    <p><b>2</b> You're dropped into a 3,000-file repo and asked "what happens when a refund is rejected?" Walk me through your first three tool calls, and name the tool for each one.</p>
+    <p><b>3</b> Why does Grepping for a function's original name sometimes miss callers? What do you do first to avoid that?</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Retrieve it: five cases</h2>
+  <p>Name the tool before you read the options.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher, so ask me anything.</strong> If a case seems to fit both tools, bring it here and we'll work out which kind of match it really needs. Next up is the rest of 2.5: what Edit's "unique text match" means, and when to fall back to Read + Write.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/tools-reference">Claude Code tools reference</a>. Read the "Glob tool behavior" and "Grep tool behavior" sections. They're short, and they're where the one-line split comes from.</p>
+    <p><strong>Exam source:</strong> task statement 2.5 in the <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">official exam guide</a>. <strong>Quick reference:</strong> <a href="../reference/built-in-tools.html">Built-in tools</a>. Builds on Lesson 4 (context economy) and Lesson 8 (constraint grid).</p>
+    <p><strong>Previous:</strong> <a href="0013-io-examples.html">Lesson 13 — Show, don't re-describe</a> · <strong>Next:</strong> <a href="0015-annotate-only-what-you-cant-close.html">Lesson 15 — Go get it, or say it's missing</a></p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "An engineer asks the agent to find every place in a large repo that calls <code>calculateRefund()</code>. Which first tool call fits best?",
+    opts: [
+      "Glob for files named like *calculateRefund*",
+      "Grep the codebase for calculateRefund\\(",
+      "Read every file under src/ one at a time",
+      "Bash ls -R to list the whole repository"
+    ],
+    ok: 1,
+    fb: "Callers are a content match, because the name appears inside the calling file. A only matches file names, and callers aren't named after what they call. C is complete but spends context on every file. D lists paths and tells you nothing about contents."
+  },
+  {
+    stem: "The team wants a list of every Storybook file, which by convention is named <code>*.stories.tsx</code>, wherever it sits in the repo. Best tool call?",
+    opts: [
+      "Grep the codebase for the word stories",
+      "Grep for export default in .tsx files",
+      "Glob with the pattern **/*.stories.tsx",
+      "Read each .tsx file and check its name"
+    ],
+    ok: 2,
+    fb: "You know the name pattern, so use Glob. A also matches any file that mentions \"stories\" in a comment or import. B matches nearly every component. D opens files only to look at their names, which Glob does without reading anything."
+  },
+  {
+    stem: "With a limited context window, the agent must explain how login works in an unfamiliar 4,000-file repo. Best first move?",
+    opts: [
+      "Grep for the login route, then Read hits",
+      "Read every file under src/auth/ up front",
+      "Glob **/* to list all files in the repo",
+      "Have a subagent read and summarise it all"
+    ],
+    ok: 0,
+    fb: "Incremental exploration: a narrow Grep finds the entry point, and Read follows it from there. B and D are both bulk reading (D just moves it into a subagent). C returns paths with no clue about where login is handled, and Glob caps results at 100 anyway."
+  },
+  {
+    stem: "<code>utils/index.ts</code> re-exports the internal <code>fmt</code> as <code>formatDate</code> and <code>toDisplay</code>. You need every use of these date helpers across the codebase. Best approach?",
+    opts: [
+      "Grep only for the original name fmt",
+      "Glob for any file with date in its name",
+      "Read the wrapper and then every importer",
+      "List its exports, then Grep for each name"
+    ],
+    ok: 3,
+    fb: "Wrapper modules rename things. Callers import formatDate or toDisplay, so a search for fmt (A) misses them. B is a name match for a content question. C works but reads far more than it needs to. D is the guide's own move: identify all exported names, then search for each."
+  },
+  {
+    stem: "Find which files raise the error code <code>E_TIMEOUT_42</code>, looking <em>only</em> at Python files. Best tool call?",
+    opts: [
+      "Glob **/*.py, then Read each match",
+      "Grep E_TIMEOUT_42 scoped to *.py",
+      "Grep E_TIMEOUT_42 across all files",
+      "Glob for **/*E_TIMEOUT_42*.py files"
+    ],
+    ok: 1,
+    fb: "Two requirements: the error text, and only Python files (the Lesson 8 grid). Grep takes a file filter, so one call meets both. A gets the right answer but reads every Python file to do it. C ignores \"only Python\". D searches file names for text that lives inside the files."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

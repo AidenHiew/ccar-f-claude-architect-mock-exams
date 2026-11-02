@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 21 — Use the switch Claude Code already has</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code, .flow code { overflow-wrap: anywhere; }
+  .flow { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .84rem; line-height: 1.4; }
+  .flow .col { border: 1px solid var(--rule); border-radius: 6px; padding: .7rem .8rem; background: #fffffb; }
+  .flow .col h3 { margin: 0 0 .5rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .flow .box { border: 1px solid var(--rule); border-radius: 5px; padding: .45rem .55rem; margin: .4rem 0; }
+  .flow .box.fat { background: var(--bad-bg); border-color: var(--bad); }
+  .flow .box.thin { background: var(--good-bg); border-color: var(--good); }
+  .flow .box.side { margin-left: 1.2rem; border-style: dashed; }
+  .flow .arrow { color: var(--ink-soft); margin: .1rem 0 .1rem .4rem; }
+  .flow .verdict { margin: .6rem 0 0; font-weight: 700; }
+  .flow .col.bad .verdict { color: var(--bad); }
+  .flow .col.good .verdict { color: var(--good); }
+  @media (max-width: 34rem) { .flow { grid-template-columns: 1fr; } }
+  @media print { .flow .box.fat, .flow .box.thin { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 21 · Domain 3 · Task statements 3.2, 3.3</p>
+  <h1>Use the switch Claude Code already has</h1>
+  <p class="subtitle">Four of your misses on skills and rules have the same shape: Claude Code already had a setting for the job, and the pick built something by hand instead.</p>
+
+  <blockquote class="key">
+    Before you pick, ask one plain question: <strong>does Claude Code already have a setting that does exactly this?</strong><br>
+    If it does, that setting is the answer. A skill plus a hook, a line asking Claude to behave, or a clean-up step afterwards are all ways of rebuilding it by hand, and they lose to the setting.
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> You want your phone to go silent at 10 pm every night.</p>
+  <ul class="steps">
+    <li><strong>The right move:</strong> turn on the phone's built-in quiet-hours schedule. Set it once. It works every night, whether you remember or not.</li>
+    <li><strong>Tempting move 1:</strong> a sticky note on the mirror saying "mute your phone". That works until the night you forget.</li>
+    <li><strong>Tempting move 2:</strong> install an app that watches the clock and mutes the phone at 10. That works too, but now you're keeping an app running to do what one switch already does.</li>
+  </ul>
+  <p>The sticky note is "tell Claude to…". The clock-watching app is "a skill plus a hook". The quiet-hours switch is the setting Claude Code ships with.</p>
+
+  <p><strong>Where this has cost you points.</strong> Four questions, in full, with your pick and the correct answer.</p>
+<section class="mc">
+  <p class="mc-h">D3 quiz, 16 Oct, Q6</p>
+  <p class="mc-stem">Your TypeScript repo keeps tests next to the code they cover, <mark>as *.test.ts files across about 60 directories</mark>. The 300 lines of testing conventions sit in the root CLAUDE.md. <mark>They load in every session</mark>, including infra-only work, and adding them to new directories keeps getting missed. What is the best place for them?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A testing skill, plus a hook that invokes it whenever Claude opens any file ending in .test.ts</div><div class="mc-k"><b>✓ Correct: B</b>A .claude/rules/ file with paths frontmatter set to **/*.test.ts, loaded when tests are edited</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>A CLAUDE.md in each directory that holds tests, every one carrying the same testing conventions</span></li><li><span class="mc-l">C</span><span>The root CLAUDE.md under a Testing heading that tells Claude to apply it only to test files</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> D would work, but it rebuilds by hand something Claude Code already does. A <code>.claude/rules/</code> file with <code>paths: **/*.test.ts</code> loads on its own when Claude reads or edits a test file, in any of the 60 directories, and stays out of every other session. No skill to write, no hook to keep working.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D3 quiz, 16 Oct, Q4</p>
+  <p class="mc-stem">Your team's /analyze-deps skill walks the dependency graph and reads dozens of manifests. It leaves <mark>about 30,000 tokens of intermediate output</mark> in the conversation. Developers usually keep working in the same session afterwards and notice Claude losing track of earlier instructions. <mark>They only need the final summary</mark>. What is the best change?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Add a line to SKILL.md telling Claude to keep its final report under 500 words</div><div class="mc-k"><b>✓ Correct: C</b>Set context: fork in the skill's frontmatter to run it in an isolated sub-agent</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Restrict allowed-tools in the skill's frontmatter to the Read and Grep tools only</span></li><li><span class="mc-l">D</span><span>Tell developers to run /compact right after every invocation of the skill</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> A shortens the last 500 words. The 30,000 tokens are the working-out before the report: every manifest it read. Only one switch keeps that working-out out of your chat: <code>context: fork</code> runs the skill in its own subagent, and only the result comes back.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Lesson 19 quiz, 19 Oct, Q3</p>
+  <p class="mc-stem">An engineer copies the team's /release skill into ~/.claude/skills/release/ and tightens its checklist, <mark>keeping the name release</mark>. Per the Claude Code docs, what is the result?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>Both load and Claude picks whichever description fits each request</div><div class="mc-k"><b>✓ Correct: A</b>Their sessions now run their copy, and the team version is hidden</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Every teammate's /release now runs this engineer's personal copy</span></li><li><span class="mc-l">C</span><span>Claude Code refuses to load either skill until one is renamed</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> D sounds fair, but Claude Code has a fixed rule for a shared name: personal beats project. In this engineer's sessions <code>/release</code> now runs their copy, and the team's version is hidden from them. Teammates are unaffected, because <code>~/.claude/</code> is never shared.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q19</p>
+  <p class="mc-stem">The team shares an /incident-summary skill in .claude/skills/. One engineer wants <mark>a version that writes in a terser style for their own notes</mark>, and <mark>must not change what the other 11 engineers get</mark>. They tried editing the shared SKILL.md locally, but kept nearly committing it. Where should the personal version live?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>In CLAUDE.local.md, as an instruction to write incident summaries tersely for this engineer</div><div class="mc-k"><b>✓ Correct: A</b>In the engineer's ~/.claude/skills/ under a different name, such as /incident-summary-terse</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>In the root CLAUDE.md, as a line asking for terse incident summaries for this engineer</span></li><li><span class="mc-l">C</span><span>In .claude/skills/ next to the team skill, with a note in its description that it is personal</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> D is an instruction that changes <em>every</em> incident summary this engineer gets, including the team runs that need the full style. The built-in route is a second skill: a copy in <code>~/.claude/skills/</code> under a new name, such as <code>/incident-summary-terse</code>. The engineer keeps both, and nobody else sees it.</div>
+</section>
+  <p>Every pick here could work some of the time. Each one rebuilds, by hand or by instruction, something a single setting already does every time.</p>
+
+  <h2>1 · Five needs, five built-in switches</h2>
+  <p>These are the switches the exam guide lists for 3.2 and 3.3. Read across: the need in plain words, the setting that does it, and what the wrong options usually offer instead.</p>
+  <table class="cgrid">
+    <tr><th>What you need</th><th>The built-in switch</th><th>What the distractors build instead</th></tr>
+    <tr><td>Conventions that matter only for <strong>certain kinds of file</strong>, wherever they sit</td><td>A <code>.claude/rules/</code> file with a <code>paths</code> glob, such as <code>**/*.test.ts</code></td><td>A skill plus a hook; a <code>CLAUDE.md</code> in every folder; a heading in the root <code>CLAUDE.md</code></td></tr>
+    <tr><td>A skill's <strong>working-out</strong> (files it read, notes it made) shouldn't clutter your chat</td><td><code>context: fork</code> in the skill's frontmatter</td><td>"Keep the report short"; running <code>/compact</code> or <code>/clear</code> afterwards</td></tr>
+    <tr><td><strong>Your own version</strong> of a team skill, with the team's left alone</td><td>A copy in <code>~/.claude/skills/</code> under a <strong>new name</strong></td><td>An instruction in <code>CLAUDE.local.md</code>; a copy with the same name; editing the shared file</td></tr>
+    <tr><td>People keep running a skill <strong>without the argument</strong> it needs</td><td><code>argument-hint</code> in the frontmatter, such as <code>[pr-number]</code></td><td>A line in the skill telling Claude to ask; a note in the README</td></tr>
+    <tr><td>Something used <strong>only when someone starts a task</strong>, not in every session</td><td>A skill (on demand). <code>CLAUDE.md</code> is for what every session needs.</td><td>Putting the whole workflow in <code>CLAUDE.md</code>, where it costs tokens all the time</td></tr>
+  </table>
+
+  <h2>2 · How the two you missed most actually work</h2>
+
+  <p><strong><code>context: fork</code>.</strong> When a skill has this setting, Claude Code starts a separate subagent and gives it the skill's instructions as its task. The subagent does all the reading in its own context. Only its result comes back to your conversation. The docs add one detail worth knowing: the subagent doesn't see your conversation history, so the skill's instructions have to stand on their own.</p>
+  <div class="flow" role="group" aria-label="Where the skill's working-out ends up, without and with context: fork">
+    <div class="col bad">
+      <h3>Without fork (your pick A on Q4)</h3>
+      <div class="box">Your conversation</div>
+      <div class="arrow">↓ /analyze-deps runs here</div>
+      <div class="box fat">Dozens of manifests read: ~30,000 tokens</div>
+      <div class="box">500-word report</div>
+      <p class="verdict">All 30,000 stay in your chat. A shorter report trims only the last box.</p>
+    </div>
+    <div class="col good">
+      <h3>With <code>context: fork</code> (correct)</h3>
+      <div class="box">Your conversation</div>
+      <div class="box side">Subagent: reads the manifests in its own context</div>
+      <div class="arrow">↓ only the result returns</div>
+      <div class="box thin">Final summary</div>
+      <p class="verdict">The working-out stays in the subagent. Your chat gets the summary.</p>
+    </div>
+  </div>
+  <p>The guide gives two kinds of skill that want this: ones with <strong>verbose output</strong> (codebase analysis, like Q4) and ones with <strong>exploratory context</strong> (brainstorming alternatives).</p>
+
+  <p><strong>Two skills with the same name.</strong> Claude Code doesn't load both and choose. It has a fixed order: <strong>personal beats project</strong> (and an organisation's managed skills beat both). So:</p>
+  <table class="cgrid">
+    <tr><th>Setup</th><th>In this engineer's sessions</th><th>In teammates' sessions</th></tr>
+    <tr><td>Copy in <code>~/.claude/skills/release/</code>, <strong>same name</strong> as the team's <code>release</code></td><td><code>/release</code> runs the personal copy. The team's version is hidden from them.</td><td>Unchanged: the team's version.</td></tr>
+    <tr><td>Copy in <code>~/.claude/skills/release-strict/</code>, <strong>new name</strong></td><td>Both: <code>/release</code> and <code>/release-strict</code>.</td><td>Unchanged: the team's version.</td></tr>
+  </table>
+  <p>That's why the guide says personal variants get a <em>different name</em>: with the same name, you lose your own access to the team version.</p>
+
+  <p><strong>Path rules, one more time.</strong> A file in <code>.claude/rules/</code> with a <code>paths</code> field loads when Claude uses Read, Write or Edit on a file matching the glob (or reads one with <code>cat</code> or <code>head</code>). A rule with no <code>paths</code> field loads in every session, like <code>CLAUDE.md</code>. The guide's reason to prefer a glob over a <code>CLAUDE.md</code> in each folder: <code>**/*.test.ts</code> follows test files into all 60 directories, including ones created next month.</p>
+
+  <h2>3 · One trap in the other direction</h2>
+  <p>"Use the built-in switch" doesn't mean "pick any switch name you recognise". Check that the switch does <em>this</em> job:</p>
+  <ul class="steps">
+    <li><code>context: fork</code> separates the <strong>conversation</strong>. It doesn't restrict tools by itself; the subagent type decides those. (The 19 Oct mock had this in Q20: a skill that already used <code>context: fork</code> still force-pushed a branch.)</li>
+    <li>A rule with <code>paths</code> loads on <strong>file access</strong>. For a runbook someone starts by choice, like a database failover, a skill fits better, because nobody's editing a matching file when the failover starts.</li>
+    <li>Answers sometimes name a setting that doesn't exist, such as <code>context: isolate</code>. If you don't recognise it from the guide, be suspicious.</li>
+  </ul>
+
+  <div class="ask">
+    <strong>Heads-up on <code>allowed-tools</code>.</strong> The exam guide says <code>allowed-tools</code> in skill frontmatter <em>restricts</em> which tools the skill can use. Today's Claude Code docs describe it differently: it <em>pre-approves</em> the listed tools for that turn without taking others away, and a separate field, <code>disallowed-tools</code>, does the removing. The exam is written from the guide, so on the exam treat <code>allowed-tools</code> as the way to limit a skill's tools. This lesson's quiz doesn't test it.
+  </div>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>Your D3 Q4 pick was "tell SKILL.md to keep the report short". Why doesn't that stop the chat filling up?</li>
+    <li>You copy the team's <code>/release</code> skill into <code>~/.claude/skills/</code> and keep the name. What runs when <em>you</em> type <code>/release</code>, and what runs for a teammate?</li>
+    <li>Conventions for every <code>*.sql</code> file, in 40 folders. Which built-in switch, and why not a skill plus a hook?</li>
+  </ol>
+
+  <h2>Retrieval check</h2>
+  <p>Six new cases. Before you read the options, name the need in plain words, then ask which setting already does it.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If an option looks right because it "would work", bring it here and we'll check whether a built-in setting already does it.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/skills">Claude Code docs: Extend Claude with skills</a> (fetched 2026-10-19). "Choose where skills load" (personal <code>~/.claude/skills/</code> loads in all your projects; project <code>.claude/skills/</code> is committed for the team). "Resolve skills that share a name": "Enterprise over personal, and personal over project." "Run skills in a subagent": <code>context: fork</code> starts a subagent that "doesn't see your conversation history", and its result arrives in your conversation. "Frontmatter reference": <code>argument-hint</code>, <code>context</code>, <code>allowed-tools</code> (pre-approves for the turn; "It does not restrict which tools are available"), <code>disallowed-tools</code>.<br>
+    <strong>Also cited:</strong> <a href="https://code.claude.com/docs/en/memory">Claude Code docs: How Claude remembers your project</a> (fetched 2026-10-19), "Path-specific rules": a rule "loads when Claude uses the Read, Write, or Edit tool on a matching file"; "Rules without a paths field are loaded unconditionally".
+    <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 3.2, 3.3.<br>
+    <strong>Miss history:</strong> learning records 0010 (native setting beats a hook), 0022 (D3 quiz Q4, Q6), 0027 (mock Q19), 0028 (lesson 19 quiz Q3).<br>
+    <strong>Previous:</strong> <a href="0020-match-the-tool-to-the-stem.html">Lesson 20 — Match the tool to what the stem names</a> · Lesson 3 — The primitive ladder · <strong>Reference:</strong> <a href="../reference/skills-and-rules.html">Skills and rules cheat sheet</a> · <a href="../reference/scope-map.html">Scope map</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "SQL query files (*.sql) sit next to the code that uses them, in about 40 folders. The team's 120 lines of SQL style rules are in the root CLAUDE.md, so every session loads them, and Claude still misses them on some query edits. What is the best fix?",
+    opts: [
+      "A CLAUDE.md with the SQL rules in each of the 40 folders with queries",
+      "A /sql-style skill, plus a hook that runs it when a .sql file opens",
+      "A .claude/rules/ file with paths set to **/*.sql in its frontmatter",
+      "The rules moved to the top of the root CLAUDE.md, in capital letters"
+    ],
+    ok: 2,
+    fb: "The need: rules for one kind of file, spread across 40 folders. A paths glob does exactly that: it loads when Claude reads or edits a .sql file, anywhere, and not otherwise. B is the D3 Q6 pick: it rebuilds by hand what paths already does. A is 40 copies that drift, and new folders start without one. D still loads in every session and relies on emphasis."
+  },
+  {
+    stem: "The team's /audit-licenses skill reads every package's licence file and leaves about 25,000 tokens of notes in the chat. Developers keep working in the same session afterwards, and they only need the final table of licences. What should change?",
+    opts: [
+      "Add a line to the SKILL.md asking for a table of under 40 rows",
+      "Set context: fork in the skill's frontmatter, to run in a subagent",
+      "Ask developers to run /compact each time the skill has finished",
+      "Set disable-model-invocation: true so it runs only when typed"
+    ],
+    ok: 1,
+    fb: "The need: keep the skill's working-out out of the chat. context: fork runs the skill in its own subagent, and only the result comes back. A is the D3 Q4 pick: it shortens the table, but the 25,000 tokens are the reading before it. C cleans up after the damage, if people remember. D changes who can start the skill, not where its output goes."
+  },
+  {
+    stem: "The repo has a /deploy skill in .claude/skills/deploy/. One engineer also creates ~/.claude/skills/deploy/ with their own steps, under the same name. Which skill runs when the engineer types /deploy, and which runs for a teammate?",
+    opts: [
+      "The engineer gets the team's; the teammate gets the team's",
+      "The engineer gets their own; the teammate gets the team's",
+      "The engineer gets their own; the teammate gets the engineer's",
+      "Claude picks per request for both of them, by description"
+    ],
+    ok: 1,
+    fb: "Same name, personal and project: personal wins, in the engineer's own sessions only. The teammate never sees anything in the engineer's ~/.claude/, so they get the team's. D is the lesson 19 Q3 pick: the docs give a fixed order, not a choice by description. C would mean ~/.claude/ is shared, and it isn't."
+  },
+  {
+    stem: "A senior engineer wants a stricter version of the team's /pr-review skill for their own reviews, and still wants the team's version for normal reviews. Nobody else's /pr-review may change. What should they do?",
+    opts: [
+      "Copy it to ~/.claude/skills/pr-review-strict/ and edit the copy",
+      "Copy it to ~/.claude/skills/pr-review/ and edit the copy there",
+      "Add an instruction to CLAUDE.local.md asking for strict reviews",
+      "Add the strict copy to .claude/skills/ with 'personal' in its name"
+    ],
+    ok: 0,
+    fb: "The need: my own version, and the team's still available to me. A personal copy under a new name gives both, and nobody else sees it. B keeps the same name, so the personal copy hides the team's version from this engineer. C makes every review strict, including the normal ones (the mock Q19 pick). D commits it, so all teammates get it."
+  },
+  {
+    stem: "The team's /backport skill needs a pull-request number to work. Developers often type /backport on its own, and Claude then guesses which PR they mean. What change helps them supply the number?",
+    opts: [
+      "Add argument-hint: [pr-number] to the skill's frontmatter block",
+      "Add a CLAUDE.md line saying /backport always needs a PR number",
+      "Set context: fork, so the skill can ask for the number by itself",
+      "Write a hook that blocks /backport whenever no number is given"
+    ],
+    ok: 0,
+    fb: "The need: show people what argument to type. argument-hint does that: the hint shows in autocomplete as they type the command, and the guide's use for it is prompting for required parameters. B is an instruction that loads everywhere and only reminds Claude, not the developer. C isolates the conversation; it has nothing to do with arguments. D is custom wiring for a job a frontmatter field already does."
+  },
+  {
+    stem: "A 250-line checklist for cutting a release sits in the root CLAUDE.md. Releases happen about once a month, when someone decides to start one, and they aren't tied to editing any particular files. Where should the checklist go?",
+    opts: [
+      "A .claude/rules/ file with paths set to release/** for the checklist",
+      "An @import of a release.md file from the root CLAUDE.md instead",
+      "A CLAUDE.md in the release/ folder, loaded when Claude works there",
+      "A project skill, /cut-release, that people run to start a release"
+    ],
+    ok: 3,
+    fb: "The need: a workflow used when someone chooses to start it. That's what skills are for: on demand, shared through .claude/skills/. A and C load on file access, but starting a release isn't triggered by editing a file. B still loads at startup, so every session pays the same cost. CLAUDE.md is for what every session needs."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 20 — Match the tool to what the stem names</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+  .tracks { margin: 1.4rem 0 1.8rem; font-family: var(--sans); font-size: .86rem; line-height: 1.4; }
+  .track { border-top: 1px solid var(--rule); padding: .9rem 0 1rem; }
+  .track:last-child { border-bottom: 1px solid var(--rule); }
+  .track .job { font-weight: 700; margin: 0 0 .5rem; }
+  .track .job small { font-weight: 400; color: var(--ink-soft); }
+  .stops { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; position: relative; }
+  .stop { border: 1px solid var(--rule); border-radius: 6px; padding: .5rem .6rem; background: #fffffb; overflow-wrap: anywhere; }
+  .stop .w { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: .2rem; }
+  .stop.key { background: var(--good-bg); border-color: var(--good); border-left-width: 5px; }
+  .stop.pick { background: var(--bad-bg); border-color: var(--bad); border-left-width: 5px; }
+  .stop .m { display: block; font-weight: 700; font-size: .75rem; margin-top: .35rem; }
+  .stop.key .m { color: var(--good); }
+  .stop.pick .m { color: var(--bad); }
+  .track .when { margin: .55rem 0 0; color: var(--ink-soft); }
+  .scale { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; font-family: var(--sans); font-size: .72rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+  .scale span:last-child { text-align: right; }
+  .scale span:nth-child(2) { text-align: center; }
+  @media (max-width: 34rem) {
+    .stops { grid-template-columns: 1fr; }
+    .scale { display: none; }
+  }
+  @media print { .stop.key, .stop.pick { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 20 · Domains 2 and 3 · Task statements 3.4, 2.5, 3.1, 3.3, 3.5</p>
+  <h1>Match the tool to what the stem names</h1>
+  <p class="subtitle">Four of your six misses on the 19 Oct mock came from the same place: the stem named something specific, and the pick answered something else.</p>
+
+  <blockquote class="key">
+    Before you read the options, ask one plain question: <strong>what exactly does the stem name?</strong><br>
+    · If it names <strong>something small</strong> (one function, one entry point, one file for one task), pick the lightest tool that handles it completely.<br>
+    · If it names <strong>a symptom</strong> (fixes keep breaking old cases, the format is read differently each run, the domain is new), pick the technique built for that symptom.<br>
+    How important the system is, or how big the codebase is, doesn't change the answer.
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> A cupboard door in a hospital's operating theatre squeaks. The hinge screw is loose, and you can see which one.</p>
+  <ul class="steps">
+    <li><strong>The right move:</strong> tighten that screw, then open and close the door to check it. Done in two minutes.</li>
+    <li><strong>The tempting move:</strong> "It's an operating theatre, it's critical, so let's get an architect to survey the whole wing first." The survey takes a week, and it ends with the same screw being tightened.</li>
+  </ul>
+  <p>The theatre being important is a reason to <em>check the door properly</em> afterwards. It isn't a reason to survey the wing. An architect is right when you're moving walls, not when you can point at the loose screw.</p>
+
+  <p><strong>Where this has cost you points.</strong> Here are three questions from the 19 Oct mock, in full, with your pick and the correct answer. A fourth, about refinement, is in section 3.</p>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q24</p>
+  <p class="mc-stem">A crash report shows a nil pointer dereference in ETAForStop in eta/calc.go, <mark>line 212</mark>, when a stop has no geocode. The fix is a guard returning an error for a missing geocode, <mark>in that one function</mark>. A teammate suggests plan mode <mark>because the routing service is business-critical</mark>. What is the best approach?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Plan mode, to map all the callers of ETAForStop before making any change to the function</div><div class="mc-k"><b>✓ Correct: A</b>Direct execution: add the guard in ETAForStop plus a test for a stop with no geocode</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>The interview pattern, letting Claude ask about geocoding edge cases before it writes code</span></li><li><span class="mc-l">D</span><span>An Explore subagent to survey the routing service, then the fix applied in the main session</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> "business-critical" says how much the service matters, not how big the change is. The stem names one line, one function and a stack trace. You could describe the diff in one sentence, so there is nothing to plan. The care a critical service deserves is already in A: <em>a test for a stop with no geocode</em>.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q43</p>
+  <p class="mc-stem">An engineer asks how a booking cancellation flows from the API to the refund. The agent's first move was to <mark>Read all 220 files under app/</mark>, and by file 140 its context was full and its answers became vague. <mark>The cancel endpoint is a single controller action</mark>. How should the agent explore instead?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Spawn a subagent to Read all 220 files and return one summary of the whole app</div><div class="mc-k"><b>✓ Correct: C</b>Grep for the cancel action's route or method name, Read that action, then follow its calls</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Read the 220 files in batches of 40 and summarise each batch before the next one</span></li><li><span class="mc-l">D</span><span>Glob app/**/*.rb, then Read the files whose names suggest a cancellation, refund or booking</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> B moves the reading into the subagent's own context, but it is still all 220 files read up front, and the stem already showed they don't fit: the first context was full by file 140. The stem names a single controller action, which Grep can find by its route or method name. From there, Read follows the calls one file at a time: a handful of files instead of 220.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q18</p>
+  <p class="mc-stem">To debug one routing outage, a developer added the line '@logs/outage-0412.log' to the repository's root CLAUDE.md and committed it. The log is 900 lines and <mark>matters only for that single investigation</mark>, and the developer also works in 3 other repositories. A week later <mark>every teammate's sessions still load it at startup</mark>. What should the developer have done?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Create a .claude/rules/outage.md file with a paths glob of logs/** that holds the import line</div><div class="mc-k"><b>✓ Correct: D</b>Reference @logs/outage-0412.log in the debugging session's prompt and leave CLAUDE.md alone</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Put the import in the developer's ~/.claude/CLAUDE.md, out of the teammates' sessions</span></li><li><span class="mc-l">B</span><span>Paste a prose summary of the log's key errors into the root CLAUDE.md under an Outage heading</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> C swaps one standing setup for another. A <code>.claude/rules/</code> file with a <code>paths</code> glob is committed, and for every teammate it loads whenever Claude reads a file under <code>logs/</code>, until someone deletes it. The log matters for one investigation, so it belongs in that session's prompt as <code>@logs/outage-0412.log</code>.</div>
+</section>
+  <p>All three picks were real tools, used for real jobs, just not this job. In each one the stem pointed at something small: one function with a stack trace, one controller action, one log for one investigation. Each pick added something on top: a planning phase, reading the whole app, or a committed rule file.</p>
+
+  <h2>1 · Three jobs, light to heavy</h2>
+  <p>For each kind of job there's a light tool and heavier ones. The heavier tools aren't worse. They're built for bigger jobs, and the stem tells you when you have one. Green is the correct answer, red is your pick.</p>
+
+  <div class="tracks" role="list" aria-label="Light to heavy tools for three kinds of job">
+    <div class="scale" aria-hidden="true"><span>Lighter</span><span></span><span>Heavier</span></div>
+
+    <div class="track" role="listitem">
+      <p class="job">Changing code <small>(3.4, mock Q24)</small></p>
+      <div class="stops">
+        <div class="stop key"><span class="w">Light</span>Direct execution: make the change, with a test<span class="m">✓ Correct for Q24</span></div>
+        <div class="stop pick"><span class="w">Heavier</span>Plan mode first: Claude reads and plans without editing, you approve, then it edits<span class="m">✗ Your pick</span></div>
+        <div class="stop"><span class="w">Heaviest</span>Plan mode, with an Explore subagent for the discovery phase</div>
+      </div>
+      <p class="when"><strong>Heavier is right when the stem names:</strong> many files (the guide's example is 45+), more than one valid approach, an architectural choice, or code you're unfamiliar with.</p>
+    </div>
+
+    <div class="track" role="listitem">
+      <p class="job">Finding your way in code <small>(2.5, mock Q43)</small></p>
+      <div class="stops">
+        <div class="stop key"><span class="w">Light</span>Grep for the entry point, Read it, then follow the calls<span class="m">✓ Correct for Q43</span></div>
+        <div class="stop"><span class="w">Heavier</span>An Explore subagent for a long discovery phase, returning a summary</div>
+        <div class="stop pick"><span class="w">Heaviest</span>Read every file up front, in the main session or in a subagent<span class="m">✗ Your pick</span></div>
+      </div>
+      <p class="when"><strong>Heavier is right when the stem names:</strong> a long, verbose discovery phase with no known starting point, in a multi-phase task where that output would fill the main context. "Read everything up front" is the pattern the guide says to avoid.</p>
+    </div>
+
+    <div class="track" role="listitem">
+      <p class="job">Giving Claude context <small>(3.1 and 3.3, mock Q18)</small></p>
+      <div class="stops">
+        <div class="stop key"><span class="w">Light</span><code>@file</code> in this session's prompt: this task only<span class="m">✓ Correct for Q18</span></div>
+        <div class="stop pick"><span class="w">Heavier</span><code>.claude/rules/</code> file with <code>paths</code>: loads whenever Claude reads a matching file<span class="m">✗ Your pick</span></div>
+        <div class="stop"><span class="w">Heaviest</span><code>CLAUDE.md</code> (or a rule with no <code>paths</code>): loads in every session</div>
+      </div>
+      <p class="when"><strong>Heavier is right when the stem names:</strong> something needed again. Needed whenever certain files are touched → a rule with <code>paths</code>. Needed in every session → <code>CLAUDE.md</code>. Needed once → <code>@</code>.</p>
+    </div>
+  </div>
+
+  <p>The Claude Code best-practices page puts the first track in one line: <strong>"If you could describe the diff in one sentence, skip the plan."</strong> The Q24 diff fits in one sentence: add a guard in <code>ETAForStop</code> that returns an error when the stop has no geocode.</p>
+
+  <h2>2 · The words that pull you to the heavy end</h2>
+  <p>Distractors borrow their weight from words in the stem that describe the <em>surroundings</em>, not the job. Learn to spot them:</p>
+  <table class="cgrid">
+    <tr><th>Stem word</th><th>What it describes</th><th>What it actually changes</th></tr>
+    <tr><td>"business-critical", "regulated", "production" (Q24)</td><td>How much the system matters</td><td>How carefully you <strong>check</strong> the change. That's why Q24's answer includes a test. It doesn't make a one-line change need a plan.</td></tr>
+    <tr><td>"220 files", "a large codebase" (Q43)</td><td>How big the codebase is</td><td>Nothing, if the stem also names a starting point. You follow one path through the code, not all 220 files.</td></tr>
+    <tr><td>"900 lines", "committed", "a teammate suggests" (Q18, Q24)</td><td>The size of the file, or someone's opinion</td><td>Nothing. A big log needed once is still needed once. A teammate's suggestion is part of the setup, not a fact about the task.</td></tr>
+  </table>
+  <p><strong>One check on Q43's pick.</strong> A subagent is the right tool for keeping noisy reading <em>out</em> of the main conversation. The best-practices page recommends one for broad investigations. But a subagent changes <em>where</em> the reading happens, not <em>how much</em> of it there is. When the stem names a starting point, the lightest correct move is to read less, not to read the same amount somewhere else.</p>
+  <p><strong>The reverse case, so you don't overcorrect.</strong> The guide's own sample question restructures a monolith into microservices, and the answer there is plan mode, because the stem names exactly what plan mode is for. Light isn't always right. The point is to match: small job → light tool, big or uncertain job → the heavier one.</p>
+
+  <h2>3 · Refinement: the symptom picks the move</h2>
+  <p>Task statement 3.5 is the same habit in a different form. You aren't choosing light or heavy. You're choosing which of five moves fits the symptom the stem describes. Here is the mock question where this cost you a point:</p>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q26</p>
+  <p class="mc-stem">Claude is rewriting the function that rounds route distances for driver pay. Over 4 rounds of chat feedback, <mark>each fix breaks a case fixed earlier</mark>: one round broke zero-length legs, another broke distances near the 0.5 km boundary. <mark>The team knows the expected output for 15 such cases</mark>. What should the developer do?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Describe the 15 cases in one long prose message and ask Claude to handle them together</div><div class="mc-k"><b>✓ Correct: A</b>Write tests for the 15 cases first, then iterate by giving Claude the failing tests</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>Fix the rounding by hand and ask Claude only to tidy the code style around the function</span></li><li><span class="mc-l">D</span><span>Give Claude 2 input and output pairs for the hardest cases and go on as before</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> B tells Claude about all 15 cases once. Nothing checks them again. On round 5, a fix can break zero-length legs a third time, and no one notices until a driver is paid wrong. The stem has the two signs that call for tests: fixes keep breaking earlier cases, and the expected outputs are already known. Tests turn those 15 cases into a check Claude runs on every round.</div>
+</section>
+  <p>This one was a fair trap. Lesson 18 taught that "fixing one broke another" is a sign the problems are tangled, so they go in one message. That's still true. But when the expected outputs are already known, there's a better way to bundle them: <strong>as tests</strong>. A test suite holds all 15 cases at once, like one message does, and it also re-checks every case on every round. The guide's wording is "writing test suites first, then iterating by sharing test failures".</p>
+  <p><strong>The tie-break, so lessons 18 and 20 agree:</strong> fixes keep breaking each other <em>and</em> the expected outputs are known → tests. Fixes keep breaking each other but you can't yet write down the expected outputs → one detailed message, as in lesson 18. "The team knows the expected output for 15 such cases" is what moves Q26 from the message to the tests.</p>
+
+  <p>The full lookup, with each move's signal in the stem:</p>
+  <table class="cgrid">
+    <tr><th>What the stem says</th><th>The move</th><th>Lesson</th></tr>
+    <tr><td>Fixes keep breaking cases that worked before, and the expected outputs are known</td><td><strong>Write the tests first</strong>, then iterate by sharing the failing tests</td><td>this one</td></tr>
+    <tr><td>Several problems, and fixing one changes another</td><td><strong>One detailed message</strong> covering all of them, saying how they connect</td><td><a href="0018-one-message-or-one-at-a-time.html">18</a></td></tr>
+    <tr><td>Several problems that don't affect each other</td><td><strong>One at a time</strong>, checking each fix before the next</td><td><a href="0018-one-message-or-one-at-a-time.html">18</a></td></tr>
+    <tr><td>A prose description of a transformation gives different output each run</td><td><strong>2–3 concrete input/output examples</strong></td><td><a href="0013-io-examples.html">13</a></td></tr>
+    <tr><td>One kind of input fails (the guide's example: null values in a migration)</td><td><strong>That input, its expected output</strong>, as a specific test case</td><td><a href="0013-io-examples.html">13</a></td></tr>
+    <tr><td>An unfamiliar domain, and the developer doesn't yet know which design questions matter</td><td><strong>The interview pattern</strong>: Claude asks the developer questions before it implements</td><td>this one</td></tr>
+  </table>
+
+  <p><strong>The interview pattern, briefly</strong>, since it's new. The guide's example is a developer about to build something like a cache, who hasn't thought about invalidation strategies or failure modes. Instead of writing a spec they can't yet write, they have Claude ask the questions first. The best-practices page suggests a prompt like this:</p>
+<pre class="code">I want to build [brief description]. Interview me in detail using the
+AskUserQuestion tool.
+
+Ask about technical implementation, UI/UX, edge cases, concerns, and
+tradeoffs. Don't ask obvious questions, dig into the hard parts I might
+not have considered.
+
+Keep interviewing until we've covered everything, then write a complete
+spec to SPEC.md.</pre>
+  <p class="footer" style="margin-top:-.8rem">Quoted from the Claude Code best-practices page, "Let Claude interview you". It then suggests starting a fresh session to implement the spec.</p>
+  <p>How to tell it apart from tests first: tests need you to <em>know</em> the expected behaviour. The interview is for when you don't know it yet. Once the interview has produced a spec, writing tests from it is a sensible next step.</p>
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer both in chat before the quiz. Each one gives you everything you need.
+    <ol class="steps">
+      <li><strong>Your own miss: mock, 19 Oct, Q26.</strong> The original question:
+        <blockquote>Claude is rewriting the function that rounds route distances for driver pay. Over 4 rounds of chat feedback, each fix breaks a case fixed earlier: one round broke zero-length legs, another broke distances near the 0.5 km boundary. The team knows the expected output for 15 such cases. What should the developer do?<br><br>
+        A) Write tests for the 15 cases first, then iterate by giving Claude the failing tests <strong>✓ correct</strong><br>
+        B) Describe the 15 cases in one long prose message and ask Claude to handle them together <strong>✗ your pick</strong><br>
+        C) Fix the rounding by hand and ask Claude only to tidy the code style around the function<br>
+        D) Give Claude 2 input and output pairs for the hardest cases and go on as before</blockquote>
+        <strong>Part 1:</strong> which two facts in the stem point to writing tests first? Quote them. (Answer shape: "Fact 1: ___. Fact 2: ___.")<br>
+        <strong>Part 2:</strong> suppose you send B's long message, and round 5 fixes the 0.5 km boundary but breaks zero-length legs again. With B, how would anyone find out? With A, how would they find out? One sentence each.</li>
+      <li><strong>A new case: Omar's week.</strong> Omar works on a payments team. The facts:
+        <ol>
+          <li>A crash report shows a TypeError in <code>formatCurrency</code> in <code>money/format.ts</code>, line 48, when the amount is null. The fix is to return "—" for a null amount, in that one function. His lead says payments is "the most important service we run".</li>
+          <li>He needs to understand how a refund flows from the <code>POST /refunds</code> route to the ledger write. The repo has 600 files.</li>
+          <li>He wants Claude to look at yesterday's failed deploy log, <code>deploy-1018.log</code>, once, to find why one step failed.</li>
+          <li>Next month the team moves from one payment provider's SDK to another. About 50 files will change, and there are two ways to integrate the new SDK.</li>
+        </ol>
+        <strong>Part 1:</strong> name the tool for each fact. (Answer shape: "1 → ___, 2 → ___, 3 → ___, 4 → ___.")<br>
+        <strong>Part 2:</strong> for fact 1, the lead's words "most important service we run" are true. What should they change about how Omar does the fix, if not the choice of plan mode?</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Six new cases. For each, say to yourself what the stem names before you read the options: how small is the job, or what is the symptom?</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If an option looks right because the system is "critical" or the codebase is "huge", bring it here and we'll check what the stem actually names.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/best-practices">Claude Code docs: Best practices</a> (fetched 2026-10-19). "Explore first, then plan, then code": plan mode "adds overhead", small clear fixes go direct, and "If you could describe the diff in one sentence, skip the plan." "Provide rich content": reference files with <code>@</code>. "Use subagents for investigation" and "The infinite exploration" (scope investigations narrowly). "Let Claude interview you" (the prompt quoted in section 3).<br>
+    <strong>Also cited:</strong> <a href="https://code.claude.com/docs/en/memory">Claude Code docs: How Claude remembers your project</a> (fetched 2026-10-19): rules without <code>paths</code> load at launch; a path-scoped rule loads when Claude uses Read, Write or Edit on a matching file.
+    <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 2.5, 3.1, 3.3, 3.4, 3.5.<br>
+    <strong>Miss history:</strong> learning record 0027 (mock Q18, Q24, Q26, Q43); 0017 and 0025 for the lesson 13 and 18 background.<br>
+    <strong>Previous:</strong> <a href="0019-who-gets-it-where-it-loads.html">Lesson 19 — Who gets it, and where does it load?</a> · <strong>Reference:</strong> <a href="../reference/match-the-tool.html">Match the tool cheat sheet</a> · <a href="../reference/iterative-refinement.html">Iterative refinement cheat sheet</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A stack trace points to parseInvoiceDate in billing/dates.py, line 88: an impossible date such as 2026-02-30 crashes it. The fix is one validation check in that function. Billing is regulated, and a reviewer says it is too important not to plan first. What is the best approach?",
+    opts: [
+      "Plan mode, to design the change and list every caller before editing",
+      "Direct execution: add the check and a test for an invalid date",
+      "An Explore subagent to survey billing/ before the change is made",
+      "The interview pattern, so Claude asks about date edge cases first"
+    ],
+    ok: 1,
+    fb: "The stem names one check, in one function, with a stack trace. You can describe the diff in one sentence, so skip the plan. 'Regulated' is a reason to check the change, which is why B adds a test. A is the mock Q24 pick. C surveys a folder when the line is already known. D is for unfamiliar domains with open design questions, not a known validation check."
+  },
+  {
+    stem: "The team is moving from one logging library to another. The change touches 48 files across 6 services, and there are two ways to wire in the new library: a shared wrapper, or direct calls in each service. What is the best approach?",
+    opts: [
+      "Direct execution, one file at a time, verifying each before the next",
+      "Grep for every old logging call, then edit each match in place",
+      "Plan mode to choose the approach, then direct execution to apply it",
+      "Write tests for all 48 files first, then start the edits directly"
+    ],
+    ok: 2,
+    fb: "This time the stem names a big job: 48 files and two valid approaches. That's what plan mode is for, and the guide's pattern is to plan the migration, then execute the plan directly. A and B start editing before the approach is chosen, so a wrong choice means reworking 48 files. D is a refinement move for regressions with known outputs; it doesn't choose between the two designs."
+  },
+  {
+    stem: "An engineer asks how a password-reset email gets sent, starting from the POST /password/reset route. The repository has 900 files. What should the agent do first?",
+    opts: [
+      "Spawn a subagent to Read all 900 files and summarise the whole repo",
+      "Grep for the /password/reset route, Read its handler, follow calls",
+      "Glob **/*reset*, then Read every file whose name mentions reset",
+      "Read the 900 files in batches of 50, summarising after each batch"
+    ],
+    ok: 1,
+    fb: "The stem names the entry point: a route. Grep finds where it's defined, Read opens the handler, and following its calls leads to the email. That's a handful of files. A is the mock Q43 pick: it moves the reading elsewhere but still reads all 900. C matches file names, so it may miss files the handler calls whose names don't mention reset. D still reads everything."
+  },
+  {
+    stem: "A team wants Claude to follow its migration conventions (reversible steps, no column drops) whenever it edits files under db/migrations/. No other work needs them, and the root CLAUDE.md is already long. Where should the conventions go?",
+    opts: [
+      "In .claude/rules/ as a file with a paths glob of db/migrations/**",
+      "In the root CLAUDE.md, under a new heading named for migrations",
+      "As an @ reference typed into each prompt that touches a migration",
+      "In each engineer's ~/.claude/CLAUDE.md, copied over at onboarding"
+    ],
+    ok: 0,
+    fb: "This need comes back every time anyone edits a migration, so it isn't a one-off. And it applies only to certain files. A rule with a paths glob loads when Claude reads or edits a matching file, and not otherwise. B loads in every session and adds to a file that's already long. C relies on each person remembering, every time. D isn't shared through the repo, and copies drift."
+  },
+  {
+    stem: "Claude is rewriting a phone-number normaliser. Over 3 rounds, each fix re-broke a format that an earlier round had fixed. The team has 22 sample numbers, each with the exact output it should give. What should the developer do next?",
+    opts: [
+      "Send all 22 numbers in one detailed message and ask for one fix",
+      "Have Claude interview them about phone formats before rewriting",
+      "Fix one format per round, checking each fix before the next one",
+      "Write tests for the 22 numbers, then iterate on the failing tests"
+    ],
+    ok: 3,
+    fb: "Two signs: fixes keep breaking earlier cases, and the expected outputs are known. Tests hold all 22 cases and re-check them on every round, so a re-broken format shows up straight away. A is the mock Q26 pick: all the cases, told once, checked by no one. One message would be right if the outputs weren't known yet; here they are, so make the cases runnable. B is for when you don't know what matters yet, but here the team knows the exact outputs. C is the one-at-a-time loop that's already been re-breaking things."
+  },
+  {
+    stem: "A developer must add caching to a pricing service. They have never built a cache, and they don't yet know which invalidation and failure cases matter. What should they do before Claude implements anything?",
+    opts: [
+      "Write tests for the expected cache behaviour, then share failures",
+      "Give Claude 2-3 input and output pairs for the pricing service",
+      "Have Claude ask them questions about the design before it builds",
+      "Describe the whole cache design in one long, detailed message"
+    ],
+    ok: 2,
+    fb: "An unfamiliar domain, and the developer doesn't know which questions matter yet. That's the interview pattern: Claude asks about invalidation, failure modes and trade-offs before writing code. A needs expected behaviour the developer can't yet state. B is for a transformation that's being read inconsistently. D asks the developer to write the design they don't yet know."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

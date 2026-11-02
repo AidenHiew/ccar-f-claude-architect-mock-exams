@@ -1,0 +1,703 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCA-F Domains 2 and 3 Paper 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F6F5F1; --surface:#FFFFFF; --ink:#1C2430; --ink-soft:#5A6472;
+    --line:#E2E0D8; --accent:#0E6E6B; --accent-soft:#E3EFEE; --accent-ink:#0B5754;
+    --good:#2E7D4F; --good-soft:#E4F1E9; --bad:#B3372E; --bad-soft:#F7E7E5;
+    --pin:#8A6D1F; --pin-soft:#F4EDD8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#141A21; --surface:#1C242E; --ink:#E8EAE6; --ink-soft:#9AA5B1;
+      --line:#2C3641; --accent:#4FB8B2; --accent-soft:#173A39; --accent-ink:#7FD4CF;
+      --good:#5FBE88; --good-soft:#1B3226; --bad:#E07B6F; --bad-soft:#3A231F;
+      --pin:#D3B45C; --pin-soft:#33301D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141A21; --surface:#1C242E; --ink:#E8EAE6; --ink-soft:#9AA5B1;
+    --line:#2C3641; --accent:#4FB8B2; --accent-soft:#173A39; --accent-ink:#7FD4CF;
+    --good:#5FBE88; --good-soft:#1B3226; --bad:#E07B6F; --bad-soft:#3A231F;
+    --pin:#D3B45C; --pin-soft:#33301D;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--paper); color:var(--ink); font-family:"Instrument Sans",system-ui,sans-serif; margin:0; line-height:1.55;}
+  .wrap{max-width:820px; margin:0 auto; padding:0 20px 96px;}
+  h1,h2,h3{font-family:"Bricolage Grotesque","Instrument Sans",sans-serif; text-wrap:balance;}
+  .mono{font-family:"Spline Sans Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+
+  /* top bar */
+  .bar{position:sticky; top:0; z-index:10; background:var(--paper); border-bottom:1px solid var(--line);}
+  .bar-in{max-width:820px; margin:0 auto; padding:10px 20px; display:flex; align-items:center; gap:14px;}
+  .bar-title{font-family:"Bricolage Grotesque",sans-serif; font-weight:700; font-size:15px; letter-spacing:.01em;}
+  .bar-spacer{flex:1}
+  .progress{flex:1; max-width:260px; height:6px; border-radius:3px; background:var(--line); overflow:hidden;}
+  .progress i{display:block; height:100%; width:0%; background:var(--accent); transition:width .25s;}
+  .count{font-size:13px; color:var(--ink-soft);}
+  .timer{font-size:14px; font-weight:600; color:var(--accent-ink); background:var(--accent-soft); padding:3px 10px; border-radius:6px; display:none;}
+  .timer.low{color:var(--bad); background:var(--bad-soft);}
+  /* flag-for-review: the real exam lets you flag and return; live only in exam mode before grading */
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+  .flagnav{display:none; font:600 13px "Spline Sans Mono",monospace; color:var(--pin); background:var(--pin-soft); border:none; border-radius:6px; padding:3px 10px; cursor:pointer;}
+  .flag{display:none; margin-left:auto; flex-shrink:0; font:600 12px "Spline Sans Mono",monospace; color:var(--ink-soft); background:transparent; border:1px solid var(--line); border-radius:6px; padding:2px 8px; cursor:pointer;}
+  .examlive .flag{display:inline-block;}
+  .flag[aria-pressed="true"]{color:var(--pin); background:var(--pin-soft); border-color:var(--pin);}
+  .flag:focus-visible, .flagnav:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .examlive .q.flagged{border-color:var(--pin);}
+  @media (max-width:420px){ .progress{display:none;} .bar-in{gap:8px; padding:10px 14px;} }
+
+  /* intro */
+  header.hero{padding:56px 0 28px; border-bottom:1px solid var(--line);}
+  .eyebrow{font-family:"Spline Sans Mono",monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:10px;}
+  h1{font-size:clamp(30px,5vw,44px); font-weight:800; margin:0 0 12px; line-height:1.08;}
+  .hero p{color:var(--ink-soft); max-width:60ch; margin:0 0 6px;}
+  .facts{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;}
+  .fact{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px 14px; font-size:13px;}
+  .fact b{font-family:"Spline Sans Mono",monospace; font-weight:600; color:var(--accent-ink);}
+
+  .modes{display:flex; flex-wrap:wrap; gap:12px; margin:26px 0 10px;}
+  .mode-btn{flex:1; min-width:230px; text-align:left; background:var(--surface); border:1.5px solid var(--line); border-radius:12px; padding:16px 18px; cursor:pointer; color:var(--ink); font:inherit; transition:border-color .15s;}
+  .mode-btn:hover, .mode-btn:focus-visible{border-color:var(--accent); outline:none;}
+  .mode-btn h3{margin:0 0 4px; font-size:17px;}
+  .mode-btn span{font-size:13.5px; color:var(--ink-soft);}
+  .timer-opt{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-soft); margin-top:6px;}
+  .timer-row{flex-basis:100%;}
+  .note{font-size:12.5px; color:var(--ink-soft); margin-top:22px; border-top:1px dashed var(--line); padding-top:12px;}
+
+  /* domains / blocks + questions */
+  .domain{margin-top:44px;}
+  .domain-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:6px;}
+  .domain-head h2{margin:0; font-size:20px; font-weight:700;}
+  .domain-head .dtag{font-family:"Spline Sans Mono",monospace; font-size:12px; color:var(--accent-ink); background:var(--accent-soft); padding:2px 8px; border-radius:5px;}
+  .domain-head .dmeta{font-size:12.5px; color:var(--ink-soft); margin-left:auto;}
+  .block-intro{color:var(--ink-soft); margin:8px 0 0; max-width:70ch;}
+
+  .q{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px 14px; margin-top:16px;}
+  .q-top{display:flex; gap:12px; align-items:baseline;}
+  .q-num{font-family:"Spline Sans Mono",monospace; font-weight:600; font-size:14px; color:var(--accent-ink); flex-shrink:0;}
+  .q-text{font-weight:600; font-size:15.5px; flex:1; min-width:0; overflow-wrap:break-word;}
+  .q-text:focus{outline:none;}
+  .q-text:focus-visible{outline:2px solid var(--accent); outline-offset:4px; border-radius:4px;}
+  .scenario{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--pin); background:var(--pin-soft); display:inline-block; padding:2px 8px; border-radius:4px; margin:8px 0 4px 34px;}
+  .scenario.ts{color:var(--accent-ink); background:var(--accent-soft); margin-left:6px; text-transform:none; letter-spacing:0;}
+  /* the real exam shows the scenario only — the task statement names the concept, so it stays hidden until the question is graded */
+  .q:not(.reveal) .scenario.ts{display:none;}
+  .opts{list-style:none; margin:10px 0 4px; padding:0 0 0 34px; display:flex; flex-direction:column; gap:8px;}
+  .opt{display:flex; gap:10px; align-items:flex-start; border:1.5px solid var(--line); border-radius:9px; padding:9px 12px; cursor:pointer; font-size:14.5px; transition:border-color .12s, background .12s; background:transparent;}
+  .opt:hover{border-color:var(--accent);}
+  .opt{position:relative;} /* anchors the hidden radio inside its option, so focusing it scrolls the question pane, not the window */
+  .opt input{position:absolute; opacity:0; pointer-events:none;}
+  .opt .letter{font-family:"Spline Sans Mono",monospace; font-weight:600; font-size:13px; color:var(--ink-soft); border:1px solid var(--line); border-radius:5px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;}
+  .opt.sel{border-color:var(--accent); background:var(--accent-soft);}
+  .opt.sel .letter{background:var(--accent); border-color:var(--accent); color:var(--surface);}
+  .opt:has(input:focus-visible){outline:2px solid var(--accent); outline-offset:2px;}
+  .q.locked .opt{cursor:default;}
+  .q.locked .opt:hover{border-color:var(--line);}
+  .q.locked .opt.sel:hover{border-color:var(--accent);}
+  .opt.right{border-color:var(--good); background:var(--good-soft);}
+  .opt.right .letter{background:var(--good); border-color:var(--good); color:var(--surface);}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-soft);}
+  .opt.wrong .letter{background:var(--bad); border-color:var(--bad); color:var(--surface);}
+  .why{display:none; margin:10px 0 6px 34px; font-size:13.5px; color:var(--ink-soft); border-left:3px solid var(--accent); padding:4px 0 4px 12px;}
+  .why b{color:var(--ink);}
+  .why .wrong{list-style:none; margin:8px 0 4px; padding:0; display:flex; flex-direction:column; gap:3px;}
+  .why .wrong .x{font-family:"Spline Sans Mono",monospace; color:var(--bad); font-weight:600;}
+  .why .wrong em{color:var(--pin); font-style:normal; font-size:12.5px;}
+  .why .cite{display:block; margin-top:6px; font-size:12px; color:var(--ink-soft);}
+  .q.reveal .why{display:block;}
+
+  /* submit + results */
+  .submit-row{margin-top:40px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;}
+  .btn{font:inherit; font-weight:600; border:none; border-radius:10px; padding:12px 26px; cursor:pointer; background:var(--accent); color:#fff;}
+  :root[data-theme="dark"] .btn{color:#0E1A19;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#0E1A19;} }
+  .btn.ghost{background:transparent; color:var(--accent-ink); border:1.5px solid var(--accent);}
+  .btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+  .unanswered-note{font-size:13.5px; color:var(--bad);}
+
+  .results{display:none; margin-top:48px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:26px 26px 20px;}
+  .results.show{display:block;}
+  .score-line{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
+  .big-score{font-family:"Spline Sans Mono",monospace; font-size:52px; font-weight:600; line-height:1;}
+  .big-score small{font-size:20px; color:var(--ink-soft); font-weight:400;}
+  .verdict{font-weight:700; font-size:16px; padding:4px 12px; border-radius:6px;}
+  .verdict.pass{color:var(--good); background:var(--good-soft);}
+  .verdict.fail{color:var(--bad); background:var(--bad-soft);}
+  .score-sub{font-size:13.5px; color:var(--ink-soft); margin-top:6px;}
+  .dbars{margin-top:22px; display:flex; flex-direction:column; gap:12px;}
+  .dbar-label{display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;}
+  .dbar-label b{font-weight:600;}
+  .dbar-label span{font-family:"Spline Sans Mono",monospace; color:var(--ink-soft);}
+  .dbar{height:10px; border-radius:5px; background:var(--line); overflow:hidden;}
+  .dbar i{display:block; height:100%; background:var(--accent); border-radius:5px; transition:width .5s;}
+  .dbar i.weak{background:var(--bad);}
+  .ts-table{width:100%; border-collapse:collapse; margin-top:18px; font-size:13px;}
+  .ts-table th,.ts-table td{text-align:left; padding:5px 8px; border-bottom:1px solid var(--line);}
+  .ts-table td.n{font-family:"Spline Sans Mono",monospace; text-align:right; white-space:nowrap;}
+  .ts-table tr.low td{color:var(--bad);}
+  .focus{margin-top:12px; font-size:13.5px;}
+  .copybox{width:100%; min-height:220px; margin-top:10px; font:12px "Spline Sans Mono",monospace; background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:10px; display:none;}
+  .copybox.show{display:block;}
+  .results .hint{font-size:13.5px; color:var(--ink-soft); margin-top:20px; border-top:1px dashed var(--line); padding-top:12px;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+
+  /* exam screen (2026-11-01, docs/superpowers/specs/2026-11-01-exam-layout-and-public-repo-design.md): while a paper is live
+     (body.staged), one question at a time, scenario + question grid on the left. A graded paper drops back to the full review layout above. */
+  .stage-aside, .qnav, .gridbtn, .strike{display:none;}
+  .gridbtn{font:600 13px "Instrument Sans",sans-serif; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 10px; cursor:pointer;}
+  .gridbtn:focus-visible, .qnav button:focus-visible, .cell:focus-visible, .strike:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  body.staged{height:100vh; height:100dvh; display:flex; flex-direction:column; overflow:hidden;}
+  body.staged .bar{position:static;}
+  body.staged .bar-in{max-width:none;}
+  body.staged .gridbtn{display:inline-block;}
+  body.staged .wrap{max-width:none; padding:0; flex:1; min-height:0; display:flex; flex-direction:column;}
+  body.staged .stage{flex:1; min-height:0; display:grid; grid-template-columns:minmax(280px, 36%) 1fr;}
+  body.staged .stage-aside{display:flex; flex-direction:column; min-height:0; background:var(--surface); border-right:1px solid var(--line); padding:24px 24px 20px;}
+  .sc-scroll{flex:1 1 auto; min-height:0; overflow:auto;}
+  .sc-kicker{font:600 11.5px "Spline Sans Mono",monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--pin);}
+  .sc-title{font-size:22px; line-height:1.25; margin:6px 0 14px;}
+  .sc-body p{margin:0 0 12px; font-size:15px;}
+  .sc-details > summary{cursor:pointer;}
+  body.staged .q-pane{overflow:auto; padding:28px clamp(16px, 4vw, 48px) 24px; display:flex; flex-direction:column;}
+  body.staged #exam{max-width:760px; width:100%;}
+  body.staged #exam .domain{margin-top:0;}
+  body.staged #exam .domain-head, body.staged #exam .block-intro, body.staged #exam .scenario:not(.ts){display:none;}
+  body.staged #exam .q{display:none; margin-top:0;}
+  body.staged #exam .q.current{display:block;}
+  body.staged .qnav{display:flex; gap:10px; align-items:center; margin-top:auto; padding-top:24px; max-width:760px;}
+  .qnav .grow{flex:1;}
+  .qnav button{font:600 14px "Instrument Sans",sans-serif; border-radius:8px; padding:8px 16px; cursor:pointer; border:1px solid var(--line); background:var(--surface); color:var(--ink);}
+  .qnav button.next{background:var(--accent); border-color:var(--accent); color:#fff;}
+  :root[data-theme="dark"] .qnav button.next{color:#0E1A19;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .qnav button.next{color:#0E1A19;} }
+  .qnav button:disabled{opacity:.4; cursor:default;}
+  .strike-hint{font-size:12.5px; color:var(--ink-soft); margin:14px 0 0; max-width:760px;}
+  body.staged .submit-row{margin-top:16px;}
+  .strike-hint{display:none;} body.staged .strike-hint{display:block;}
+
+  /* strikethrough: right-click an option (X on a focused option, ⊘ on touch screens); crossing out never answers */
+  .opts li{display:flex; gap:6px; align-items:flex-start;}
+  .opts li > .opt{flex:1;}
+  .opt.struck > span:last-child{text-decoration:line-through; text-decoration-thickness:1.5px; color:var(--ink-soft); opacity:.6;}
+  .opt.struck .letter{opacity:.5;}
+  .strike{flex-shrink:0; min-width:32px; min-height:32px; margin-top:4px; border:1px solid var(--line); background:transparent; color:var(--ink-soft); border-radius:6px; font-size:13px; padding:2px 8px; cursor:pointer; opacity:.45;}
+  .strike:hover, .strike:focus-visible, .strike[aria-pressed="true"]{opacity:1;}
+  .strike[aria-pressed="true"]{color:var(--pin); border-color:var(--pin); background:var(--pin-soft);}
+  body.staged .q:not(.locked) .strike{display:inline-block;}
+  @media (pointer:coarse){ .strike{opacity:1;} }
+
+  /* question grid: one row per block (or domain), under the scenario. body[data-grid]: "auto" = shown except on phones;
+     "open"/"closed" = the reader's own choice, from the Questions button */
+  .grid-panel{flex-shrink:0; margin-top:20px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px; container-type:inline-size;}
+  body[data-grid="closed"] .grid-panel{display:none;}
+  .grid-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:8px;}
+  .grid-row{display:flex; align-items:center; gap:8px; margin-top:6px;}
+  .grid-row-label{width:24px; font-size:11px; color:var(--ink-soft); flex-shrink:0;}
+  .cells{display:grid; grid-template-columns:repeat(15, 1fr); gap:4px; flex:1;}
+  .cell{position:relative; height:28px; border-radius:6px; border:1px solid var(--line); background:var(--surface); font:600 11.5px "Spline Sans Mono",monospace; color:var(--ink-soft); padding:0; cursor:pointer;}
+  .cell:hover{border-color:var(--ink-soft);}
+  .cell.answered{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink);}
+  .cell.flagged{border-color:var(--pin); box-shadow:inset 0 -3px 0 var(--pin);}
+  .cell.flagged::after{content:""; position:absolute; top:3px; right:3px; width:6px; height:6px; border-radius:50%; background:var(--pin);}
+  .cell.current{outline:2px solid var(--ink); outline-offset:1px;}
+  .cell.current:focus-visible{outline-color:var(--accent);}
+  .legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:12px; font-size:12px; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:14px; height:14px; border-radius:4px; border:1px solid var(--line); background:var(--surface);}
+  .legend i.answered{background:var(--accent-soft); border-color:var(--accent);}
+  .legend i.flagged{border-color:var(--pin); box-shadow:inset 0 -2px 0 var(--pin);}
+  .legend i.current{outline:2px solid var(--ink); outline-offset:1px;}
+  @container (max-width:420px){
+    .cells{grid-template-columns:repeat(8, 1fr); gap:3px;} .cell{height:24px;}
+    .grid-row{align-items:flex-start; margin-top:4px;} .grid-head{flex-direction:column; gap:2px;} .legend{margin-top:8px;}
+  }
+  /* mid-size or short screens: pinning the grid would squeeze the passage, so the whole left pane scrolls */
+  @media (min-width:761px) and (max-width:1100px), (min-width:761px) and (max-height:720px){
+    body.staged .stage-aside{display:block; overflow:auto;}
+    .sc-scroll{overflow:visible;}
+  }
+  /* phones: stacked, scenario collapsible above the question, grid hidden until asked for */
+  @media (max-width:760px){
+    body.staged{height:auto; overflow:visible; display:block;}
+    body.staged .bar{position:sticky;} /* the page scrolls on phones, so keep the timer in view */
+    body.staged .wrap, body.staged .stage{display:block;}
+    body.staged .stage-aside{display:block; border-right:none; border-bottom:1px solid var(--line); padding:14px 16px;}
+    .sc-scroll{overflow:visible;}
+    .sc-title{font-size:18px; margin:4px 0 8px;}
+    body[data-grid="auto"] .grid-panel{display:none;}
+    .grid-panel{margin-top:12px;}
+    body.staged .q-pane{padding:18px 16px 24px;}
+    body.staged .bar-in{flex-wrap:wrap;}
+    .cells{grid-template-columns:repeat(8, 1fr);}
+  }
+
+  /* print report */
+  .ansline{display:none;}
+  @media print{
+    :root{ --paper:#fff; --surface:#fff; --ink:#111; --ink-soft:#444; --line:#bbb;
+      --accent:#0E6E6B; --accent-soft:#fff; --accent-ink:#0B5754;
+      --good:#2E7D4F; --good-soft:#fff; --bad:#B3372E; --bad-soft:#fff;
+      --pin:#665; --pin-soft:#fff; }
+    body{font-size:11px; line-height:1.4;}
+    .bar, .submit-row, .btn, .hint, .modes, .timer-opt, .copybox, .flag{display:none !important;}
+    .examlive .q.flagged{border-color:#bbb;}
+    .wrap{max-width:none; padding:0;}
+    .results{display:block !important; border:2px solid #111; page-break-inside:avoid; margin-top:0; padding:14px 18px;}
+    .results::before{content:"Result Report"; display:block; font-family:"Bricolage Grotesque",sans-serif; font-weight:700; font-size:16px; margin-bottom:8px;}
+    header.hero{display:none;}
+    .big-score{font-size:32px;}
+    .ts-table{font-size:10px;}
+    .q{border:1px solid #bbb; border-radius:0; padding:8px 12px 6px; margin-top:8px; page-break-inside:avoid;}
+    .scenario{border:none; padding:0; margin:2px 0 0 30px; background:none;}
+    .opts{gap:3px; margin:6px 0 2px; padding-left:30px;}
+    .opt{border-width:1px; padding:3px 8px; font-size:11px;}
+    .opt.right{border:2px solid var(--good);}
+    .opt.wrong{border:2px dashed var(--bad);}
+    .opt .letter{width:16px; height:16px; font-size:10px;}
+    .q.reveal .ansline{display:block; margin:4px 0 2px 30px; font-size:10.5px; font-weight:600;}
+    .ansline.ok{color:var(--good);} .ansline.miss{color:var(--bad);}
+    .why{margin:4px 0 4px 30px; font-size:10.5px; border-left-width:2px;}
+    .domain{margin-top:18px;} .domain-head h2{font-size:14px;}
+    /* printing mid-paper still prints every question */
+    body.staged{height:auto; display:block; overflow:visible;}
+    body.staged .wrap, body.staged .stage{display:block;}
+    .stage-aside, .qnav, .strike, .strike-hint{display:none !important;}
+    body.staged #exam .q{display:block;} body.staged #exam .domain-head{display:flex;}
+    body.staged #exam .block-intro{display:block;} body.staged #exam .scenario:not(.ts){display:inline-block;}
+    .results:not(.show){display:none !important;} /* an ungraded paper has no report to print */
+    .opt.struck > span:last-child{text-decoration:none; opacity:1; color:inherit;} .opt.struck .letter{opacity:1;}
+  }
+</style>
+
+<div class="bar" id="topbar" style="display:none">
+  <div class="bar-in">
+    <span class="bar-title"></span>
+    <div class="progress" aria-hidden="true"><i id="pfill"></i></div>
+    <span class="count mono" id="pcount"></span>
+    <span class="bar-spacer"></span>
+    <button class="flagnav" id="flagNav" type="button" title="Jump to the next flagged question">⚑ 0 flagged</button>
+    <span class="sr-only" id="flagStatus" role="status"></span>
+    <span class="sr-only" id="qStatus" role="status"></span>
+    <span class="timer mono" id="timer">120:00</span>
+    <button class="gridbtn" id="gridBtn" type="button" aria-controls="gridPanel" aria-expanded="true">Questions ▾</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero" id="hero">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <p id="intro"></p>
+    <div class="facts">
+      <div class="fact"><b id="factCount"></b> questions</div>
+      <div class="fact"><b id="factMins">120</b> minutes (exam mode)</div>
+      <div class="fact">Practice target <b>72% raw</b></div>
+      <div class="fact">Closed book · no AI</div>
+    </div>
+    <p style="margin-top:18px">Read each stem for the failure it describes and the number that sizes it. Two options usually both "work" — the exam wants the proportionate, designed mechanism that closes the stated gap, not the biggest or the smallest one. Option length tells you nothing here.</p>
+    <div class="modes">
+      <button class="mode-btn" id="startExam">
+        <h3>Exam mode</h3>
+        <span>Answer everything, then submit. Feedback and rationales appear only after grading — closest to the real thing.</span>
+      </button>
+      <button class="mode-btn" id="startPractice">
+        <h3>Practice mode</h3>
+        <span>Instant feedback: each answer is graded on the spot with the trap behind every wrong option. Results appear once all questions are answered.</span>
+      </button>
+      <div class="timer-row"><label class="timer-opt"><input type="checkbox" id="useTimer"> Run the <span id="timerMins">120</span>-minute countdown</label></div>
+    </div>
+    <p class="note">Original questions written for this course against the official Exam Guide, the repo notes, and notes/2026-09-docs-delta.md. Every rationale cites its source.</p>
+  </header>
+
+  <div class="stage">
+    <aside class="stage-aside" aria-label="Scenario">
+      <div class="sc-scroll" id="scPane"></div>
+      <div class="grid-panel" id="gridPanel" role="region" aria-label="All questions">
+        <div class="grid-head"><span>All questions</span><span class="mono" id="gridCount"></span></div>
+        <div id="gridRows"></div>
+        <div class="legend">
+          <span><i></i>Not answered</span><span><i class="answered"></i>Answered</span>
+          <span><i class="flagged"></i>Flagged</span><span><i class="current"></i>Current</span>
+        </div>
+      </div>
+    </aside>
+    <div class="q-pane" id="qPane">
+      <main id="exam" style="display:none"></main>
+      <p class="strike-hint">Right-click an option to cross it out (press X on a focused option, or use ⊘ on a touch screen). Crossing out doesn't answer the question.</p>
+      <div class="qnav">
+        <button type="button" id="prevBtn">← Previous</button>
+        <span class="grow"></span>
+        <button type="button" class="next" id="nextBtn">Next →</button>
+      </div>
+      <div class="submit-row" id="submitRow" style="display:none">
+        <button class="btn" id="submitBtn">Grade my exam</button>
+        <span class="unanswered-note" id="unans"></span>
+      </div>
+    </div>
+  </div>
+
+  <section class="results" id="results" aria-live="polite">
+    <div class="score-line">
+      <div class="big-score" id="scoreNum">0<small>%</small></div>
+      <span class="verdict" id="verdict">—</span>
+    </div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="dbars" id="dbars"></div>
+    <table class="ts-table" id="tstable"></table>
+    <p class="focus" id="focus"></p>
+    <p class="hint">Scroll back up to review: correct answers are outlined in green, your misses in red, each with the trap behind every wrong option and its source. Copy the results table into chat for /tutor to update your mastery grid and walk your misses one by one.</p>
+    <div class="submit-row" style="margin-top:18px">
+      <button class="btn ghost" id="copyBtn">Copy results for tutor</button>
+      <button class="btn" id="printBtn">Print result report</button>
+      <button class="btn ghost" id="resetBtn">Reset &amp; retake</button>
+    </div>
+    <textarea class="copybox" id="copybox" readonly aria-label="Results as markdown"></textarea>
+  </section>
+</div>
+
+<script>
+const META = {"key":"d23e","title":"CCA-F Domains 2 and 3 Paper 5","eyebrow":"Domains 2 and 3 · 23 questions · 3 scenarios","intro":"Twenty-three new exam-level questions on Domains 2 and 3, in three scenario blocks, in the exam's proportions. Every question has one correct answer. Flag questions to return to them before you submit. Labels stay hidden until grading. Sit it once, in exam mode, with the 46-minute timer on.","defaultMode":"exam","timerDefault":true,"minutes":46,"storageKey":"ccaf-d23-paper5","blocks":[{"id":1,"title":"Developer Productivity with Claude","intro":"Your team of 16 engineers maintains a ferry operator's booking system: a 9-year-old Elixir Phoenix codebase of about 2,300 files on Postgres. You also run an internal developer agent on the Claude Agent SDK, with MCP servers for the code, application logs, incidents and deploys, and you own the shared Claude Code setup."},{"id":2,"title":"Code Generation with Claude Code","intro":"Your team of 11 developers uses Claude Code on a water utility's smart-metering platform: Kotlin services that collect meter readings, an Angular customer portal and SQL migrations, about 1,700 files in one repository. You own the Claude Code setup, from CLAUDE.md files and rules to skills."},{"id":3,"title":"Claude Code for CI","intro":"Your team runs a podcast-hosting platform: a Node.js API and Python transcoding workers, about 1,200 files. Developers use Claude Code day to day, and a Claude Code job in CI reviews every pull request."}]};
+const Q = [{"id":"J01","ts":"2.1","s":"dp","block":1,"bp":{"rank":1},"q":"The developer agent has get_deploy_log, described as returning the build and deploy output for one release, and search_incidents, described as searching production incident reports by service and date. Both descriptions were rewritten last month with example queries and a line on when to use the other tool, and misrouting barely moved, from 27% to 25% of sessions about a production failure. The system prompt holds 14 lines of guidance, one added in March: 'For anything about a failure, start from the release that shipped it.' In those sessions the agent reads deploy logs and never searches incidents. What should you change first?","o":["Add input_examples of failure questions to search_incidents","Merge the 2 tools into one get_failure_context tool","Force search_incidents with tool_choice on failure questions","Reword the March line about starting from a failure's release"],"a":3,"why":"Keyword-sensitive wording in a system prompt can override well-written tool descriptions. The descriptions were already improved and barely moved the rate. The March line ties every failure question to the release, which is what get_deploy_log returns. Rewording that line fixes the cause.","wrong":{"A":{"trap":"probabilistic","text":"The descriptions already gained examples, and the rate barely moved. More examples still compete with a system prompt line that points the other way."},"B":{"trap":"over-engineered","text":"They are different data sources. Merging them hides the conflict instead of removing the line behind it."},"C":{"trap":"over-engineered","text":"Detecting failure questions in code to force one tool, when the cause is one line of the system prompt. Some failure questions do need deploy logs."}},"cite":"Exam guide §2.1; notes/domain-2 §2.1"},{"id":"J02","ts":"2.1","s":"dp","block":1,"bp":{"rank":1},"q":"Your MCP server offers one tool, run_query, described as 'Runs a query'. Engineers use it for 3 jobs, each with different input: SQL against the booking database, a search string for 18 months of application logs, and a metric name with a time window for the metrics store. In a week of 400 calls, 52 went to the wrong backend, most of them log searches written as SQL. What should you do?","o":["Split it into 3 tools, each with its own inputs and description","Add a system prompt rule that log searches don't use SQL syntax","Return isError when SQL arrives at the log store, with a hint","Put a worked example of each query type in the system prompt"],"a":0,"why":"One generic tool covering 3 jobs with 3 different input shapes cannot say clearly what it expects. Splitting it into purpose-specific tools, each with a defined input and a description of when to use it, removes the overlap the model is guessing across.","wrong":{"B":{"trap":"probabilistic","text":"A rule for one of the 3 confusions. The single vague tool is still what gets misused."},"C":{"trap":"reactive-too-late","text":"Catches the mistake after the call, for one backend only. The tool still doesn't say what it takes."},"D":{"trap":"probabilistic","text":"Examples in the prompt help, but one tool with one vague description still has to carry 3 different inputs."}},"cite":"Exam guide §2.1; notes/domain-2 §2.1"},{"id":"J03","ts":"2.2","s":"dp","block":1,"bp":{"rank":4},"q":"search_incidents returns an empty list both when no incident matches and when the incident database times out. During a 2-hour database outage last week, the agent told engineers 'no open incidents' 17 times, while 40 incidents were open. What should the tool return when the database times out?","o":["An empty list with a note field saying the results may be partial","isError with errorCategory 'validation' and isRetryable false","isError with errorCategory 'transient' and isRetryable true","An empty list, plus a prompt rule to double-check empty results"],"a":2,"why":"A timeout is an access failure, not a valid empty result. isError with a transient category and isRetryable true tells the agent the query didn't run and can be retried, instead of reporting that nothing is open.","wrong":{"A":{"trap":"error-suppression","text":"Still looks like a successful search. The agent has to notice a side field to learn that nothing was searched."},"B":{"trap":"wrong-problem","text":"The input was fine. Validation and not retryable tell the agent to stop, when a retry after a timeout may work."},"D":{"trap":"probabilistic","text":"The tool keeps hiding the failure, and checking again can't tell a real empty result from a timeout."}},"cite":"Exam guide §2.2; notes/domain-2 §2.2"},{"id":"J04","ts":"2.2","s":"dp","block":1,"bp":{"rank":1},"q":"The coordinator sends a log-search subagent to collect errors from 6 services. When 1 service's log store is briefly unavailable, the subagent returns 'Search failed' for the whole task, and the coordinator reruns all 6 searches. About 1 task in 10 hits this, and the outage usually clears within a minute. What should the subagent do?","o":["Mark the whole task isError, with errorCategory 'transient'","Retry locally, then return the 5 results and what still failed","Have the coordinator rerun the whole task up to 3 times","Skip the failed service and report the 5 results as complete"],"a":1,"why":"Transient failures are best retried where they happen. If the service is still down after that, the subagent passes up the 5 results it has, plus what it tried and what failed, and the coordinator decides about 1 service, not 6.","wrong":{"A":{"trap":"wrong-problem","text":"Better metadata, but it still throws away 5 good results and pushes a local retry up to the coordinator."},"C":{"trap":"symptom-fix","text":"Reruns 5 searches that already worked, each time 1 service blips."},"D":{"trap":"error-suppression","text":"Hides a gap. The coordinator would treat incomplete results as complete."}},"cite":"Exam guide §2.2; notes/domain-2 §2.2"},{"id":"J05","ts":"2.3","s":"dp","block":1,"bp":{"rank":4,"weight":"light"},"q":"The review agent was given all 21 tools from the team's 4 MCP servers. Its job is reviewing pull requests, which needs 4 of them: read the diff, read files, search code and post a comment. In 200 review sessions it called deploy or incident tools 25 times, and once restarted a staging service mid-review. What is the best change?","o":["Give the review agent only the 4 tools its job needs","Add a system prompt line that reviews don't use deploy tools","Add a hook that blocks the restart tool during reviews","Rewrite all 21 descriptions with when-to-use guidance"],"a":0,"why":"Too many tools, most of them outside the agent's role, degrade selection and invite misuse. Scoping the agent to the 4 tools its role needs takes the wrong choices away.","wrong":{"B":{"trap":"probabilistic","text":"Asks the agent not to use tools it still has. 17 out-of-role tools stay in front of it."},"C":{"trap":"symptom-fix","text":"Blocks the worst call, but the other 24 stray deploy and incident calls still happen."},"D":{"trap":"over-engineered","text":"Better descriptions for 17 tools the agent shouldn't have at all."}},"cite":"Exam guide §2.3; notes/domain-2 §2.3"},{"id":"J06","ts":"2.3","s":"dp","block":1,"bp":{"rank":1},"q":"Every triage run must start by loading the incident record with get_incident, because the later steps (search logs, check deploys, write a summary) need its service name and time window. With tool_choice set to 'auto', 14% of runs began with a log search on a guessed service name. What should the first request use?","o":["tool_choice 'any' on the first request and each turn after it","A system prompt line asking it to call get_incident first","tool_choice forced to get_incident on each turn of the run","tool_choice forced to get_incident, then 'auto' for later turns"],"a":3,"why":"Forced tool selection guarantees the first call is get_incident. The later steps then run in follow-up turns with 'auto', where the agent can pick the next tool or write the summary.","wrong":{"A":{"trap":"wrong-problem","text":"'any' guarantees some tool call, not which one. The guessed log search is still allowed."},"B":{"trap":"probabilistic","text":"Makes the right first call more likely. With 'auto' it can still start with a guess."},"C":{"trap":"over-engineered","text":"Forcing it on every turn calls get_incident again and again. The run could never search logs or write the summary."}},"cite":"Exam guide §2.3; notes/domain-2 §2.3"},{"id":"J07","ts":"2.4","s":"dp","block":1,"bp":{"rank":3,"scope":"shared"},"q":"Yesterday the team committed a schedules server to the project's .mcp.json. 15 of the 16 engineers now see its tools. The 16th says Claude keeps answering sailing-time questions from old docs, and in their terminal claude mcp list shows schedules as ⏸ Pending approval (run `claude` to approve). What should they do first?","o":["Add schedules again with claude mcp add --scope project","Run claude in the repo and approve the schedules server","Add a CLAUDE.local.md line telling Claude to use schedules","Run claude mcp get schedules to see why it failed to connect"],"a":1,"why":"Pending approval means the entry is already there and Claude Code is waiting for this person's yes: it asks each person before it uses a server from a project's .mcp.json. The status line names the step. Running claude in the project shows the approval question.","wrong":{"A":{"trap":"wrong-problem","text":"The entry is already in the committed .mcp.json. Adding it again doesn't give the approval that's missing."},"C":{"trap":"wrong-problem","text":"An instruction can't connect a server. Until the server is approved, its tools aren't there to use."},"D":{"trap":"wrong-problem","text":"It hasn't failed to connect. claude mcp list already says what's needed: approval."}},"cite":"Lesson 26 §4 (claude mcp list statuses; ⏸ Pending approval; run claude in the project to approve); LR-0038 (lesson 26 quiz Q6); exam guide §2.4"},{"id":"J08","ts":"2.4","s":"dp","block":1,"bp":{"rank":2,"scope":"personal"},"q":"The committed .mcp.json defines a server named incidents that points at the production incident API. One engineer wants their sessions in this repository to use the read-only replica instead, while their 3 other projects and the rest of the team keep production. Last week they added 'Use the incidents replica, not production' to their CLAUDE.local.md, and 9 of their 10 sessions since still called production. What should they do?","o":["Move the line into the root CLAUDE.md under an incidents heading","Add their own incidents server at user scope for the replica","Add their own incidents server at local scope for the replica","Repeat the line near the top of CLAUDE.local.md, in capitals"],"a":2,"why":"Which server Claude connects to is set by server entries, not by instructions. A same-named incidents server at local scope beats the project entry, for this person in this project only, and the whole local entry is used.","wrong":{"A":{"trap":"wrong-problem","text":"Still an instruction, now shown to the whole team. It can't change the connection."},"B":{"trap":"wrong-problem","text":"User scope reaches all their projects, and project scope beats user scope, which leaves the team entry winning here."},"D":{"trap":"probabilistic","text":"A louder instruction is still an instruction. The connection stays on production."}},"cite":"Lesson 26 §1–2 (scopes; same-name precedence local > project > user; whole entry used; a server entry, never a CLAUDE.md line, changes the connection); LR-0036 (Paper 4 Q9); exam guide §2.4"},{"id":"J09","ts":"2.4","s":"dp","block":1,"bp":{"rank":2,"scope":"personal"},"q":"An engineer wrote an experimental MCP server that searches their own design notes, started with node ~/tools/notes-server.js. They want it in all 5 of their projects, and none of their 15 teammates should see it. Which command should they run?","o":["claude mcp add --scope user notes -- node ~/tools/notes-server.js","claude mcp add notes -- node ~/tools/notes-server.js","claude mcp add --scope project notes -- node ~/tools/notes-server.js","A notes entry in a ~/.mcp.json file in their home folder"],"a":0,"why":"User scope is for personal or experimental servers across all of a person's projects, saved in ~/.claude.json. With no --scope the server is local: this person, this project only. --scope project writes it into the committed .mcp.json for the whole team.","wrong":{"B":{"trap":"wrong-problem","text":"No --scope means local scope: only this project, not all 5."},"C":{"trap":"wrong-problem","text":"Writes it into this project's committed .mcp.json: every teammate gets it, and the other 4 projects don't."},"D":{"trap":"nonexistent-feature","text":"There is no ~/.mcp.json. Servers are saved in .mcp.json at a project root (project scope) or in ~/.claude.json (local and user scope)."}},"cite":"Exam guide §2.4; lesson 26 §1 (scope table) and §5; notes/domain-2 §2.4"},{"id":"J10","ts":"2.5","s":"dp","block":1,"bp":{"rank":1},"q":"lib/pay.ex wraps the payments library and re-exports its functions under new names chosen by the booking team. An engineer asks the agent to find every place in the 2,300 files that takes, refunds or holds a payment through the wrapper. The agent grepped for the library's original function names and found 4 matches, all inside lib/pay.ex. What should it do next?","o":["Grep for the payments library's module name across the files","Glob for files with pay in their names, then Read each one","Read all 2,300 files in turn and note each payment call","Read the wrapper to list its exported names, then Grep for each"],"a":3,"why":"Callers use the wrapper's names, not the library's: the first search found matches only inside the wrapper. Listing every name the wrapper exports, then searching for each across the codebase, finds the callers.","wrong":{"A":{"trap":"symptom-fix","text":"Callers go through the wrapper. The library's name turns up where the wrapper uses it, not at the call sites."},"B":{"trap":"wrong-problem","text":"File names don't say which code calls the wrapper. Callers can be in any file."},"C":{"trap":"over-engineered","text":"Reads 2,300 files when 2 targeted steps find the callers."}},"cite":"Exam guide §2.5; notes/domain-2 §2.5"},{"id":"J11","ts":"2.5","s":"dp","block":1,"bp":{"rank":1},"q":"An engineer wants every migration that changed the sailings table. The 300 files in priv/repo/migrations/ have timestamp names such as 20240311_add_column.exs, and none of the names mention a table. Each migration names its table in the body, as in alter table(:sailings). Which approach fits best?","o":["Glob for priv/repo/migrations/*sailings*.exs to list them","Grep for :sailings in priv/repo/migrations/ to list the files","Read the 300 migration files in turn and note each match","Bash with git log on the migrations folder for the past year"],"a":1,"why":"The table name is in the file contents, not in the file names. Grep searches contents and lists the files that match.","wrong":{"A":{"trap":"wrong-problem","text":"Glob matches file names, and none of the names mention a table. It finds nothing."},"C":{"trap":"over-engineered","text":"Reads 300 files to do what one content search does."},"D":{"trap":"wrong-problem","text":"Lists commits by date, not which files change the sailings table."}},"cite":"Exam guide §2.5; notes/domain-2 §2.5; LR-0037 (M20: an exclusion in the stem decides)"},{"id":"J12","ts":"3.1","s":"cc","block":2,"bp":{"rank":4,"scope":"shared","trigger":"session"},"q":"Six months ago a senior developer wrote the team's 30-line Kotlin error-handling guide into their own ~/.claude/CLAUDE.md. The 4 developers who joined since get code that ignores it, while the senior's sessions follow it. /memory in a new developer's session shows the project CLAUDE.md loaded and no guide. What should the team do?","o":["Have each new developer copy the guide into ~/.claude/CLAUDE.md","Put the guide in a CLAUDE.local.md at the repository root","Move the guide into the project CLAUDE.md and commit it","Add @~/.claude/CLAUDE.md to the project CLAUDE.md as an import"],"a":2,"why":"A user-level CLAUDE.md applies only to that user and isn't shared through git. Team standards belong in the project CLAUDE.md, committed, where every developer's sessions load it at launch.","wrong":{"A":{"trap":"symptom-fix","text":"Works until the guide changes. Then 5 personal copies drift apart."},"B":{"trap":"wrong-problem","text":"CLAUDE.local.md is personal and kept out of git. New developers still wouldn't get it."},"D":{"trap":"wrong-problem","text":"~ is each person's own home folder, and the new developers' files don't contain the guide."}},"cite":"Exam guide §3.1; notes/domain-3 §3.1"},{"id":"J13","ts":"3.1","s":"cc","block":2,"bp":{"rank":2,"scope":"shared"},"q":"The project CLAUDE.md says 'Do not read files in secrets/', a folder of 6 credential files used by local test setup. In 2 of the last 300 sessions, Claude still read secrets/billing.env while debugging a failed test. The team wants reading that folder blocked in all developers' sessions. What should they change?","o":["Add a permission deny rule for secrets/ to the shared settings","Move the line to the top of CLAUDE.md and mark it as critical","Add the line to each developer's own CLAUDE.local.md as well","A .claude/rules/ file with the line, with paths set to secrets/**"],"a":0,"why":"CLAUDE.md is guidance, and compliance isn't guaranteed. A deny rule in settings is enforced by the permission system whatever the model decides. An instruction file can't change what Claude is allowed to do.","wrong":{"B":{"trap":"probabilistic","text":"Louder guidance is still guidance. Some sessions will still read the file."},"C":{"trap":"wrong-problem","text":"Another copy of the same instruction, in personal files the team can't check."},"D":{"trap":"reactive-too-late","text":"The rule loads when a matching file is read, after Claude has opened it, and it is still only guidance."}},"cite":"notes/domain-3 §3.1 (CLAUDE.md is guidance, not enforcement; deny rules evaluated deterministically) and its traps table (security boundary → permission deny rules); notes/docs-delta §3.1 (path rules load when a matching file is read); LR-0036 (Paper 4 Q9: an instruction file cannot change a connection or setting)"},{"id":"J14","ts":"3.2","s":"cc","block":2,"bp":{"rank":2,"scope":"shared","trigger":"demand"},"q":"About twice a month, when the billing team asks, a developer regenerates the tariff tables: a 12-step procedure that reads the new tariff spreadsheet, writes a migration and updates 3 test fixtures. Each time it is for a different tariff year, such as 2027. Today the procedure is a 90-line section of the project CLAUDE.md, loaded in sessions that never touch tariffs. Any of the 11 developers may be asked. Where should it live?","o":["A .claude/rules/ file with paths set to the tariff folders","A project skill that takes the tariff year as $ARGUMENTS","The CLAUDE.md section, with the tariff year as a heading","A skill in that developer's own ~/.claude/skills/ folder"],"a":1,"why":"A person decides when this runs, which makes it a project skill (or command): committed for all 11, loaded only when invoked, with the year typed after the command and passed in through $ARGUMENTS. CLAUDE.md and rules files are for standards that load on their own.","wrong":{"A":{"trap":"wrong-problem","text":"Loads when tariff files are read, not when the billing team asks. The procedure starts from a spreadsheet, before any tariff file is open."},"C":{"trap":"symptom-fix","text":"Keeps 90 lines loaded in every session, and the year still has to be edited in each time."},"D":{"trap":"wrong-problem","text":"Personal: the other 10 developers don't have it."}},"cite":"Exam guide §3.2; notes/docs-delta §3.2 ($ARGUMENTS); LR-0037 (M17: a person starts it → command or skill)"},{"id":"J15","ts":"3.2","s":"cc","block":2,"bp":{"rank":4,"scope":"personal","trigger":"prompt"},"q":"This morning one developer must reproduce a meter-reading bug against yesterday's database snapshot, which means adding --profile snapshot to each of about 40 Gradle runs in this session. Nobody else needs it. The snapshot is deleted at 18:00 today, and from then on --profile snapshot makes each Gradle run fail. A teammate suggests a project skill for it. Where should the instruction go?","o":["A project skill, /snapshot-run, taking the profile as $ARGUMENTS","A line in CLAUDE.local.md at the repository root, for them only","A personal skill in their own ~/.claude/skills/ folder","In the prompt at the start of this morning's session"],"a":3,"why":"A one-off instruction for one person and one session belongs in the prompt. It ends with the session, which is what is wanted when the profile breaks Gradle from 18:00.","wrong":{"A":{"trap":"over-engineered","text":"Commits a workflow the whole team gets, for a task that ends today."},"B":{"trap":"wrong-problem","text":"Loads in all their sessions in this repo until someone deletes it. After 18:00 it makes each of their Gradle runs fail."},"C":{"trap":"over-engineered","text":"A saved workflow that outlives the task, and they still have to remember to run it in this session."}},"cite":"Exam guide §3.2; lesson 23 (when it fires: this prompt only)"},{"id":"J16","ts":"3.3","s":"cc","block":2,"bp":{"rank":4,"trigger":"file"},"q":"Integration tests sit next to the code in 23 folders, and all of them end in IT.kt, such as MeterReadIT.kt. Their conventions (Testcontainers setup, no mocks of the database) are copied into a CLAUDE.md in 4 of those folders, and 2 of the copies now differ. About 80% of sessions never touch an integration test. Where should the conventions live?","o":["A CLAUDE.md in all 23 folders, generated from one source file","One section of the root CLAUDE.md, headed Integration tests","One .claude/rules/ file with paths set to **/*IT.kt","One .claude/rules/ file with no paths, loaded at launch"],"a":2,"why":"A rule with a paths glob loads only when Claude reads a matching file, wherever it sits. One file covers all 23 folders and any new ones, and stays out of the 80% of sessions with no integration tests.","wrong":{"A":{"trap":"over-engineered","text":"23 files and a generator to do what one glob does."},"B":{"trap":"wrong-problem","text":"Loads in every session, including the 80% that never need it, and relies on the model to see when the section applies."},"D":{"trap":"wrong-problem","text":"A rule with no paths loads at launch in every session, the cost the team wants to avoid."}},"cite":"Exam guide §3.3; notes/docs-delta §3.1 (rules without paths load at launch)"},{"id":"J17","ts":"3.3","s":"cc","block":2,"bp":{"rank":4,"trigger":"file"},"q":"The rule file .claude/rules/sql-style.md has no frontmatter. A developer meant it to load only for the SQL migrations, which sit in a db/ folder inside each of the 9 Kotlin modules. /memory shows it loaded in every session, including the 70% that never touch SQL. What should they change?","o":["Add paths: **/db/**/*.sql to the rule file's frontmatter","Move it into a CLAUDE.md inside each of the 9 db/ folders","Add 'Apply this only to SQL files' to the top of the rule","Move the rule file into ~/.claude/rules/ on their machine"],"a":0,"why":"A rules file with no paths loads at launch, like the project CLAUDE.md. A paths glob makes it load only when Claude reads a matching file, across all 9 modules.","wrong":{"B":{"trap":"over-engineered","text":"9 copies of one rule, which will drift. One glob covers all the modules."},"C":{"trap":"probabilistic","text":"The rule still loads in every session. The line only asks the model to ignore it."},"D":{"trap":"wrong-problem","text":"Makes it personal, and it still loads in every one of their sessions."}},"cite":"notes/docs-delta §3.1 (rules without paths load at launch; with paths, when a matching file is read; ~/.claude/rules/); exam guide §3.3"},{"id":"J18","ts":"3.4","s":"cc","block":2,"bp":{"rank":3,"weight":"light"},"q":"Yesterday a developer and the billing lead agreed a plan in plan mode for moving 52 files across 8 services to the new meter vendor's SDK, with the mapping for each reading type written out. Nothing has been edited yet, and no open questions remain. Today the developer will make the changes. How should they run today's work?","o":["Plan mode again, re-exploring the 52 files before editing","Direct execution of the agreed plan, a service at a time","An Explore subagent that re-reads all 8 services first","Plan mode for each service, approving a fresh plan each time"],"a":1,"why":"Plan mode is for investigation and design, and the plan is already agreed. Plan mode for planning, then direct execution of the planned implementation, is the intended pattern.","wrong":{"A":{"trap":"over-engineered","text":"Repeats the investigation that produced the agreed plan."},"C":{"trap":"over-engineered","text":"Discovery is done. More exploration adds nothing to an agreed plan."},"D":{"trap":"over-engineered","text":"Re-plans 8 times what was planned once."}},"cite":"Exam guide §3.4; notes/domain-3 §3.4"},{"id":"J19","ts":"3.4","s":"cc","block":2,"bp":{"rank":2,"weight":"heavy"},"q":"Billing wants meter readings in the customer portal within 1 minute instead of after the nightly batch. Last week the developer spiked a 40-line version that polls the database every 30 seconds; the tech lead would rather reuse the message broker the alerts service runs, and ops hasn't said which it will support. The change reaches the ingest service, the portal API and the deploy config. How should the developer start?","o":["Direct execution of the 40-line polling spike, the smaller one","Direct execution on the ingest service, then decide the rest","An Explore subagent to read the services, then direct edits","Plan mode, comparing polling and the broker before any edits"],"a":3,"why":"Polling and the broker are 2 valid approaches with different infrastructure, nobody has chosen, and the change spans 3 parts of the system. That is the case plan mode is for: explore and choose before committing to changes.","wrong":{"A":{"trap":"wrong-problem","text":"The spike makes polling feel done, but nobody has chosen it. If the broker wins, the polling work is rework."},"B":{"trap":"reactive-too-late","text":"Starts editing before the approach is chosen. The first service's changes may not fit the one picked."},"C":{"trap":"symptom-fix","text":"Exploring helps, but going straight to edits still skips choosing between polling and the broker."}},"cite":"Exam guide §3.4; notes/domain-3 §3.4"},{"id":"J20","ts":"3.5","s":"ci","block":3,"bp":{"rank":1,"weight":"heavy"},"q":"A developer found 3 problems in the transcoding worker: the bitrate setting is read after the encoder starts, the output path is built from that bitrate, and the upload step names files from the same path. Last week they asked Claude to fix the bitrate problem on its own, and uploads then failed with missing files. All 3 are now open. How should they raise them?","o":["One at a time again, checking each fix before the next","In 3 parallel sessions, one problem in each session","All 3 in one detailed message that says how they connect","Ask Claude to interview them about the worker's design"],"a":2,"why":"Interacting problems belong in one detailed message, where the fix can account for how they depend on each other. Here the path depends on the bitrate and the upload on the path, and fixing one alone already broke the upload.","wrong":{"A":{"trap":"symptom-fix","text":"Already tried for the bitrate, and uploads broke. With linked problems, a separate fix shifts what the next one needs."},"B":{"trap":"wrong-problem","text":"Separate sessions can't see each other's fixes. The 3 changes would conflict."},"D":{"trap":"wrong-problem","text":"The developer already knows the problems. The interview pattern surfaces considerations nobody has thought of yet."}},"cite":"Exam guide §3.5; notes/domain-3 §3.5"},{"id":"J21","ts":"3.5","s":"ci","block":3,"bp":{"rank":2},"q":"A developer has been asked to add a cache in front of the RSS feed API, which serves about 40,000 podcast apps. They have never built a cache, and don't know how quickly a cached feed must change after a new episode is published, or what should happen when the cache is down. What should they do before Claude writes any code?","o":["Ask Claude to interview them about the feed's needs first","Ask for the cache in one long and detailed prose request","Have Claude build the cache, then review how it refreshes","Write 3 example feeds with the exact cached output of each"],"a":0,"why":"In an unfamiliar domain, the interview pattern has Claude ask the developer questions that surface things like invalidation and failure modes before anything is built.","wrong":{"B":{"trap":"probabilistic","text":"More detail on what they already know can't cover what they haven't thought of."},"C":{"trap":"reactive-too-late","text":"Finds the design gaps after the code is written."},"D":{"trap":"wrong-problem","text":"Examples pin down a transformation. The open questions are about refreshing and failure, which 3 sample feeds don't answer."}},"cite":"Exam guide §3.5; notes/domain-3 §3.5"},{"id":"J22","ts":"3.6","s":"ci","block":3,"bp":{"rank":3},"q":"The CI review job runs claude -p on each push to a pull request. On one PR with 4 pushes it posted the same 6 findings each time, 24 comments in all, though nobody had changed the lines involved. Developers have started muting the bot. What should change?","o":["Run the review only on the first push of each pull request","Raise the prompt's bar to report only high-severity issues","Have the CI script delete the bot's old comments each run","Pass in the earlier findings and ask for new or open ones"],"a":3,"why":"On a re-run, including the prior findings and asking only for new or still-unaddressed issues stops the job repeating what it has already posted.","wrong":{"A":{"trap":"wrong-problem","text":"Later pushes go unreviewed."},"B":{"trap":"symptom-fix","text":"Fewer findings, still repeated on every push, and real lower-severity issues are lost."},"C":{"trap":"symptom-fix","text":"Removes the history and still posts the same 6 findings on every push."}},"cite":"Exam guide §3.6; notes/domain-3 §3.6"},{"id":"J23","ts":"3.6","s":"ci","block":3,"bp":{"rank":2},"q":"The CI review job asks claude -p for findings in prose and parses them with regular expressions to post inline comments. In 1 run in 7 the wording drifts, and comments land on the wrong line or are dropped. The prompt already describes the exact text format to use. What should change?","o":["A stricter prompt with 3 examples of the exact text format","--output-format json with --json-schema for the findings","--output-format stream-json to show progress in the log","A retry of the run whenever the regular expression fails"],"a":1,"why":"--output-format json with --json-schema returns machine-parseable findings that match a schema, which the script can post as inline comments without parsing prose.","wrong":{"A":{"trap":"probabilistic","text":"The prompt already describes the format. More instruction still leaves prose to parse."},"C":{"trap":"wrong-problem","text":"Streams progress events. The findings are still prose."},"D":{"trap":"symptom-fix","text":"Pays for whole re-runs, and drift that doesn't trip the regex still gets through."}},"cite":"Exam guide §3.6; notes/domain-3 §3.6"}];
+const STATEMENTS = {"1.1":"Agentic loops (stop_reason control flow)","1.2":"Coordinator–subagent orchestration","1.3":"Subagent invocation, context passing, spawning","1.4":"Multi-step workflows: enforcement & handoffs","1.5":"Agent SDK hooks (interception, normalization)","1.6":"Task decomposition strategies","1.7":"Session state, resumption, forking","2.1":"Tool interface design (descriptions, boundaries)","2.2":"Structured error responses for MCP tools","2.3":"Tool distribution & tool_choice","2.4":"MCP server integration (scoping, env vars, resources)","2.5":"Built-in tools (Read/Write/Edit/Bash/Grep/Glob)","3.1":"CLAUDE.md hierarchy & modular organization","3.2":"Custom slash commands & skills","3.3":"Path-specific rules (.claude/rules/ globs)","3.4":"Plan mode vs direct execution","3.5":"Iterative refinement techniques","3.6":"CI/CD integration (-p, --output-format json)","4.1":"Explicit criteria to reduce false positives","4.2":"Few-shot prompting","4.3":"Structured output via tool use + JSON schemas","4.4":"Validation, retry, and feedback loops","4.5":"Batch processing strategies","4.6":"Multi-instance & multi-pass review","5.1":"Context preservation in long interactions","5.2":"Escalation & ambiguity resolution","5.3":"Error propagation in multi-agent systems","5.4":"Context management in large codebase exploration","5.5":"Human review workflows & confidence calibration","5.6":"Provenance & uncertainty in multi-source synthesis"};
+const SCENARIOS = {"cs":"Customer Support Resolution Agent","ma":"Multi-Agent Research System","cc":"Code Generation with Claude Code","de":"Structured Data Extraction","dp":"Developer Productivity with Claude","ci":"Claude Code for CI"};
+const SCENARIO_TEXT = {"cs":["You are building a customer support agent on the Claude Agent SDK. It handles messy requests such as refunds, billing disputes and account problems, and reaches the company’s backend through MCP tools: looking up customers and orders, issuing refunds, and handing a case to a human.","The business wants most issues solved in the first conversation, without the agent acting beyond what it is allowed to decide on its own."],"ma":["You are building a research assistant on the Claude Agent SDK. A coordinator agent receives a research brief, splits it into parts, and hands each part to a specialist subagent: one searches the web, one reads and analyses documents, one combines the findings, and one writes the final report with citations.","Subagents don’t share memory. Each one sees only what the coordinator passes to it, and returns its results to the coordinator."],"cc":["Your team uses Claude Code every day to write new code, refactor, debug and write documentation.","You are deciding how to set it up for the whole team: what goes in CLAUDE.md, which custom commands and skills to share, and when a task needs a plan first instead of going straight to edits."],"dp":["You are building an internal tool on the Claude Agent SDK that helps engineers work in code they don’t know: finding their way around a large or old codebase, generating repetitive code, and automating chores.","The agent works through the built-in tools for reading, searching, editing and running commands, and connects to MCP servers for other systems."],"ci":["Your team runs Claude Code inside its continuous-integration pipeline. On every pull request, a job starts Claude Code with no one at the keyboard. It reviews the change, writes or updates tests, and posts its findings back to the pull request.","The pipeline has to read Claude’s output as data, so the format matters. A run must never stop to wait for input. Developers will start ignoring the bot if it repeats itself or flags things that aren’t real problems."],"de":["You are building a system that pulls structured data out of messy documents such as invoices, forms and reports. Claude’s output must match a JSON schema so that downstream systems can load it without fixing it by hand.","Documents vary a lot, and fields are sometimes missing or contradict each other. The system has to cope with those cases without inventing data."]};
+const DOMAINS = [{"tag":"D1","name":"Agentic Architecture & Orchestration","pct":27},{"tag":"D2","name":"Tool Design & MCP Integration","pct":18},{"tag":"D3","name":"Claude Code Configuration & Workflows","pct":20},{"tag":"D4","name":"Prompt Engineering & Structured Output","pct":20},{"tag":"D5","name":"Context Management & Reliability","pct":15}];
+const SC = SCENARIOS;
+const DOMAIN_OF = (id) => 'D' + String(id).split('.')[0];
+const $ = id => document.getElementById(id);
+
+$('eyebrow').textContent = META.eyebrow;
+$('title').textContent = META.title;
+$('intro').textContent = META.intro;
+$('factCount').textContent = Q.length;
+document.querySelector('.bar-title').textContent = META.title;
+$('useTimer').checked = !!META.timerDefault;
+if (META.defaultMode === 'practice') { const m = document.querySelector('.modes'); m.insertBefore($('startPractice'), $('startExam')); }
+
+let mode = null; // 'exam' | 'practice'
+let answers = new Array(Q.length).fill(null);
+let flags = new Array(Q.length).fill(false);
+let flagCursor = -1;
+let struck = Q.map(() => []); // option indices crossed out, per question
+let cur = null;               // question on screen while the paper is live; null = first in on-screen order
+let order = [];               // question numbers in on-screen order, set by build()
+let graded = false;
+document.body.dataset.grid = 'auto';
+const LIMIT = (META.minutes || 120) * 60;
+$('factMins').textContent = $('timerMins').textContent = LIMIT / 60;
+let timerId = null, remaining = LIMIT;
+let timedSaved = false;
+
+function store(){ try{ localStorage.setItem(META.storageKey, JSON.stringify({mode, answers, flags, struck, cur, graded, remaining, timed: !!timerId})); }catch(e){} }
+function restore(){
+  try{
+    const s = JSON.parse(localStorage.getItem(META.storageKey));
+    if(s && s.mode && Array.isArray(s.answers) && s.answers.length === Q.length){
+      mode = s.mode; answers = s.answers; graded = !!s.graded;
+      if(Array.isArray(s.flags) && s.flags.length === Q.length) flags = s.flags.map(Boolean);
+      if(Array.isArray(s.struck) && s.struck.length === Q.length) struck = s.struck.map(a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < 4))] : []);
+      if(Number.isInteger(s.cur) && s.cur >= 1 && s.cur <= Q.length) cur = s.cur;
+      remaining = (typeof s.remaining === 'number') ? s.remaining : LIMIT;
+      timedSaved = !!s.timed;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function groups() {
+  const items = Q.map((q, i) => ({ q, n: i + 1 }));
+  if (META.blocks) return META.blocks.map((b, i) => ({
+    head: `<span class="dtag">Block ${i + 1}</span><h2>${b.title}</h2>`, intro: b.intro, label: 'S' + (i + 1),
+    items: items.filter(x => x.q.block === b.id) }));
+  return DOMAINS.map(d => ({
+    head: `<span class="dtag">${d.tag}</span><h2>${d.name}</h2>`, meta: `${d.pct}% of exam`, label: d.tag,
+    items: items.filter(x => DOMAIN_OF(x.q.ts) === d.tag) }));
+}
+
+function build(){
+  const main = $('exam');
+  let html = '';
+  order = [];
+  groups().filter(g => g.items.length).forEach(g => {
+    g.items.forEach(({n}) => order.push(n));
+    html += `<section class="domain"><div class="domain-head">${g.head}<span class="dmeta">${g.meta ? g.meta + ' · ' : ''}${g.items.length} questions</span></div>`;
+    if (g.intro) html += `<p class="block-intro">${g.intro}</p>`;
+    g.items.forEach(({q, n}) => {
+      html += `<article class="q" id="q${n}"><div class="q-top"><span class="q-num">${String(n).padStart(2,'0')}</span><span class="q-text" tabindex="-1">${q.q}</span><button class="flag" type="button" data-q="${n}" aria-pressed="false" aria-label="Flag question ${n} for review">⚑ Flag</button></div>`;
+      html += `<span class="scenario">Scenario · ${SC[q.s]}</span> <span class="scenario ts">${q.ts} · ${STATEMENTS[q.ts]}</span><ul class="opts">`;
+      q.o.forEach((opt,i) => {
+        html += `<li><label class="opt" data-q="${n}" data-i="${i}"><input type="radio" name="q${n}" value="${i}"><span class="letter">${'ABCD'[i]}</span><span>${opt}</span></label><button class="strike" type="button" data-q="${n}" data-i="${i}" aria-label="Cross out option ${'ABCD'[i]}">⊘</button></li>`;
+      });
+      const wrong = Object.keys(q.wrong).sort().map(L => `<li><span class="x">✗ ${L}</span> <em>${q.wrong[L].trap}</em> — ${q.wrong[L].text}</li>`).join('');
+      html += `</ul><div class="ansline" id="al${n}"></div><div class="why"><b>Answer: ${'ABCD'[q.a]}.</b> ${q.why}<ul class="wrong">${wrong}</ul><span class="cite">Source: ${q.cite}</span></div></article>`;
+    });
+    html += `</section>`;
+  });
+  main.innerHTML = html;
+  main.addEventListener('change', onChange);
+  main.addEventListener('click', (e) => {
+    const s = e.target.closest('.strike');
+    if (s) { toggleStrike(parseInt(s.dataset.q, 10), parseInt(s.dataset.i, 10)); return; }
+    const b = e.target.closest('.flag'); if (!b || graded) return;
+    const n = parseInt(b.dataset.q, 10); flags[n-1] = !flags[n-1]; renderFlags(); store();
+  });
+  main.addEventListener('contextmenu', (e) => {
+    const o = e.target.closest('.opt'); if (!o || o.closest('.q').classList.contains('locked')) return;
+    e.preventDefault(); toggleStrike(parseInt(o.dataset.q, 10), parseInt(o.dataset.i, 10));
+  });
+  main.addEventListener('keydown', (e) => {
+    if (e.key !== 'x' && e.key !== 'X') return;
+    const o = e.target.closest('.opt'); if (!o || o.closest('.q').classList.contains('locked')) return;
+    e.preventDefault(); toggleStrike(parseInt(o.dataset.q, 10), parseInt(o.dataset.i, 10));
+  });
+}
+
+function toggleStrike(n, i){
+  if (graded || $('q'+n).classList.contains('locked') || answers[n-1] === i) return; // the chosen option can't be crossed out
+  const s = struck[n-1], k = s.indexOf(i);
+  if (k >= 0) s.splice(k, 1); else s.push(i);
+  renderQ(n); store();
+}
+
+function onChange(e){
+  const input = e.target;
+  if(input.name && input.name.startsWith('q')){
+    const n = parseInt(input.name.slice(1),10);
+    if(graded || (mode==='practice' && answers[n-1]!==null)) { renderQ(n); return; }
+    answers[n-1] = parseInt(input.value,10);
+    renderQ(n);
+    updateProgress();
+    store();
+    if(mode==='practice' && answers.every(a => a!==null)) { graded = true; showResults(true, false); store(); }
+  }
+}
+
+// --- exam screen: one question at a time while the paper is live ---
+const isPhone = () => matchMedia('(max-width:760px)').matches;
+function setStaged(){
+  const live = !!mode && !graded;
+  document.body.classList.toggle('staged', live);
+  if (live) show(cur);
+}
+function show(n){
+  if (!$('q'+n)) n = order[0];
+  cur = n;
+  document.querySelectorAll('#exam .q.current').forEach(el => el.classList.remove('current'));
+  $('q'+n).classList.add('current');
+  const newScenario = renderScenario(false); renderGrid();
+  const k = order.indexOf(n);
+  $('prevBtn').disabled = k <= 0;
+  $('nextBtn').disabled = k >= order.length - 1;
+  $('qStatus').textContent = `Question ${k + 1} of ${order.length}`;
+  $('qPane').scrollTop = 0;
+  // Phones scroll the page, not the pane: show the new scenario from its top, else the new question just under the bar.
+  if (isPhone()) window.scrollTo(0, newScenario ? 0 : Math.max(0, $('qPane').getBoundingClientRect().top + window.scrollY - $('topbar').offsetHeight));
+  else window.scrollTo(0, 0);
+}
+function go(n){
+  if (!$('q'+n)) return;
+  show(n); store();
+  $('q'+n).querySelector('.q-text').focus({preventScroll:true}); // keyboard and screen-reader users land on the new question
+}
+let scKey = null; // what the scenario pane shows; rebuilt only when it changes, so a collapsed phone panel stays collapsed
+function renderScenario(force){
+  const q = Q[cur-1], blocks = META.blocks || [];
+  const bi = blocks.findIndex(b => b.id === q.block), b = blocks[bi];
+  const key = `${b ? 'b' + b.id : 's' + q.s}|${isPhone()}`;
+  if (key === scKey && !force) return false;
+  scKey = key;
+  const kicker = b ? `Scenario ${bi + 1} of ${blocks.length}` : 'Scenario';
+  const title = b ? b.title : SC[q.s];
+  const body = b && b.intro ? `<p>${b.intro}</p>` : (SCENARIO_TEXT[q.s] || []).map(p => `<p>${p}</p>`).join('');
+  const head = `<div class="sc-kicker">${kicker}</div><h2 class="sc-title">${title}</h2>`;
+  $('scPane').innerHTML = isPhone()
+    ? `<details class="sc-details" open><summary>${head}</summary><div class="sc-body">${body}</div></details>`
+    : `${head}<div class="sc-body">${body}</div>`;
+  $('scPane').scrollTop = 0;
+  return true;
+}
+function renderGrid(){
+  if (!document.body.classList.contains('staged')) return;
+  $('gridRows').innerHTML = groups().filter(g => g.items.length).map(g =>
+    `<div class="grid-row"><span class="grid-row-label mono">${g.label}</span><div class="cells">` +
+    g.items.map(({n}) => {
+      const cls = ['cell', answers[n-1] !== null && 'answered', flags[n-1] && 'flagged', n === cur && 'current'].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" data-n="${n}" aria-label="Question ${n}, ${answers[n-1] !== null ? 'answered' : 'not answered'}${flags[n-1] ? ', flagged' : ''}"${n === cur ? ' aria-current="true"' : ''}>${n}</button>`;
+    }).join('') + `</div></div>`).join('');
+  $('gridCount').textContent = `${answers.filter(a => a !== null).length} of ${Q.length} answered`;
+  syncGridBtn();
+}
+const gridShown = () => getComputedStyle($('gridPanel')).display !== 'none';
+const syncGridBtn = () => $('gridBtn').setAttribute('aria-expanded', String(gridShown()));
+
+function renderQ(n){
+  const q = Q[n-1], el = $('q'+n), picked = answers[n-1];
+  const showFeedback = graded || (mode==='practice' && picked!==null);
+  el.classList.toggle('reveal', showFeedback);
+  el.classList.toggle('locked', showFeedback);
+  const al = $('al'+n);
+  if(al){
+    if(showFeedback && picked!==null){
+      const ok = picked===q.a;
+      al.textContent = ok ? `Your answer: ${'ABCD'[picked]} — Correct ✓` : `Your answer: ${'ABCD'[picked]} ✗ — Correct answer: ${'ABCD'[q.a]}`;
+      al.className = 'ansline ' + (ok?'ok':'miss');
+    } else if(showFeedback){
+      al.textContent = `Not answered — Correct answer: ${'ABCD'[q.a]}`;
+      al.className = 'ansline miss';
+    }
+  }
+  el.querySelectorAll('.opt').forEach(opt => {
+    const i = parseInt(opt.dataset.i,10);
+    const radio = opt.querySelector('input');
+    radio.checked = (i===picked);
+    radio.disabled = showFeedback;
+    opt.classList.toggle('sel', i===picked && !showFeedback);
+    const isStruck = !showFeedback && i!==picked && struck[n-1].includes(i); // the chosen option never shows crossed out
+    opt.classList.toggle('struck', isStruck);
+    const sb = opt.parentElement.querySelector('.strike');
+    sb.setAttribute('aria-pressed', String(isStruck));
+    sb.setAttribute('aria-label', `${isStruck ? 'Restore' : 'Cross out'} option ${'ABCD'[i]}`);
+    opt.classList.toggle('right', showFeedback && i===q.a);
+    opt.classList.toggle('wrong', showFeedback && i===picked && picked!==q.a);
+  });
+}
+
+function updateProgress(){
+  const done = answers.filter(a=>a!==null).length;
+  $('pfill').style.width = (done/Q.length*100)+'%';
+  $('pcount').textContent = done+' / '+Q.length;
+  $('unans').textContent = (mode==='exam' && done<Q.length) ? (Q.length-done)+' unanswered' : '';
+  renderGrid();
+}
+
+function renderFlags(){
+  const live = mode==='exam' && !graded;
+  $('exam').classList.toggle('examlive', live);
+  $('flagNav').style.display = live ? 'inline-block' : 'none';
+  $('flagNav').textContent = '⚑ ' + flags.filter(Boolean).length + ' flagged';
+  $('flagStatus').textContent = live ? flags.filter(Boolean).length + ' flagged for review' : '';
+  for(let n=1;n<=Q.length;n++){
+    const el = $('q'+n); if(!el) continue;
+    el.classList.toggle('flagged', flags[n-1]);
+    el.querySelector('.flag').setAttribute('aria-pressed', String(flags[n-1]));
+  }
+  renderGrid();
+}
+function nextFlag(){
+  const on = flags.map((f,i)=>f?i:-1).filter(i=>i>=0); if(!on.length) return;
+  const i = on.find(j=>j>flagCursor); flagCursor = (i===undefined) ? on[0] : i;
+  if (document.body.classList.contains('staged')) go(flagCursor+1);
+  const b = $('q'+(flagCursor+1)).querySelector('.flag');
+  b.scrollIntoView({block:'center'}); b.focus({preventScroll:true});
+}
+
+function fmt(s){ const m=Math.floor(s/60), ss=s%60; return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
+function startTimer(){
+  $('timer').style.display='inline-block';
+  $('timer').textContent = fmt(remaining);
+  timerId = setInterval(()=>{
+    remaining--;
+    if(remaining<=0){ clearInterval(timerId); grade(true); return; }
+    $('timer').textContent = fmt(remaining);
+    $('timer').classList.toggle('low', remaining<600);
+    if(remaining%15===0) store();
+  },1000);
+  store();
+}
+
+function begin(m, withTimer){
+  mode = m; $('hero').style.display='none';
+  $('topbar').style.display='block';
+  $('exam').style.display='block';
+  if(mode==='exam' && !graded) $('submitRow').style.display='flex';
+  build();
+  for(let n=1;n<=Q.length;n++) renderQ(n);
+  setStaged();
+  updateProgress();
+  renderFlags();
+  if(mode==='exam' && withTimer && !graded) startTimer();
+  if(graded) showResults(false);
+  store();
+}
+
+function grade(timedOut){
+  if(graded) return;
+  graded = true;
+  if(timerId){ clearInterval(timerId); timerId=null; }
+  $('timer').style.display='none';
+  $('submitRow').style.display='none';
+  for(let n=1;n<=Q.length;n++) renderQ(n);
+  renderFlags();
+  showResults(true, timedOut);
+  store();
+}
+
+function showResults(scrollTo, timedOut){
+  setStaged();
+  const correct = answers.reduce((c,a,i)=> c + (a===Q[i].a ? 1:0), 0);
+  const pct = Math.round(correct/Q.length*1000)/10;
+  $('scoreNum').innerHTML = pct + '<small>%</small>';
+  const above = correct/Q.length >= 0.72;
+  const v = $('verdict');
+  v.textContent = above ? 'AT OR ABOVE 72% RAW' : 'BELOW 72% RAW';
+  v.className = 'verdict ' + (above?'pass':'fail');
+  $('scoreSub').textContent = (timedOut?'Time expired — graded automatically. ':'') + `${correct} of ${Q.length} correct (raw). The real exam reports a scaled score whose mapping is unpublished, so this is not a pass/fail prediction.`;
+
+  // domain bars from task-statement prefixes
+  const bars = DOMAINS.map(d => { let c=0,t=0; Q.forEach((q,i)=>{ if(DOMAIN_OF(q.ts)!==d.tag) return; t++; if(answers[i]===q.a) c++; }); return {d,c,t,pct:t?c/t:0}; }).filter(b=>b.t>0);
+  const sorted=[...bars].sort((a,b)=>a.pct-b.pct);
+  const weak = new Set(sorted.slice(0,2).map(b=>b.d.tag));
+  $('dbars').innerHTML = bars.map(b=>`<div><div class="dbar-label"><b>${b.d.tag} · ${b.d.name}${weak.has(b.d.tag)&&b.pct<1?' — focus here':''}</b><span>${b.c} / ${b.t}</span></div><div class="dbar"><i class="${weak.has(b.d.tag)&&b.pct<1?'weak':''}" style="width:${b.pct*100}%"></i></div></div>`).join('');
+
+  // per-statement table + focus list
+  const per = {}; Q.forEach((q,i)=>{ const p = per[q.ts] || (per[q.ts]={c:0,t:0}); p.t++; if(answers[i]===q.a) p.c++; });
+  const weight = ts => (DOMAINS.find(d=>d.tag===DOMAIN_OF(ts))||{pct:0}).pct;
+  const rows = Object.keys(per).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const ranked = [...rows].sort((a,b)=> (per[a].c/per[a].t) - (per[b].c/per[b].t) || weight(b)-weight(a));
+  const focus = ranked.filter(ts=>per[ts].c<per[ts].t).slice(0,5);
+  $('tstable').innerHTML = `<tr><th>Statement</th><th></th><th>Score</th></tr>` + rows.map(ts=>`<tr class="${per[ts].c<per[ts].t?'low':''}"><td class="n">${ts}</td><td>${STATEMENTS[ts]}</td><td class="n">${per[ts].c} / ${per[ts].t}</td></tr>`).join('');
+  $('focus').innerHTML = focus.length ? `<b>Focus next:</b> ${focus.map(ts=>`${ts} ${STATEMENTS[ts]}`).join(' · ')}` : '<b>Every statement clean.</b>';
+
+  // copy-for-tutor markdown
+  const date = new Date().toISOString().slice(0,10);
+  $('copybox').value = `## ${META.key} results — ${date}\nRaw ${pct}% · ${correct}/${Q.length} correct\n\n| Q | Statement | Picked | Correct | Result |\n|---|---|---|---|---|\n` +
+    Q.map((q,i)=>`| ${q.id} | ${q.ts} | ${answers[i]===null?'—':'ABCD'[answers[i]]} | ${'ABCD'[q.a]} | ${answers[i]===q.a?'✓':'✗'} |`).join('\n') + '\n';
+
+  $('results').classList.add('show');
+  if(scrollTo) $('results').scrollIntoView({behavior:'smooth'});
+}
+
+$('startExam').addEventListener('click', ()=> begin('exam', $('useTimer').checked));
+$('startPractice').addEventListener('click', ()=> begin('practice', false));
+$('submitBtn').addEventListener('click', ()=>{
+  const open = Q.length - answers.filter(a=>a!==null).length, flagged = flags.filter(Boolean).length;
+  const warn = [open ? open+' question'+(open>1?'s are':' is')+' still unanswered' : '', flagged ? flagged+' question'+(flagged>1?'s are':' is')+' still flagged for review' : ''].filter(Boolean);
+  // always confirm: on the exam screen the button sits just under Next, and grading can't be undone
+  if(!confirm(warn.length ? warn.join(' and ')+' — grade anyway?' : 'Grade the paper now? You won\'t be able to change your answers.')) return;
+  grade(false);
+});
+$('copyBtn').addEventListener('click', async ()=>{
+  const box = $('copybox'); box.classList.add('show');
+  try { await navigator.clipboard.writeText(box.value); $('copyBtn').textContent = 'Copied — paste into chat'; }
+  catch(e){ box.focus(); box.select(); $('copyBtn').textContent = 'Select all + copy from the box below'; }
+});
+$('flagNav').addEventListener('click', nextFlag);
+$('prevBtn').addEventListener('click', ()=> go(order[order.indexOf(cur) - 1]));
+$('nextBtn').addEventListener('click', ()=> go(order[order.indexOf(cur) + 1]));
+$('gridRows').addEventListener('click', (e)=>{ const c = e.target.closest('.cell'); if (c) go(parseInt(c.dataset.n, 10)); });
+$('gridBtn').addEventListener('click', ()=>{ document.body.dataset.grid = gridShown() ? 'closed' : 'open'; syncGridBtn(); });
+matchMedia('(max-width:760px)').addEventListener('change', ()=>{ if (document.body.classList.contains('staged')) renderScenario(true); syncGridBtn(); });
+$('printBtn').addEventListener('click', ()=> window.print());
+$('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Clear all answers and start over?')) return;
+  try{ localStorage.removeItem(META.storageKey); }catch(e){}
+  location.reload();
+});
+
+if(restore() && mode){ begin(mode, timedSaved && !graded); }
+</script>

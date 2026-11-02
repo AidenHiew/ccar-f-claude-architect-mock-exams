@@ -1,0 +1,334 @@
+<title>CCA Foundations — Mock Exam</title>
+<style>
+  :root {
+    --paper: #F4F5F8; --panel: #FFFFFF; --ink: #171A21; --ink-soft: #4A5061;
+    --ink-faint: #838a9c; --line: #E2E5EC; --accent: #4A54D6; --accent-soft: #ECEDFB;
+    --good: #16794C; --good-soft: #E4F2EA; --bad: #C0433B; --bad-soft: #F8E7E5;
+    --amber: #B7791F; --amber-soft: #FBF1DD;
+    --shadow: 0 1px 2px rgba(20,22,30,.04), 0 10px 30px rgba(20,22,30,.08);
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper:#0E1016; --panel:#171A22; --ink:#EDEFF5; --ink-soft:#AEB4C4; --ink-faint:#757c8e;
+      --line:#262A35; --accent:#8B93F2; --accent-soft:#21243A; --good:#5CC38C; --good-soft:#16271F;
+      --bad:#E88178; --bad-soft:#2B1B1A; --amber:#D8A63E; --amber-soft:#2A2214;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 36px rgba(0,0,0,.45); }
+  }
+  :root[data-theme="light"] { --paper:#F4F5F8; --panel:#FFFFFF; --ink:#171A21; --ink-soft:#4A5061; --ink-faint:#838a9c;
+    --line:#E2E5EC; --accent:#4A54D6; --accent-soft:#ECEDFB; --good:#16794C; --good-soft:#E4F2EA;
+    --bad:#C0433B; --bad-soft:#F8E7E5; --amber:#B7791F; --amber-soft:#FBF1DD;
+    --shadow:0 1px 2px rgba(20,22,30,.04),0 10px 30px rgba(20,22,30,.08); }
+  :root[data-theme="dark"] { --paper:#0E1016; --panel:#171A22; --ink:#EDEFF5; --ink-soft:#AEB4C4; --ink-faint:#757c8e;
+    --line:#262A35; --accent:#8B93F2; --accent-soft:#21243A; --good:#5CC38C; --good-soft:#16271F;
+    --bad:#E88178; --bad-soft:#2B1B1A; --amber:#D8A63E; --amber-soft:#2A2214;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 36px rgba(0,0,0,.45); }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 120px; }
+
+  header.top { margin-bottom: 26px; }
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:12px; }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height:1.05; letter-spacing:-.02em; margin:0 0 12px; font-weight:800; text-wrap:balance; }
+  .sub { font-size:16px; color:var(--ink-soft); line-height:1.5; max-width:60ch; }
+  .sub b { color: var(--ink); }
+
+  /* sticky scoreboard */
+  .board { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px); border-bottom:1px solid var(--line); margin: 22px -20px 30px; padding: 12px 20px; }
+  .board-in { max-width:760px; margin:0 auto; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .score { font-family:var(--mono); font-size:14px; font-variant-numeric:tabular-nums; color:var(--ink-soft); }
+  .score b { color:var(--ink); font-size:16px; }
+  .dchips { display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; }
+  .dchip { font-family:var(--mono); font-size:12px; padding:4px 9px; border-radius:6px; border:1px solid var(--line); background:var(--panel); color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+  .dchip b { color:var(--ink-soft); }
+
+  section.domain { margin-bottom: 40px; }
+  .dhead { display:flex; align-items:baseline; gap:12px; margin-bottom:4px; border-bottom:2px solid var(--line); padding-bottom:10px; }
+  .dhead .code { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent); background:var(--accent-soft); padding:4px 9px; border-radius:6px; }
+  .dhead h2 { font-size:19px; margin:0; letter-spacing:-.01em; font-weight:720; }
+  .dhead .wt { font-family:var(--mono); font-size:12px; color:var(--ink-faint); margin-left:auto; }
+
+  .q { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px; margin-top:16px; box-shadow:var(--shadow); }
+  .q .stem { font-size:16px; line-height:1.5; font-weight:560; margin:0 0 15px; }
+  .q .stem .num { font-family:var(--mono); font-size:13px; color:var(--ink-faint); font-weight:700; margin-right:8px; }
+
+  .opts { display:flex; flex-direction:column; gap:8px; }
+  .opt { display:flex; gap:11px; align-items:flex-start; text-align:left; width:100%; cursor:pointer;
+    background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 13px; font-family:var(--sans);
+    font-size:14.5px; line-height:1.45; color:var(--ink); transition:border-color .15s, background .15s; }
+  .opt:hover:not(:disabled) { border-color:var(--accent); }
+  .opt:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .opt:disabled { cursor:default; }
+  .opt .lab { font-family:var(--mono); font-weight:700; font-size:13px; flex-shrink:0; width:18px; color:var(--ink-faint); margin-top:1px; }
+  .opt.correct { background:var(--good-soft); border-color:color-mix(in srgb, var(--good) 55%, var(--line)); }
+  .opt.correct .lab { color:var(--good); }
+  .opt.wrong { background:var(--bad-soft); border-color:color-mix(in srgb, var(--bad) 55%, var(--line)); }
+  .opt.wrong .lab { color:var(--bad); }
+  .opt .mk { margin-left:auto; font-weight:700; flex-shrink:0; }
+  .opt.correct .mk { color:var(--good); }
+  .opt.wrong .mk { color:var(--bad); }
+
+  .why { margin-top:14px; padding:13px 15px; border-radius:0 10px 10px 0; font-size:14px; line-height:1.5;
+    border-left:3px solid var(--accent); background:var(--accent-soft); color:var(--ink); display:none; }
+  .why[data-show="1"] { display:block; }
+  .why b { color:var(--accent); }
+  .why .cite { display:block; margin-top:7px; font-family:var(--mono); font-size:12px; color:var(--ink-faint); }
+  code { font-family:var(--mono); font-size:.88em; background:var(--accent-soft); color:var(--accent); padding:1.5px 5px; border-radius:5px; font-weight:600; }
+
+  /* result banner */
+  .result { display:none; margin-top:8px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px; box-shadow:var(--shadow); }
+  .result[data-show="1"] { display:block; }
+  .result h3 { margin:0 0 6px; font-size:24px; letter-spacing:-.01em; }
+  .result .big { font-family:var(--mono); font-size:40px; font-weight:800; letter-spacing:-.02em; }
+  .result .rrow { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-top:1px solid var(--line); font-size:14px; }
+  .result .rrow:first-of-type { border-top:0; }
+  .result .rrow .d { color:var(--ink-soft); font-family:var(--mono); }
+  .result .rrow .s { font-variant-numeric:tabular-nums; font-weight:600; }
+  .result .rrow .s.weak { color:var(--bad); }
+  .result .rrow .s.ok { color:var(--good); }
+  .result .note { margin-top:16px; font-size:14px; color:var(--ink-soft); line-height:1.5; }
+
+  .reset { display:block; margin:26px auto 0; font-family:var(--sans); font-size:14px; font-weight:600; color:var(--ink);
+    background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:9px 18px; cursor:pointer; box-shadow:var(--shadow); }
+  .reset:hover { border-color:var(--accent); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">CCA Foundations · Practice</div>
+    <h1>Mock Exam — 15 questions, all five domains</h1>
+    <p class="sub">Three fresh scenarios per domain. Pick an option and it locks, marks right/wrong, and explains the reasoning with a notes citation. <b>All original — none reused from your diagnostic.</b></p>
+  </header>
+
+  <div class="board">
+    <div class="board-in">
+      <span class="score"><b id="sc">0</b> / <span id="scTot">15</span> answered · <b id="sright">0</b> correct</span>
+      <div class="dchips" id="dchips"></div>
+    </div>
+  </div>
+
+  <div id="exam"></div>
+
+  <div class="result" id="result">
+    <h3>Mock complete</h3>
+    <div class="big" id="finalPct">0%</div>
+    <div id="finalRows"></div>
+    <p class="note" id="finalNote"></p>
+  </div>
+
+  <button class="reset" id="reset">Reset exam</button>
+</div>
+
+<script>
+const DOMAINS = [
+  { code:"D1", name:"Agentic Architecture & Orchestration", wt:"27%" },
+  { code:"D2", name:"Tool Design & MCP Integration", wt:"18%" },
+  { code:"D3", name:"Claude Code Config & Workflows", wt:"20%" },
+  { code:"D4", name:"Prompt Engineering & Structured Output", wt:"20%" },
+  { code:"D5", name:"Context Management & Reliability", wt:"15%" },
+];
+
+const Q = [
+  // ---- D1 ----
+  { d:0, stem:"A coordinator must run three independent research subagents. It emits one Task call, waits for the result, emits the next, and so on across three turns — and the run is painfully serial. What is the fix?",
+    opts:[
+      {t:"Emit all three Task calls in a single coordinator response so they run in parallel", ok:true},
+      {t:"Raise the coordinator's max_tokens so it can hold all three results at once", ok:false},
+      {t:"Give each subagent the coordinator's full conversation history to skip the waits", ok:false},
+      {t:"Replace the three subagents with one subagent that loops the three topics in turn", ok:false}],
+    why:"Parallel subagents come from multiple <code>Task</code> calls in ONE response — not spread across turns. Token limits and history-sharing don't address serialization; one looping subagent is still sequential.",
+    cite:"notes/domain-1 §1.3" },
+  { d:0, stem:"A refund workflow must never issue a refund above $500 without human approval. The system prompt says so, yet a large refund occasionally slips through. Compliance needs this guaranteed. What do you do?",
+    opts:[
+      {t:"Add a tool-call interception hook that blocks process_refund over $500 and routes to escalation", ok:true},
+      {t:"Move the $500 rule to the top of the system prompt in capitalized, forceful language", ok:false},
+      {t:"Add few-shot transcripts showing large refunds always being escalated", ok:false},
+      {t:"Lower the model's temperature so it follows the threshold rule more deterministically", ok:false}],
+    why:"Prompts are probabilistic — non-zero failure rate. A rule that must NEVER be violated needs a deterministic hook that programmatically blocks the action. Stronger wording, examples, and temperature don't make compliance guaranteed.",
+    cite:"notes/domain-1 §1.4–1.5" },
+  { d:0, stem:"A report meant to cover the whole 'creative industries' sector only discusses visual arts. Logs show every subagent executed its assigned query correctly. Where is the defect?",
+    opts:[
+      {t:"The coordinator's decomposition — its subtask list never assigned the other sub-sectors", ok:true},
+      {t:"The synthesis subagent dropped the non-visual-arts findings while aggregating", ok:false},
+      {t:"The search subagents' context windows truncated the broader results silently", ok:false},
+      {t:"The subagents lacked the coordinator's conversation history to see full scope", ok:false}],
+    why:"Subagents executing assignments correctly can't fix a bad assignment — check the coordinator's decomposition first. Narrow decomposition is the classic cause of incomplete coverage.",
+    cite:"notes/domain-1 §1.2" },
+
+  // ---- D2 ----
+  { d:1, stem:"A single agent is configured with 18 tools spanning search, synthesis, and file operations, and it keeps misusing out-of-specialty tools. What is the best fix?",
+    opts:[
+      {t:"Scope each agent to ~4–5 role-relevant tools; add one narrow scoped tool for frequent cross-role needs", ok:true},
+      {t:"Add a system-prompt section documenting all 18 tools and when to use each", ok:false},
+      {t:"Set tool_choice to \"any\" so the model always commits to a tool instead of hesitating", ok:false},
+      {t:"Merge all 18 into a single dispatcher tool that routes to the right backend internally", ok:false}],
+    why:"Too many tools degrades selection; ~4–5 relevant tools per agent beats 18. Least privilege plus a narrow scoped tool for the common cross-role case is what the exam rewards — not documentation, not forcing a call, not one mega-tool.",
+    cite:"notes/domain-2 §2.3" },
+  { d:1, stem:"An MCP tool rejects a request because the customer is ineligible for a refund (a policy block), returning isError with the string \"Operation failed.\" The agent then retries it three times. What should the tool return instead?",
+    opts:[
+      {t:"isError with errorCategory \"business\", isRetryable false, and a customer-friendly explanation", ok:true},
+      {t:"An empty result marked successful so the agent stops retrying", ok:false},
+      {t:"Keep the message but add a prompt rule capping retries at one attempt for any failure", ok:false},
+      {t:"A gateway that regex-parses \"Operation failed\" to classify the failure type", ok:false}],
+    why:"Structured errors (category + isRetryable + friendly description) let the agent stop retrying a non-retryable business violation and explain it. Empty-as-success hides the error; a blanket retry cap is a symptom fix; regex-parsing prose is fragile machinery.",
+    cite:"notes/domain-2 §2.2" },
+  { d:1, stem:"Your agent wastes several turns making exploratory tool calls just to discover which database tables exist before it can query them. What most directly reduces this?",
+    opts:[
+      {t:"Expose the schema catalog as an MCP resource so the agent sees the tables without exploratory calls", ok:true},
+      {t:"Add a describe_all_tables tool the agent calls at the start of every session", ok:false},
+      {t:"Inject the entire schema into the system prompt on every request regardless of relevance", ok:false},
+      {t:"Lower the agent's temperature so it guesses valid table names more often", ok:false}],
+    why:"MCP resources expose catalogs (schemas, doc hierarchies) so the agent sees what data exists without spending tool calls — resources = content, tools = actions. A per-session tool still costs a turn; always-on schema bloats context; temperature doesn't help discovery.",
+    cite:"notes/domain-2 §2.4" },
+
+  // ---- D3 ----
+  { d:2, stem:"You want your own tweaked version of a shared team skill, without changing behavior for anyone else on the team. What is the correct setup?",
+    opts:[
+      {t:"Put your variant in ~/.claude/skills/ under a different name", ok:true},
+      {t:"Edit the team skill in .claude/skills/ and add a personal flag to its frontmatter", ok:false},
+      {t:"Copy the team skill into .claude/skills/ under the same name so yours takes over", ok:false},
+      {t:"Add the variant to the root CLAUDE.md so it always loads for you", ok:false}],
+    why:"Personal variants of team skills go in user-scoped <code>~/.claude/skills/</code> with a different name, so teammates are unaffected. Editing or same-name-copying the project skill changes it for everyone; CLAUDE.md isn't where skills live.",
+    cite:"notes/domain-3 §3.2" },
+  { d:2, stem:"You need to add a single null-check to one function, and you already have a clear stack trace pointing at it. Which working mode fits?",
+    opts:[
+      {t:"Direct execution — the change is small, well-scoped, and the cause is already known", ok:true},
+      {t:"Plan mode, because exploring before any edit always prevents rework", ok:false},
+      {t:"Plan mode, to compare several architectural approaches before committing", ok:false},
+      {t:"Direct execution, but first refactor the whole file into smaller modules", ok:false}],
+    why:"Proportionality: a single-file fix with a clear stack trace is direct execution. Plan mode is for large, multi-approach, architectural, or multi-file work — there's no architecture to weigh here, and refactoring the file is unrequested scope.",
+    cite:"notes/domain-3 §3.4" },
+  { d:2, stem:"A GitHub Action runs `claude \"generate release notes\"` and the job hangs forever; logs show it waiting for interactive input. What fixes it?",
+    opts:[
+      {t:"Add the -p (--print) flag to run in non-interactive headless mode", ok:true},
+      {t:"Set CLAUDE_HEADLESS=true in the environment before the command", ok:false},
+      {t:"Add a --batch flag so the job is queued without an attached terminal", ok:false},
+      {t:"Redirect stdin from /dev/null so the process reads EOF immediately", ok:false}],
+    why:"<code>-p</code>/<code>--print</code> is the headless flag CI needs. <code>CLAUDE_HEADLESS</code> and <code>--batch</code> don't exist (classic distractors); the stdin redirect only masks the symptom rather than using the real non-interactive mode.",
+    cite:"notes/domain-3 §3.6" },
+
+  // ---- D4 ----
+  { d:3, stem:"An automated review bot flags dozens of harmless style choices; developers now ignore all of its output, including real bugs. The prompt already says \"only report high-confidence issues.\" What is the most effective fix?",
+    opts:[
+      {t:"Replace confidence filtering with explicit categories: report bugs and security, skip style and local patterns", ok:true},
+      {t:"Strengthen the instruction to report only findings the model is virtually certain about", ok:false},
+      {t:"Cap the review at a maximum of five reported findings per pull request", ok:false},
+      {t:"Add a second model pass that scores each finding and drops those below a threshold", ok:false}],
+    why:"A model's self-assessed confidence isn't calibrated, so tightening it doesn't help. Categorical criteria (which classes to report vs skip) are the fix; a hard cap can drop real bugs, and a scoring pass reintroduces the same uncalibrated-confidence problem.",
+    cite:"notes/domain-4 §4.1" },
+  { d:3, stem:"An extraction schema marks every field required, but many source documents genuinely lack a shipment tracking number — and the model keeps inventing plausible-looking tracking values. What is the correct schema fix?",
+    opts:[
+      {t:"Make the tracking-number field nullable/optional so the model can return null when it's absent", ok:true},
+      {t:"Instruct the model in the prompt to write \"NOT PROVIDED\" whenever the field is missing", ok:false},
+      {t:"Keep it required and add a validator that rejects extractions with fabricated-looking values", ok:false},
+      {t:"Split documents into two pipelines — with and without tracking numbers — each with its own schema", ok:false}],
+    why:"A required field for data that may not exist forces fabrication. Make it nullable so null is a legal answer. A sentinel string leaks into downstream data and still fights the required constraint; a post-hoc validator and a two-pipeline split are heavier than the schema change that fixes the root cause.",
+    cite:"notes/domain-4 §4.3" },
+  { d:3, stem:"Two workflows call Claude: a pre-merge check a developer waits on, and a nightly dependency-audit report read the next morning. Your manager wants both moved to the Message Batches API for the 50% savings. What do you recommend?",
+    opts:[
+      {t:"Move only the nightly audit to the Batch API; keep the pre-merge check synchronous — batches have no latency SLA", ok:true},
+      {t:"Move both to the Batch API and add status polling so the pre-merge check finishes as soon as possible", ok:false},
+      {t:"Keep both synchronous, since batch results can arrive out of order and correlation becomes unreliable", ok:false},
+      {t:"Move both to the Batch API with a timeout that falls back to synchronous calls when a batch runs long", ok:false}],
+    why:"Batch is 50% cheaper but has a window up to 24h with no latency SLA — right for latency-tolerant overnight work, wrong for a blocking check a developer waits on. Polling doesn't create an SLA; <code>custom_id</code> already solves correlation; the timeout-fallback is needless machinery.",
+    cite:"notes/domain-4 §4.5" },
+
+  // ---- D5 ----
+  { d:4, stem:"Mid-conversation, a customer says \"just get me a human.\" The issue looks simple and the agent could probably resolve it in one step. What should the agent do?",
+    opts:[
+      {t:"Escalate to a human immediately, without first attempting to investigate or resolve", ok:true},
+      {t:"Attempt the simple resolution first, and escalate only if that attempt fails", ok:false},
+      {t:"Ask the customer to confirm they really want a human before escalating", ok:false},
+      {t:"Escalate only if the customer's wording shows enough frustration to warrant it", ok:false}],
+    why:"An explicit request for a human is honored immediately, without first attempting investigation. Resolving-first overrides the customer's stated preference; a confirmation step stalls it; frustration is a sentiment proxy, not the trigger.",
+    cite:"notes/domain-5 §5.2" },
+  { d:4, stem:"Two reputable analyst firms report different totals for the same market size. Your synthesis agent must produce a single final report. How should the conflict be handled?",
+    opts:[
+      {t:"Present both figures annotated with their sources and flag the conflict; the coordinator decides reconciliation", ok:true},
+      {t:"Use the figure from the firm with the stronger reputation and cite it as the value", ok:false},
+      {t:"Average the two figures, since the midpoint minimizes expected error", ok:false},
+      {t:"Omit the statistic entirely, since a disputed number is too unreliable to cite", ok:false}],
+    why:"Conflicting stats from credible sources are preserved with both values and their sources and flagged — never silently resolved; the coordinator reconciles before synthesis. Picking by reputation, averaging, or omitting all discard information the report should surface.",
+    cite:"notes/domain-5 §5.6" },
+  { d:4, stem:"Deep into a long codebase-exploration session, the agent starts citing \"typical repository patterns\" instead of the specific classes it identified earlier, and its answers have turned inconsistent. Which countermeasure most directly addresses this?",
+    opts:[
+      {t:"Keep a scratchpad file of key findings and reference it; delegate verbose exploration to subagents", ok:true},
+      {t:"Switch to a model tier with a larger context window so earlier findings stay in the window", ok:false},
+      {t:"Ask the model to summarize everything so far and continue from that summary alone", ok:false},
+      {t:"Restate the original question in more detail so the model re-anchors on specifics", ok:false}],
+    why:"Context degradation is fixed with an external scratchpad of findings plus subagent delegation for verbose work — the durable-state mechanism. A bigger window doesn't fix attention quality; a summary-only continuation loses the specific classes; restating is a symptom fix.",
+    cite:"notes/domain-5 §5.4" },
+];
+
+const LAB = ["A","B","C","D"];
+const exam = document.getElementById("exam");
+const state = { answered:0, right:0, perD:DOMAINS.map(()=>({a:0,r:0,tot:0})) };
+Q.forEach(q => state.perD[q.d].tot++);
+
+// group by domain, render
+DOMAINS.forEach((dom, di) => {
+  const sec = document.createElement("section");
+  sec.className = "domain";
+  const items = Q.map((q,idx)=>({q,idx})).filter(x=>x.q.d===di);
+  sec.innerHTML = `<div class="dhead"><span class="code">${dom.code}</span><h2>${dom.name}</h2><span class="wt">${dom.wt} of exam</span></div>`;
+  items.forEach(({q,idx}, n) => {
+    const card = document.createElement("div");
+    card.className = "q";
+    const opts = q.opts.map((o,oi)=>`<button class="opt" data-q="${idx}" data-o="${oi}"><span class="lab">${LAB[oi]}</span><span class="txt">${o.t}</span><span class="mk"></span></button>`).join("");
+    card.innerHTML = `<p class="stem"><span class="num">${dom.code}·Q${n+1}</span>${q.stem}</p><div class="opts">${opts}</div><div class="why" id="why-${idx}"><b>Why:</b> ${q.why}<span class="cite">${q.cite}</span></div>`;
+    sec.appendChild(card);
+  });
+  exam.appendChild(sec);
+});
+
+// scoreboard chips
+const dchips = document.getElementById("dchips");
+DOMAINS.forEach((d,i)=>{ const s=document.createElement("span"); s.className="dchip"; s.id="dc-"+i; s.innerHTML=`${d.code} <b>0/${state.perD[i].tot}</b>`; dchips.appendChild(s); });
+
+function refresh(){
+  document.getElementById("sc").textContent = state.answered;
+  document.getElementById("sright").textContent = state.right;
+  DOMAINS.forEach((d,i)=>{ document.getElementById("dc-"+i).innerHTML = `${d.code} <b>${state.perD[i].r}/${state.perD[i].tot}</b>`; });
+  if (state.answered === Q.length) showResult();
+}
+
+exam.addEventListener("click", e => {
+  const btn = e.target.closest(".opt");
+  if (!btn) return;
+  const qi = +btn.dataset.q, oi = +btn.dataset.o, q = Q[qi];
+  const card = btn.closest(".q");
+  if (card.dataset.done) return;
+  card.dataset.done = "1";
+  const chosenOk = q.opts[oi].ok;
+  card.querySelectorAll(".opt").forEach((b,bi)=>{
+    b.disabled = true;
+    if (q.opts[bi].ok) { b.classList.add("correct"); b.querySelector(".mk").textContent = "✓"; }
+    if (bi===oi && !chosenOk) { b.classList.add("wrong"); b.querySelector(".mk").textContent = "✗"; }
+  });
+  document.getElementById("why-"+qi).setAttribute("data-show","1");
+  state.answered++; state.perD[q.d].a++;
+  if (chosenOk) { state.right++; state.perD[q.d].r++; }
+  refresh();
+});
+
+function showResult(){
+  const pct = Math.round(state.right/Q.length*100);
+  const r = document.getElementById("result");
+  document.getElementById("finalPct").textContent = pct + "%";
+  document.getElementById("finalPct").style.color = pct>=80?"var(--good)":pct>=60?"var(--amber)":"var(--bad)";
+  document.getElementById("finalRows").innerHTML = DOMAINS.map((d,i)=>{
+    const p = state.perD[i]; const weak = p.r < p.tot;
+    return `<div class="rrow"><span class="d">${d.code} · ${d.name}</span><span class="s ${weak?'weak':'ok'}">${p.r}/${p.tot}</span></div>`;
+  }).join("");
+  const weakDoms = DOMAINS.filter((d,i)=>state.perD[i].r < state.perD[i].tot).map(d=>d.code);
+  document.getElementById("finalNote").innerHTML = weakDoms.length
+    ? `Domains to revisit: <b>${weakDoms.join(", ")}</b>. Re-read the cited notes sections for every question you missed, then run <code>/tutor</code> to drill those task statements with fresh scenarios.`
+    : `Clean sweep — 15/15. Run <code>/tutor</code> to keep the spaced-repetition schedule moving toward mastery.`;
+  r.setAttribute("data-show","1");
+  r.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto":"smooth", block:"start" });
+}
+
+document.getElementById("reset").addEventListener("click", ()=>location.reload());
+</script>

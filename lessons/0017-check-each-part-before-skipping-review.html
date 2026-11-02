@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 17 — Check each part before skipping review</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .bar { display: flex; height: 3.1rem; margin: 1rem 0 .3rem; border: 1px solid var(--rule); font-family: var(--sans); font-size: .8rem; }
+  .bar div { display: flex; flex-direction: column; justify-content: center; padding: 0 .45rem; border-right: 1px solid var(--rule); overflow: hidden; white-space: nowrap; }
+  .bar div:last-child { border-right: 0; }
+  .bar .ok { background: var(--good-bg); }
+  .bar .bad { background: var(--bad-bg); color: var(--bad); font-weight: 700; }
+  .bar small { font-weight: 400; color: var(--ink-soft); }
+  .barcap { font-family: var(--sans); font-size: .8rem; color: var(--ink-soft); margin: 0 0 1.4rem; }
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .82rem; line-height: 1.35; }
+  .flow div { border: 1px solid var(--rule); border-radius: 4px; padding: .55rem .6rem; }
+  .flow b { display: block; color: var(--accent); margin-bottom: .2rem; }
+  @media (max-width: 640px) { .flow { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 17 · Domain 5 · Task statement 5.5</p>
+  <h1>Check each part before skipping review</h1>
+  <p class="subtitle">One good average can hide one broken part. Before you let any extractions skip a person, look at each part separately.</p>
+
+  <p class="barcap">Three words used below. An <strong>extraction</strong> is a value the model reads out of a document, such as an invoice total. Its <strong>confidence</strong> is a score from 0 to 1 that the model gives each value. A <strong>labeled set</strong> is a batch of documents where people have already written down the right answers.</p>
+
+
+  <blockquote class="key">
+    The one question to ask before any extraction skips human review: <strong>do we know it is accurate for this type of document and this field, not only on average?</strong><br>
+    No → measure each part first. Yes → let that part skip review, and keep spot-checking it.
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> A courier says 96.6% of its 1,000 parcels arrive on time. Sounds great. But 900 go to the city, where 891 arrive on time (99%), and 100 go to the hills, where only 75 do (75%). Add them up: 966 out of 1,000 is 96.6%. If you live in the hills, a quarter of your parcels are late, and the headline number never told you. The city is so big that it hides the hills.</p>
+
+  <p><strong>Where this has cost you points:</strong></p>
+  <table class="cgrid">
+    <tr><th>Where</th><th>The situation</th><th>What you picked</th><th>What the right answer did</th></tr>
+    <tr><td>Real exam, attempt 1</td><td>One score-report objective on this task statement (5.5): 33%</td><td>Not shown on the score report</td><td>Not shown on the score report</td></tr>
+    <tr><td>Domain 5 paper, 17 Oct, Q4</td><td>97.6% overall; team wants to stop reviewing anything at 0.9 confidence or higher</td><td>Re-run the 97.6% on 8,000 new documents</td><td>Measure by document type and by field, and automate only the parts that hold up</td></tr>
+  </table>
+  <p>On Q4 your instinct, "check the number before acting on it", was good. But you checked the wrong number. A second average on the same mix of documents hides the same broken part.</p>
+
+  <h2>1 · How an average hides a broken part</h2>
+  <p>Take a set shaped like the Q4 one: 80% invoices, 15% purchase orders and 5% customs declarations. Suppose invoices are 99% accurate and purchase orders 97%. Then customs declarations could be at <strong>77%</strong>, and the overall figure would still come out at exactly 97.6%:</p>
+  <div class="bar">
+    <div class="ok" style="flex: 80">Invoices · 80% of documents<small>99% accurate</small></div>
+    <div class="ok" style="flex: 15">POs · 15%<small>97%</small></div>
+    <div class="bad" style="flex: 5; min-width: 4.2rem">Customs<small>77%</small></div>
+  </div>
+  <p class="barcap">0.80 × 99 + 0.15 × 97 + 0.05 × 77 = 79.2 + 14.55 + 3.85 = 97.6. The made-up split shows only that it is possible. In the question you are not told the split, and that is the point: you have to measure it.</p>
+  <p>The same thing happens inside a document. Every field on an invoice can be fine except one, such as the tax total, and the field average still looks healthy. So the guide asks for accuracy <strong>by document type and by field</strong> before you reduce human review.</p>
+  <p><strong>The clue in a stem:</strong> when the question tells you the mix (80/15/5, "mostly invoices", "a small share of handwritten forms"), it is asking about the parts, not the total.</p>
+
+  <h2>2 · The whole process, in order</h2>
+  <p>Task statement 5.5 is one process with four steps. Exam questions usually drop you at one step and offer a fix that belongs to a different one.</p>
+  <div class="flow">
+    <div><b>1 · Measure each part</b>Accuracy by document type and by field, on a labeled set. An overall figure isn't enough.</div>
+    <div><b>2 · Set the bar</b>The model gives a confidence score for each field. Check those scores against the labeled set, and pick the cut-off from what they show.</div>
+    <div><b>3 · Route to people</b>Low-confidence fields, and documents that are unclear or contradict each other, go to reviewers. Reviewer time is limited, so it goes where errors are likeliest.</div>
+    <div><b>4 · Keep checking</b>Take a random sample of the extractions that skipped review, from every type (stratified random sampling), to track their error rate and catch new kinds of error.</div>
+  </div>
+  <table class="cgrid">
+    <tr><th>If the stem says…</th><th>You're at step</th><th>The right move</th></tr>
+    <tr><td>"97% overall, so we want to automate"</td><td>1</td><td>Break the figure down by document type and field first</td></tr>
+    <tr><td>"The model says it is 90% sure" but that has never been checked</td><td>2</td><td>Compare the scores with a labeled set before trusting a threshold</td></tr>
+    <tr><td>"Reviewers check a random 5%" and errors cluster in faxes or in claims whose documents disagree</td><td>3</td><td>Route by field confidence and document problems, not at random</td></tr>
+    <tr><td>"Nobody checks the auto-approved ones any more"</td><td>4</td><td>Add a random sample from every type, and track its error rate</td></tr>
+  </table>
+
+  <h2>3 · Which confidence score?</h2>
+  <p>Every confidence score comes from the model itself. What makes one usable for routing is two things: it is given <strong>per field</strong>, and it has been <strong>checked against a labeled set</strong> (calibrated).</p>
+  <table class="cgrid">
+    <tr><th></th><th>Per-field score, calibrated on a labeled set</th><th>One score per document, never checked</th></tr>
+    <tr><td>What it tells you</td><td>Which field is in doubt, with evidence of how often a score like that turns out right</td><td>That something about the document may be off, but not which field, and with no evidence the number means anything</td></tr>
+    <tr><td>Use it to route review?</td><td class="y">Yes</td><td class="n">Not yet: calibrate it first, and score each field</td></tr>
+  </table>
+  <p>You got this right on the Domain 5 paper, Q3 (graded 17 Oct). One related warning: task statement 5.2 calls self-reported confidence an unreliable signal for deciding when to <em>escalate</em> a customer. That's a different decision. For review routing, the guide's answer is to calibrate the score, not to throw it away.</p>
+
+  <h2>4 · The exception, kept for last: random sampling</h2>
+  <p>Random sampling shows up twice in this topic, once as the wrong answer and once as the right one. What decides it is <em>what the sample is for</em>.</p>
+  <table class="cgrid">
+    <tr><th>Random sampling used for…</th><th>Verdict</th><th>Why</th></tr>
+    <tr><td><strong>Choosing what reviewers look at</strong> ("review a random 5%")</td><td class="n">Wrong</td><td>It spends limited reviewer time evenly on documents that are mostly right. Route by confidence and document problems instead.</td></tr>
+    <tr><td><strong>Checking the ones nobody reviews</strong> (a sample of high-confidence extractions, drawn from every type)</td><td class="y">Right</td><td>It measures the auto-approved error rate and surfaces new kinds of error that nobody else would see.</td></tr>
+  </table>
+  <p>The exam's name for this is <strong>stratified random sampling</strong>: a random sample drawn from each type separately. Why bother? A plain 1% sample of 30,000 auto-approved extractions is 300 documents, and only about 15 of those would be customs declarations if they are 5% of the flow. Fifteen is a small number to judge a 77% vs 99% difference from. Sampling each type on its own gives small types their own checks.</p>
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer in chat before the quiz.
+    <ol class="steps">
+      <li><strong>Payslips.</strong> A payroll extractor is 98% accurate overall on 5,000 labeled payslips. 90% are from one large employer, and the other 10% come from 40 small ones. A manager wants to stop reviewing payslips scored above 0.9. What would you check first, and why might 98% be misleading here?</li>
+      <li><strong>Two samples.</strong> One team reviews a random 10% of all extractions. Another reviews low-confidence fields only, plus a small random sample of the high-confidence ones. Which is using random sampling the right way, and what is each sample for?</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Five new cases. For each, first ask which of the four steps you are at.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If an answer that "re-checks the overall number" looks right on any question, bring it here and we'll split the number up together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 4.6, 5.2, 5.5.<br>
+    <strong>Miss history:</strong> real-exam objective 19 in learning record 0015; D5 paper Q4 in 0024.<br>
+    <strong>Previous:</strong> <a href="0016-when-a-retry-can-help.html">Lesson 16 — When a retry can help</a> · <strong>Related:</strong> <a href="0002-escalation-triggers.html">Lesson 2 — Escalation triggers</a>
+  </p>
+
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A receipts pipeline is 96% accurate overall on 6,000 labeled receipts. 85% are printed till receipts and 15% are handwritten. The team wants to auto-approve everything at 0.9 confidence or higher. What comes first?",
+    opts: [
+      "Re-run the 96% check on 6,000 new receipts to confirm it holds",
+      "Measure accuracy for printed and handwritten receipts by field",
+      "Raise the cut-off to 0.95 for every field and then auto-approve",
+      "Add handwritten examples to the prompt and re-check the overall"
+    ],
+    ok: 1,
+    fb: "The stem gives you the mix (85/15), so the question is about the parts. Measure each type and field before automating any of them. A repeats your Q4 pick: a second average on the same mix hides the same weak part. C picks a cut-off without knowing which part fails. D guesses at the weak part and then checks it with the overall figure that hides it."
+  },
+  {
+    stem: "A claims team has 800 review slots a month for 20,000 claims. Today they review a random 4%. The model gives each field a confidence score that has been checked against a labeled set. The model also gives each claim one overall score, never checked against labels. Most costly errors come from claims with two documents that disagree. How should review be routed?",
+    opts: [
+      "Raise the random share to 8% and review every field on those",
+      "Route by each claim's overall score and review the lowest 4%",
+      "Re-extract every claim and review the fields where runs differ",
+      "Send low-confidence fields and conflicting claims, by risk"
+    ],
+    ok: 3,
+    fb: "Step 3: route by the checked field scores and by document problems, and spend the 800 slots where errors are likeliest. A is still random, and it doubles the work. B uses the one overall score that was never checked against labels, and it can't say which field is in doubt. C is a different signal: it doubles the extraction cost, leaves the checked field scores unused, and gives no order for filling the 800 slots."
+  },
+  {
+    stem: "Six months after automation, nobody checks extractions scored above 0.9. Complaints are steady, but a new supplier's invoice layout went live last week. What should the team have in place?",
+    opts: [
+      "A random sample of auto-approved extractions from every type",
+      "A higher cut-off of 0.97 for every supplier and document type",
+      "A prompt rule that tells the model to flag new invoice layouts",
+      "A full manual review of every invoice from the new supplier"
+    ],
+    ok: 0,
+    fb: "Step 4. Only a continuing random sample of the high-confidence extractions, drawn from every type, measures their error rate and catches a new kind of error. B moves the bar without measuring anything. C relies on the model noticing what it gets wrong. D works for this one supplier but not for the next new layout, and it spends review time without a plan."
+  },
+  {
+    stem: "An extractor's own score says it is 90% sure on 70% of fields. The team has never compared these scores with a labeled set. They want to auto-approve every field scored 0.9 or higher. What is missing?",
+    opts: [
+      "A rule telling the model to lower its score when it is unsure",
+      "A larger random review sample to keep humans checking the rest",
+      "Checking the scores against a labeled set to choose the cut-off",
+      "A second model that re-scores each field before it auto-approves"
+    ],
+    ok: 2,
+    fb: "Step 2. A score is only useful for routing once it has been checked against a labeled set: of the fields scored 0.9, how many were really right? A asks the same uncalibrated source to judge itself better. B spends review time at random instead of fixing the threshold. D adds a second unchecked score."
+  },
+  {
+    stem: "Field accuracy is 99% on a labeled set of 10,000 forms. Broken down, every field is 99% or better except bank_account, at 88%, and every form type is at 98% or better. The team wants to stop reviewing forms scored above 0.9. Best plan?",
+    opts: [
+      "Keep review on every field, since bank_account fell below 90%",
+      "Auto-approve the 99%+ fields, and keep bank_account in review",
+      "Auto-approve all fields, since the average is 99% across forms",
+      "Re-measure all fields on a new set of forms before any change"
+    ],
+    ok: 1,
+    fb: "This is what a breakdown is for: automate the parts that hold up and keep people on the part that doesn't. A throws away safe automation because of one field. C trusts the average the breakdown just showed to be hiding 88%. D delays acting on a breakdown you already have. Keep a random sample on the auto-approved fields afterwards (step 4)."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

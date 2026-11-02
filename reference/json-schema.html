@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — JSON Schema</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ref dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1.2rem 0; align-items: baseline; }
+  .ref dt { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; }
+  .ref dd { margin: 0; font-size: 1rem; }
+</style>
+</head>
+<body>
+<main class="page ref">
+  <p class="eyebrow">CCA Foundations · Quick reference · 4.3 / 2.1</p>
+  <h1>JSON Schema</h1>
+  <p class="subtitle">A schema is a contract about the <strong>shape</strong> of data, not its <strong>truth</strong>. Taught in <a href="../lessons/0011-what-is-a-schema.html">Lesson 11</a>.</p>
+
+  <h2>Keywords</h2>
+  <dl>
+    <dt>type</dt><dd><code>object</code> · <code>array</code> · <code>string</code> · <code>number</code> · <code>integer</code> · <code>boolean</code> · <code>null</code></dd>
+    <dt>properties</dt><dd>The fields an object may contain, each with its own schema</dd>
+    <dt>required</dt><dd>Keys that must appear. Not listed means the key is optional (may be omitted)</dd>
+    <dt>["string","null"]</dt><dd>Nullable: the key appears and <code>null</code> is a legal value</dd>
+    <dt>enum</dt><dd>A fixed list of allowed values. Add <code>"unclear"</code> for ambiguous cases and <code>"other"</code> + a detail string for unforeseen ones</dd>
+    <dt>additionalProperties</dt><dd><code>false</code> means no fields beyond <code>properties</code>; Claude's structured outputs require <code>false</code> on objects</dd>
+  </dl>
+
+  <h2>Where it goes in a Claude request</h2>
+  <dl>
+    <dt>tools[].input_schema</dt><dd>The tool-call arguments. An extraction tool's output shape</dd>
+    <dt>strict: true</dt><dd>On a tool: its input schema is enforced</dd>
+    <dt>output_config.format</dt><dd><code>{type: "json_schema", schema}</code>: Claude's reply is valid JSON in a text block</dd>
+    <dt>--json-schema</dt><dd>Claude Code, with <code>-p --output-format json</code>: structured CI output</dd>
+    <dt>tool_choice</dt><dd>Not a schema. It decides <em>whether</em> a tool must be called (<code>auto</code> / <code>any</code> / named tool)</dd>
+  </dl>
+
+  <h2>What it guarantees</h2>
+  <table class="cgrid">
+    <tr><th>Error</th><th>Stopped by the schema?</th></tr>
+    <tr><td>Bad JSON syntax, wrong type, missing required key</td><td class="y">✓ eliminated</td></tr>
+    <tr><td>Fields that don't agree (line items ≠ total)</td><td class="n">✗ your code, then retry with the error</td></tr>
+    <tr><td>Right type, wrong field (vendor put in customer)</td><td class="n">✗ your code or a reviewer</td></tr>
+    <tr><td>Invented value for a field the document lacks</td><td class="n">✗ fix the design: make it nullable</td></tr>
+  </table>
+  <p>Also not guaranteed: output cut off at <code>stop_reason: "max_tokens"</code>, a refusal, and enum capitalisation (compare enum values case-insensitively).</p>
+
+  <blockquote class="key">Required + non-nullable + sometimes-absent data = <strong>forced fabrication</strong>. Give the model a legal way to say "not there".</blockquote>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Sources (fetched 2026-10-03): <a href="https://json-schema.org/understanding-json-schema/about">JSON Schema, "What is a schema?"</a> · <a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs">Anthropic, Structured outputs</a> · <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools">Anthropic, Define tools</a> · guide 4.3 in <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">the official guide</a>.</p>
+  </div>
+</main>
+</body>
+</html>

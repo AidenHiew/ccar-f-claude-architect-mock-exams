@@ -1,0 +1,703 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCA-F Domain 2 Drill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F6F5F1; --surface:#FFFFFF; --ink:#1C2430; --ink-soft:#5A6472;
+    --line:#E2E0D8; --accent:#0E6E6B; --accent-soft:#E3EFEE; --accent-ink:#0B5754;
+    --good:#2E7D4F; --good-soft:#E4F1E9; --bad:#B3372E; --bad-soft:#F7E7E5;
+    --pin:#8A6D1F; --pin-soft:#F4EDD8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#141A21; --surface:#1C242E; --ink:#E8EAE6; --ink-soft:#9AA5B1;
+      --line:#2C3641; --accent:#4FB8B2; --accent-soft:#173A39; --accent-ink:#7FD4CF;
+      --good:#5FBE88; --good-soft:#1B3226; --bad:#E07B6F; --bad-soft:#3A231F;
+      --pin:#D3B45C; --pin-soft:#33301D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141A21; --surface:#1C242E; --ink:#E8EAE6; --ink-soft:#9AA5B1;
+    --line:#2C3641; --accent:#4FB8B2; --accent-soft:#173A39; --accent-ink:#7FD4CF;
+    --good:#5FBE88; --good-soft:#1B3226; --bad:#E07B6F; --bad-soft:#3A231F;
+    --pin:#D3B45C; --pin-soft:#33301D;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--paper); color:var(--ink); font-family:"Instrument Sans",system-ui,sans-serif; margin:0; line-height:1.55;}
+  .wrap{max-width:820px; margin:0 auto; padding:0 20px 96px;}
+  h1,h2,h3{font-family:"Bricolage Grotesque","Instrument Sans",sans-serif; text-wrap:balance;}
+  .mono{font-family:"Spline Sans Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums;}
+
+  /* top bar */
+  .bar{position:sticky; top:0; z-index:10; background:var(--paper); border-bottom:1px solid var(--line);}
+  .bar-in{max-width:820px; margin:0 auto; padding:10px 20px; display:flex; align-items:center; gap:14px;}
+  .bar-title{font-family:"Bricolage Grotesque",sans-serif; font-weight:700; font-size:15px; letter-spacing:.01em;}
+  .bar-spacer{flex:1}
+  .progress{flex:1; max-width:260px; height:6px; border-radius:3px; background:var(--line); overflow:hidden;}
+  .progress i{display:block; height:100%; width:0%; background:var(--accent); transition:width .25s;}
+  .count{font-size:13px; color:var(--ink-soft);}
+  .timer{font-size:14px; font-weight:600; color:var(--accent-ink); background:var(--accent-soft); padding:3px 10px; border-radius:6px; display:none;}
+  .timer.low{color:var(--bad); background:var(--bad-soft);}
+  /* flag-for-review: the real exam lets you flag and return; live only in exam mode before grading */
+  .sr-only{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+  .flagnav{display:none; font:600 13px "Spline Sans Mono",monospace; color:var(--pin); background:var(--pin-soft); border:none; border-radius:6px; padding:3px 10px; cursor:pointer;}
+  .flag{display:none; margin-left:auto; flex-shrink:0; font:600 12px "Spline Sans Mono",monospace; color:var(--ink-soft); background:transparent; border:1px solid var(--line); border-radius:6px; padding:2px 8px; cursor:pointer;}
+  .examlive .flag{display:inline-block;}
+  .flag[aria-pressed="true"]{color:var(--pin); background:var(--pin-soft); border-color:var(--pin);}
+  .flag:focus-visible, .flagnav:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .examlive .q.flagged{border-color:var(--pin);}
+  @media (max-width:420px){ .progress{display:none;} .bar-in{gap:8px; padding:10px 14px;} }
+
+  /* intro */
+  header.hero{padding:56px 0 28px; border-bottom:1px solid var(--line);}
+  .eyebrow{font-family:"Spline Sans Mono",monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:10px;}
+  h1{font-size:clamp(30px,5vw,44px); font-weight:800; margin:0 0 12px; line-height:1.08;}
+  .hero p{color:var(--ink-soft); max-width:60ch; margin:0 0 6px;}
+  .facts{display:flex; flex-wrap:wrap; gap:10px; margin-top:18px;}
+  .fact{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px 14px; font-size:13px;}
+  .fact b{font-family:"Spline Sans Mono",monospace; font-weight:600; color:var(--accent-ink);}
+
+  .modes{display:flex; flex-wrap:wrap; gap:12px; margin:26px 0 10px;}
+  .mode-btn{flex:1; min-width:230px; text-align:left; background:var(--surface); border:1.5px solid var(--line); border-radius:12px; padding:16px 18px; cursor:pointer; color:var(--ink); font:inherit; transition:border-color .15s;}
+  .mode-btn:hover, .mode-btn:focus-visible{border-color:var(--accent); outline:none;}
+  .mode-btn h3{margin:0 0 4px; font-size:17px;}
+  .mode-btn span{font-size:13.5px; color:var(--ink-soft);}
+  .timer-opt{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-soft); margin-top:6px;}
+  .timer-row{flex-basis:100%;}
+  .note{font-size:12.5px; color:var(--ink-soft); margin-top:22px; border-top:1px dashed var(--line); padding-top:12px;}
+
+  /* domains / blocks + questions */
+  .domain{margin-top:44px;}
+  .domain-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:6px;}
+  .domain-head h2{margin:0; font-size:20px; font-weight:700;}
+  .domain-head .dtag{font-family:"Spline Sans Mono",monospace; font-size:12px; color:var(--accent-ink); background:var(--accent-soft); padding:2px 8px; border-radius:5px;}
+  .domain-head .dmeta{font-size:12.5px; color:var(--ink-soft); margin-left:auto;}
+  .block-intro{color:var(--ink-soft); margin:8px 0 0; max-width:70ch;}
+
+  .q{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px 14px; margin-top:16px;}
+  .q-top{display:flex; gap:12px; align-items:baseline;}
+  .q-num{font-family:"Spline Sans Mono",monospace; font-weight:600; font-size:14px; color:var(--accent-ink); flex-shrink:0;}
+  .q-text{font-weight:600; font-size:15.5px; flex:1; min-width:0; overflow-wrap:break-word;}
+  .q-text:focus{outline:none;}
+  .q-text:focus-visible{outline:2px solid var(--accent); outline-offset:4px; border-radius:4px;}
+  .scenario{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--pin); background:var(--pin-soft); display:inline-block; padding:2px 8px; border-radius:4px; margin:8px 0 4px 34px;}
+  .scenario.ts{color:var(--accent-ink); background:var(--accent-soft); margin-left:6px; text-transform:none; letter-spacing:0;}
+  /* the real exam shows the scenario only — the task statement names the concept, so it stays hidden until the question is graded */
+  .q:not(.reveal) .scenario.ts{display:none;}
+  .opts{list-style:none; margin:10px 0 4px; padding:0 0 0 34px; display:flex; flex-direction:column; gap:8px;}
+  .opt{display:flex; gap:10px; align-items:flex-start; border:1.5px solid var(--line); border-radius:9px; padding:9px 12px; cursor:pointer; font-size:14.5px; transition:border-color .12s, background .12s; background:transparent;}
+  .opt:hover{border-color:var(--accent);}
+  .opt{position:relative;} /* anchors the hidden radio inside its option, so focusing it scrolls the question pane, not the window */
+  .opt input{position:absolute; opacity:0; pointer-events:none;}
+  .opt .letter{font-family:"Spline Sans Mono",monospace; font-weight:600; font-size:13px; color:var(--ink-soft); border:1px solid var(--line); border-radius:5px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;}
+  .opt.sel{border-color:var(--accent); background:var(--accent-soft);}
+  .opt.sel .letter{background:var(--accent); border-color:var(--accent); color:var(--surface);}
+  .opt:has(input:focus-visible){outline:2px solid var(--accent); outline-offset:2px;}
+  .q.locked .opt{cursor:default;}
+  .q.locked .opt:hover{border-color:var(--line);}
+  .q.locked .opt.sel:hover{border-color:var(--accent);}
+  .opt.right{border-color:var(--good); background:var(--good-soft);}
+  .opt.right .letter{background:var(--good); border-color:var(--good); color:var(--surface);}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-soft);}
+  .opt.wrong .letter{background:var(--bad); border-color:var(--bad); color:var(--surface);}
+  .why{display:none; margin:10px 0 6px 34px; font-size:13.5px; color:var(--ink-soft); border-left:3px solid var(--accent); padding:4px 0 4px 12px;}
+  .why b{color:var(--ink);}
+  .why .wrong{list-style:none; margin:8px 0 4px; padding:0; display:flex; flex-direction:column; gap:3px;}
+  .why .wrong .x{font-family:"Spline Sans Mono",monospace; color:var(--bad); font-weight:600;}
+  .why .wrong em{color:var(--pin); font-style:normal; font-size:12.5px;}
+  .why .cite{display:block; margin-top:6px; font-size:12px; color:var(--ink-soft);}
+  .q.reveal .why{display:block;}
+
+  /* submit + results */
+  .submit-row{margin-top:40px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;}
+  .btn{font:inherit; font-weight:600; border:none; border-radius:10px; padding:12px 26px; cursor:pointer; background:var(--accent); color:#fff;}
+  :root[data-theme="dark"] .btn{color:#0E1A19;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#0E1A19;} }
+  .btn.ghost{background:transparent; color:var(--accent-ink); border:1.5px solid var(--accent);}
+  .btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+  .unanswered-note{font-size:13.5px; color:var(--bad);}
+
+  .results{display:none; margin-top:48px; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:26px 26px 20px;}
+  .results.show{display:block;}
+  .score-line{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
+  .big-score{font-family:"Spline Sans Mono",monospace; font-size:52px; font-weight:600; line-height:1;}
+  .big-score small{font-size:20px; color:var(--ink-soft); font-weight:400;}
+  .verdict{font-weight:700; font-size:16px; padding:4px 12px; border-radius:6px;}
+  .verdict.pass{color:var(--good); background:var(--good-soft);}
+  .verdict.fail{color:var(--bad); background:var(--bad-soft);}
+  .score-sub{font-size:13.5px; color:var(--ink-soft); margin-top:6px;}
+  .dbars{margin-top:22px; display:flex; flex-direction:column; gap:12px;}
+  .dbar-label{display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;}
+  .dbar-label b{font-weight:600;}
+  .dbar-label span{font-family:"Spline Sans Mono",monospace; color:var(--ink-soft);}
+  .dbar{height:10px; border-radius:5px; background:var(--line); overflow:hidden;}
+  .dbar i{display:block; height:100%; background:var(--accent); border-radius:5px; transition:width .5s;}
+  .dbar i.weak{background:var(--bad);}
+  .ts-table{width:100%; border-collapse:collapse; margin-top:18px; font-size:13px;}
+  .ts-table th,.ts-table td{text-align:left; padding:5px 8px; border-bottom:1px solid var(--line);}
+  .ts-table td.n{font-family:"Spline Sans Mono",monospace; text-align:right; white-space:nowrap;}
+  .ts-table tr.low td{color:var(--bad);}
+  .focus{margin-top:12px; font-size:13.5px;}
+  .copybox{width:100%; min-height:220px; margin-top:10px; font:12px "Spline Sans Mono",monospace; background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:10px; display:none;}
+  .copybox.show{display:block;}
+  .results .hint{font-size:13.5px; color:var(--ink-soft); margin-top:20px; border-top:1px dashed var(--line); padding-top:12px;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+
+  /* exam screen (2026-11-01, docs/superpowers/specs/2026-11-01-exam-layout-and-public-repo-design.md): while a paper is live
+     (body.staged), one question at a time, scenario + question grid on the left. A graded paper drops back to the full review layout above. */
+  .stage-aside, .qnav, .gridbtn, .strike{display:none;}
+  .gridbtn{font:600 13px "Instrument Sans",sans-serif; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:3px 10px; cursor:pointer;}
+  .gridbtn:focus-visible, .qnav button:focus-visible, .cell:focus-visible, .strike:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  body.staged{height:100vh; height:100dvh; display:flex; flex-direction:column; overflow:hidden;}
+  body.staged .bar{position:static;}
+  body.staged .bar-in{max-width:none;}
+  body.staged .gridbtn{display:inline-block;}
+  body.staged .wrap{max-width:none; padding:0; flex:1; min-height:0; display:flex; flex-direction:column;}
+  body.staged .stage{flex:1; min-height:0; display:grid; grid-template-columns:minmax(280px, 36%) 1fr;}
+  body.staged .stage-aside{display:flex; flex-direction:column; min-height:0; background:var(--surface); border-right:1px solid var(--line); padding:24px 24px 20px;}
+  .sc-scroll{flex:1 1 auto; min-height:0; overflow:auto;}
+  .sc-kicker{font:600 11.5px "Spline Sans Mono",monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--pin);}
+  .sc-title{font-size:22px; line-height:1.25; margin:6px 0 14px;}
+  .sc-body p{margin:0 0 12px; font-size:15px;}
+  .sc-details > summary{cursor:pointer;}
+  body.staged .q-pane{overflow:auto; padding:28px clamp(16px, 4vw, 48px) 24px; display:flex; flex-direction:column;}
+  body.staged #exam{max-width:760px; width:100%;}
+  body.staged #exam .domain{margin-top:0;}
+  body.staged #exam .domain-head, body.staged #exam .block-intro, body.staged #exam .scenario:not(.ts){display:none;}
+  body.staged #exam .q{display:none; margin-top:0;}
+  body.staged #exam .q.current{display:block;}
+  body.staged .qnav{display:flex; gap:10px; align-items:center; margin-top:auto; padding-top:24px; max-width:760px;}
+  .qnav .grow{flex:1;}
+  .qnav button{font:600 14px "Instrument Sans",sans-serif; border-radius:8px; padding:8px 16px; cursor:pointer; border:1px solid var(--line); background:var(--surface); color:var(--ink);}
+  .qnav button.next{background:var(--accent); border-color:var(--accent); color:#fff;}
+  :root[data-theme="dark"] .qnav button.next{color:#0E1A19;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .qnav button.next{color:#0E1A19;} }
+  .qnav button:disabled{opacity:.4; cursor:default;}
+  .strike-hint{font-size:12.5px; color:var(--ink-soft); margin:14px 0 0; max-width:760px;}
+  body.staged .submit-row{margin-top:16px;}
+  .strike-hint{display:none;} body.staged .strike-hint{display:block;}
+
+  /* strikethrough: right-click an option (X on a focused option, ⊘ on touch screens); crossing out never answers */
+  .opts li{display:flex; gap:6px; align-items:flex-start;}
+  .opts li > .opt{flex:1;}
+  .opt.struck > span:last-child{text-decoration:line-through; text-decoration-thickness:1.5px; color:var(--ink-soft); opacity:.6;}
+  .opt.struck .letter{opacity:.5;}
+  .strike{flex-shrink:0; min-width:32px; min-height:32px; margin-top:4px; border:1px solid var(--line); background:transparent; color:var(--ink-soft); border-radius:6px; font-size:13px; padding:2px 8px; cursor:pointer; opacity:.45;}
+  .strike:hover, .strike:focus-visible, .strike[aria-pressed="true"]{opacity:1;}
+  .strike[aria-pressed="true"]{color:var(--pin); border-color:var(--pin); background:var(--pin-soft);}
+  body.staged .q:not(.locked) .strike{display:inline-block;}
+  @media (pointer:coarse){ .strike{opacity:1;} }
+
+  /* question grid: one row per block (or domain), under the scenario. body[data-grid]: "auto" = shown except on phones;
+     "open"/"closed" = the reader's own choice, from the Questions button */
+  .grid-panel{flex-shrink:0; margin-top:20px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px; container-type:inline-size;}
+  body[data-grid="closed"] .grid-panel{display:none;}
+  .grid-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; color:var(--ink-soft); margin-bottom:8px;}
+  .grid-row{display:flex; align-items:center; gap:8px; margin-top:6px;}
+  .grid-row-label{width:24px; font-size:11px; color:var(--ink-soft); flex-shrink:0;}
+  .cells{display:grid; grid-template-columns:repeat(15, 1fr); gap:4px; flex:1;}
+  .cell{position:relative; height:28px; border-radius:6px; border:1px solid var(--line); background:var(--surface); font:600 11.5px "Spline Sans Mono",monospace; color:var(--ink-soft); padding:0; cursor:pointer;}
+  .cell:hover{border-color:var(--ink-soft);}
+  .cell.answered{background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink);}
+  .cell.flagged{border-color:var(--pin); box-shadow:inset 0 -3px 0 var(--pin);}
+  .cell.flagged::after{content:""; position:absolute; top:3px; right:3px; width:6px; height:6px; border-radius:50%; background:var(--pin);}
+  .cell.current{outline:2px solid var(--ink); outline-offset:1px;}
+  .cell.current:focus-visible{outline-color:var(--accent);}
+  .legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:12px; font-size:12px; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .legend i{width:14px; height:14px; border-radius:4px; border:1px solid var(--line); background:var(--surface);}
+  .legend i.answered{background:var(--accent-soft); border-color:var(--accent);}
+  .legend i.flagged{border-color:var(--pin); box-shadow:inset 0 -2px 0 var(--pin);}
+  .legend i.current{outline:2px solid var(--ink); outline-offset:1px;}
+  @container (max-width:420px){
+    .cells{grid-template-columns:repeat(8, 1fr); gap:3px;} .cell{height:24px;}
+    .grid-row{align-items:flex-start; margin-top:4px;} .grid-head{flex-direction:column; gap:2px;} .legend{margin-top:8px;}
+  }
+  /* mid-size or short screens: pinning the grid would squeeze the passage, so the whole left pane scrolls */
+  @media (min-width:761px) and (max-width:1100px), (min-width:761px) and (max-height:720px){
+    body.staged .stage-aside{display:block; overflow:auto;}
+    .sc-scroll{overflow:visible;}
+  }
+  /* phones: stacked, scenario collapsible above the question, grid hidden until asked for */
+  @media (max-width:760px){
+    body.staged{height:auto; overflow:visible; display:block;}
+    body.staged .bar{position:sticky;} /* the page scrolls on phones, so keep the timer in view */
+    body.staged .wrap, body.staged .stage{display:block;}
+    body.staged .stage-aside{display:block; border-right:none; border-bottom:1px solid var(--line); padding:14px 16px;}
+    .sc-scroll{overflow:visible;}
+    .sc-title{font-size:18px; margin:4px 0 8px;}
+    body[data-grid="auto"] .grid-panel{display:none;}
+    .grid-panel{margin-top:12px;}
+    body.staged .q-pane{padding:18px 16px 24px;}
+    body.staged .bar-in{flex-wrap:wrap;}
+    .cells{grid-template-columns:repeat(8, 1fr);}
+  }
+
+  /* print report */
+  .ansline{display:none;}
+  @media print{
+    :root{ --paper:#fff; --surface:#fff; --ink:#111; --ink-soft:#444; --line:#bbb;
+      --accent:#0E6E6B; --accent-soft:#fff; --accent-ink:#0B5754;
+      --good:#2E7D4F; --good-soft:#fff; --bad:#B3372E; --bad-soft:#fff;
+      --pin:#665; --pin-soft:#fff; }
+    body{font-size:11px; line-height:1.4;}
+    .bar, .submit-row, .btn, .hint, .modes, .timer-opt, .copybox, .flag{display:none !important;}
+    .examlive .q.flagged{border-color:#bbb;}
+    .wrap{max-width:none; padding:0;}
+    .results{display:block !important; border:2px solid #111; page-break-inside:avoid; margin-top:0; padding:14px 18px;}
+    .results::before{content:"Result Report"; display:block; font-family:"Bricolage Grotesque",sans-serif; font-weight:700; font-size:16px; margin-bottom:8px;}
+    header.hero{display:none;}
+    .big-score{font-size:32px;}
+    .ts-table{font-size:10px;}
+    .q{border:1px solid #bbb; border-radius:0; padding:8px 12px 6px; margin-top:8px; page-break-inside:avoid;}
+    .scenario{border:none; padding:0; margin:2px 0 0 30px; background:none;}
+    .opts{gap:3px; margin:6px 0 2px; padding-left:30px;}
+    .opt{border-width:1px; padding:3px 8px; font-size:11px;}
+    .opt.right{border:2px solid var(--good);}
+    .opt.wrong{border:2px dashed var(--bad);}
+    .opt .letter{width:16px; height:16px; font-size:10px;}
+    .q.reveal .ansline{display:block; margin:4px 0 2px 30px; font-size:10.5px; font-weight:600;}
+    .ansline.ok{color:var(--good);} .ansline.miss{color:var(--bad);}
+    .why{margin:4px 0 4px 30px; font-size:10.5px; border-left-width:2px;}
+    .domain{margin-top:18px;} .domain-head h2{font-size:14px;}
+    /* printing mid-paper still prints every question */
+    body.staged{height:auto; display:block; overflow:visible;}
+    body.staged .wrap, body.staged .stage{display:block;}
+    .stage-aside, .qnav, .strike, .strike-hint{display:none !important;}
+    body.staged #exam .q{display:block;} body.staged #exam .domain-head{display:flex;}
+    body.staged #exam .block-intro{display:block;} body.staged #exam .scenario:not(.ts){display:inline-block;}
+    .results:not(.show){display:none !important;} /* an ungraded paper has no report to print */
+    .opt.struck > span:last-child{text-decoration:none; opacity:1; color:inherit;} .opt.struck .letter{opacity:1;}
+  }
+</style>
+
+<div class="bar" id="topbar" style="display:none">
+  <div class="bar-in">
+    <span class="bar-title"></span>
+    <div class="progress" aria-hidden="true"><i id="pfill"></i></div>
+    <span class="count mono" id="pcount"></span>
+    <span class="bar-spacer"></span>
+    <button class="flagnav" id="flagNav" type="button" title="Jump to the next flagged question">⚑ 0 flagged</button>
+    <span class="sr-only" id="flagStatus" role="status"></span>
+    <span class="sr-only" id="qStatus" role="status"></span>
+    <span class="timer mono" id="timer">120:00</span>
+    <button class="gridbtn" id="gridBtn" type="button" aria-controls="gridPanel" aria-expanded="true">Questions ▾</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero" id="hero">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title"></h1>
+    <p id="intro"></p>
+    <div class="facts">
+      <div class="fact"><b id="factCount"></b> questions</div>
+      <div class="fact"><b id="factMins">120</b> minutes (exam mode)</div>
+      <div class="fact">Practice target <b>72% raw</b></div>
+      <div class="fact">Closed book · no AI</div>
+    </div>
+    <p style="margin-top:18px">Read each stem for the failure it describes and the number that sizes it. Two options usually both "work" — the exam wants the proportionate, designed mechanism that closes the stated gap, not the biggest or the smallest one. Option length tells you nothing here.</p>
+    <div class="modes">
+      <button class="mode-btn" id="startExam">
+        <h3>Exam mode</h3>
+        <span>Answer everything, then submit. Feedback and rationales appear only after grading — closest to the real thing.</span>
+      </button>
+      <button class="mode-btn" id="startPractice">
+        <h3>Practice mode</h3>
+        <span>Instant feedback: each answer is graded on the spot with the trap behind every wrong option. Results appear once all questions are answered.</span>
+      </button>
+      <div class="timer-row"><label class="timer-opt"><input type="checkbox" id="useTimer"> Run the <span id="timerMins">120</span>-minute countdown</label></div>
+    </div>
+    <p class="note">Original questions written for this course against the official Exam Guide, the repo notes, and notes/2026-09-docs-delta.md. Every rationale cites its source.</p>
+  </header>
+
+  <div class="stage">
+    <aside class="stage-aside" aria-label="Scenario">
+      <div class="sc-scroll" id="scPane"></div>
+      <div class="grid-panel" id="gridPanel" role="region" aria-label="All questions">
+        <div class="grid-head"><span>All questions</span><span class="mono" id="gridCount"></span></div>
+        <div id="gridRows"></div>
+        <div class="legend">
+          <span><i></i>Not answered</span><span><i class="answered"></i>Answered</span>
+          <span><i class="flagged"></i>Flagged</span><span><i class="current"></i>Current</span>
+        </div>
+      </div>
+    </aside>
+    <div class="q-pane" id="qPane">
+      <main id="exam" style="display:none"></main>
+      <p class="strike-hint">Right-click an option to cross it out (press X on a focused option, or use ⊘ on a touch screen). Crossing out doesn't answer the question.</p>
+      <div class="qnav">
+        <button type="button" id="prevBtn">← Previous</button>
+        <span class="grow"></span>
+        <button type="button" class="next" id="nextBtn">Next →</button>
+      </div>
+      <div class="submit-row" id="submitRow" style="display:none">
+        <button class="btn" id="submitBtn">Grade my exam</button>
+        <span class="unanswered-note" id="unans"></span>
+      </div>
+    </div>
+  </div>
+
+  <section class="results" id="results" aria-live="polite">
+    <div class="score-line">
+      <div class="big-score" id="scoreNum">0<small>%</small></div>
+      <span class="verdict" id="verdict">—</span>
+    </div>
+    <div class="score-sub" id="scoreSub"></div>
+    <div class="dbars" id="dbars"></div>
+    <table class="ts-table" id="tstable"></table>
+    <p class="focus" id="focus"></p>
+    <p class="hint">Scroll back up to review: correct answers are outlined in green, your misses in red, each with the trap behind every wrong option and its source. Copy the results table into chat for /tutor to update your mastery grid and walk your misses one by one.</p>
+    <div class="submit-row" style="margin-top:18px">
+      <button class="btn ghost" id="copyBtn">Copy results for tutor</button>
+      <button class="btn" id="printBtn">Print result report</button>
+      <button class="btn ghost" id="resetBtn">Reset &amp; retake</button>
+    </div>
+    <textarea class="copybox" id="copybox" readonly aria-label="Results as markdown"></textarea>
+  </section>
+</div>
+
+<script>
+const META = {"key":"d2","title":"CCA-F Domain 2 Drill","eyebrow":"Tool Design and MCP Integration · 11 questions","intro":"Eleven exam-style questions on Domain 2, the share of a 60-question paper it carries at 18%. Weighted toward the two objectives that scored 0% on attempt 1: tool descriptions (2.1) and tool_choice and sequencing (2.3). Exam mode, 22 minutes, matches the real per-question pace.","defaultMode":"exam","timerDefault":true,"minutes":22,"storageKey":"ccaf-d2-drill"};
+const Q = [{"id":"D01","ts":"2.1","s":"cs","bp":{"rank":1},"q":"Your support agent has two MCP tools: lookup_order, described as 'Looks up an order', and search_orders, described as 'Searches orders'. Over 2,000 conversations, 9% of lookup_order calls fail validation because the agent passes a customer email or a value like '#A1042' instead of the 10-character order ID. When it does have an email, it rarely uses search_orders. What change most directly addresses the root cause?","o":["Rewrite both descriptions: lookup_order states the exact ID format with an example and says to use search_orders when only an email or name is known; search_orders states its inputs and that it returns candidate IDs","Add server-side normalization to lookup_order that strips '#' and other symbols and, when it receives an email address, quietly runs the search_orders logic itself and returns the first matching order","Add a rule to the system prompt listing every accepted order-ID format and telling the agent to search first whenever the customer mentions an order, then call lookup_order on the ID it gets back","Force tool_choice to search_orders on every turn that mentions an order, so lookup_order is only ever called later on an ID that the search has already returned and confirmed as valid"],"a":0,"why":"Tool descriptions are the primary signal the model uses to choose a tool and shape its input. These descriptions state neither the input format nor when to use one tool versus the other, so the agent guesses. Stating the ID format with an example, and the boundary ('only an email? use search_orders'), fixes both symptoms at the source.","wrong":{"B":{"trap":"symptom-fix","text":"Silently rewriting bad input hides the selection error, and returning the 'first match' for an email can attach the wrong order to the customer. The agent still never learns when search_orders is the right tool."},"C":{"trap":"wrong-problem","text":"Moves tool-selection guidance out of the descriptions and into a keyword-triggered system prompt rule ('whenever the customer mentions an order'). That is the pattern the guide warns can create unintended tool associations, and it forces a search even when a valid ID is already in hand."},"D":{"trap":"over-engineered","text":"Forcing a tool on every order-related turn removes the model's judgment for the many cases where it already has a valid ID, adds a call to each one, and still leaves both descriptions too thin to explain the inputs."}},"cite":"Exam guide §2.1; notes/domain-2 §2.1"},{"id":"D02","ts":"2.2","s":"cs","bp":{"rank":3},"q":"Your process_refund MCP tool returns isError with the text 'Refund failed' for every failure. Refunds above the 500-dollar policy limit always fail this way, and the agent retries them 3 times before telling the customer there is a technical problem and to try again tomorrow. Separately, 6% of refund failures are backend timeouts that succeed on a second attempt. What should the tool return?","o":["A message instructing the agent never to retry process_refund, so that policy rejections stop looping and every refund failure is escalated to a human straight away","isError set to false with the policy text in the result body, so the agent treats the rejection as a normal outcome and reads it out","isError plus an errorCategory, an isRetryable flag, and a description: business errors not retryable, with a customer-facing reason; transient ones retryable","A shorter retry policy for the tool: one automatic retry for every failure, then an apology and a handoff to the escalate_to_human tool if the second attempt fails"],"a":2,"why":"The agent cannot recover well because every failure looks the same. Structured metadata lets it act per category: a business-rule violation is not retryable and carries a customer-friendly explanation (refunds over the limit need approval), while a timeout is transient and worth retrying. One response format serves both cases.","wrong":{"A":{"trap":"symptom-fix","text":"Stops the policy loop but throws away the 6% of timeouts that a single retry would have fixed, and sends them to humans. The real defect, an undifferentiated error, is untouched."},"B":{"trap":"error-suppression","text":"Reporting a failed refund as a success hides the failure from the agent's control flow. The isError flag exists so failures are distinguishable from results."},"D":{"trap":"symptom-fix","text":"Still treats every failure alike: it wastes a retry on every policy rejection and the customer still hears 'technical problem' instead of the actual policy reason."}},"cite":"Exam guide §2.2; notes/domain-2 §2.2"},{"id":"D03","ts":"2.1","s":"ma","bp":{"rank":2},"q":"Your document-analysis subagent has two tools, analyze_content for web pages and analyze_document for uploaded PDFs. Two weeks ago you rewrote both descriptions with input formats, example queries, and a line on when to use each; misrouting fell from 31% to 19% and then stopped improving. In 17 of every 19 remaining misroutes, the coordinator's request contains the phrase 'analyze the content of'. The subagent's system prompt says: 'Whenever content needs analysis, start with your content analysis tool.' What is the most effective next step?","o":["Add four few-shot examples to the system prompt showing web pages routed to analyze_content and PDFs routed to analyze_document","Reword that system prompt line so it names no tool by keyword and leaves the routing to the two rewritten tool descriptions","Merge both tools into a single analyze tool that inspects the input type and then dispatches internally to the right logic","Put a lightweight classifier before the subagent that tags each request as web or PDF and rewrites its wording to match"],"a":1,"why":"The descriptions are already good and the residue is concentrated on one phrase that matches a keyword-sensitive instruction in the system prompt. That instruction is overriding the descriptions. Removing the keyword association fixes the cause directly at zero cost.","wrong":{"A":{"trap":"probabilistic","text":"Examples layered on top of a conflicting instruction leave the conflict in place. The model still sees 'content' mapped to the content tool, and the examples only partly counteract it."},"C":{"trap":"over-engineered","text":"Collapsing two tools hides the selection problem rather than fixing it and discards two clean input contracts. The evidence points at one sentence in the prompt, not at the tool split."},"D":{"trap":"over-engineered","text":"Adds a new component to rewrite requests around a problem that one sentence of the system prompt is causing."}},"cite":"Exam guide §2.1; notes/domain-2 §2.1"},{"id":"D04","ts":"2.1","s":"ma","bp":{"rank":4},"q":"Your analysis subagent has one tool, analyze_document(document, instructions), used for three jobs: pulling statistics, summarizing, and checking whether a source supports a claim. The synthesis step validates each job's output against its own fixed schema, and 14% of claim checks break it because the tool returns free prose instead of a verdict. Its description is already two paragraphs long with examples for all 3 jobs. What is the best redesign?","o":["Add a mode parameter with three allowed values to analyze_document, and describe the output that each mode is expected to produce","Keep the tool and validate each claim-check result in the synthesis step, retrying with the parse error until a verdict comes back","Expand the description again with more claim-check examples, each one showing the exact verdict wording the parser expects","Split it into extract_data_points, summarize_content, and verify_claim_against_source, each with its own output contract"],"a":3,"why":"A generic tool doing three jobs has no stable output contract, so better wording cannot make one of its outputs reliably structured. Splitting into purpose-specific tools gives each job a defined input and output, including a verdict-shaped result for claim checks.","wrong":{"A":{"trap":"symptom-fix","text":"Closest distractor. A mode flag keeps one tool with one loosely typed output and relies on prose to describe three shapes, so the contract is still not defined per job. Splitting is the pattern the guide names."},"B":{"trap":"reactive-too-late","text":"Validation and retry catch the failure after it happens and spend extra calls each time. The ambiguity that produces prose in the first place remains."},"C":{"trap":"wrong-problem","text":"The description is already long. The failure is an output-shape problem caused by one tool serving three purposes, not a selection problem."}},"cite":"Exam guide §2.1"},{"id":"D05","ts":"2.2","s":"ma","bp":{"rank":2},"q":"Your web-search subagent catches every exception and returns an empty result list with a success status. In 8% of research runs, the final report states that 'no published research exists' on a subtopic; logs show each of those was a search API timeout. Other subtopics genuinely return zero results and are reported correctly. What should the search subagent do?","o":["Retry the timeout itself; if it still fails, return an error marked transient with what was tried and any partial results, and keep true empty results as a success","Keep returning empty lists, and have the coordinator re-run every search that comes back with zero results, twice, before the synthesis agent is allowed to write the report","Return a single uniform 'search failed' error for any problem, including empty results, so the coordinator never mistakes a failure for a real answer","Keep retrying each timed-out search until it returns at least one result, so that the coordinator only ever receives non-empty and usable results"],"a":0,"why":"Two things are wrong: a failure is disguised as a success, and the subagent does not attempt its own recovery. Transient failures are retried locally; only what cannot be resolved goes to the coordinator, with the error category, what was attempted, and any partial results. A real zero-hit query remains a valid empty result.","wrong":{"B":{"trap":"reactive-too-late","text":"Treats every genuine empty result as a suspected failure and doubles their cost, while the subagent keeps hiding real timeouts as successes."},"C":{"trap":"error-suppression","text":"Collapses access failures and valid empty results into one generic error, which is the uniform-error pattern the guide says prevents good recovery decisions."},"D":{"trap":"wrong-problem","text":"A subtopic that truly has no sources would never return a result, so the subagent loops forever. 'Non-empty' is not the definition of success."}},"cite":"Exam guide §2.2; notes/domain-2 §2.2"},{"id":"D06","ts":"2.3","s":"ma","bp":{"rank":1},"q":"Your document-analysis subagent has a general fetch_url tool so it can open the papers a source cites, about 40 times per run. In 7% of runs it also fetches news pages and blog posts, which then leak into the analysis as if they were primary documents. A teammate proposes removing the tool and having the coordinator fetch every cited paper instead. What is the best change?","o":["Remove fetch_url and route every cited-paper fetch through the coordinator, which already has web access and can decide each time what counts as a document","Keep fetch_url and add a system prompt instruction that the subagent must fetch only academic papers and must never open news sites or blog posts","Keep fetch_url and add a filter after each call that discards the fetched content if it does not look like a document before analysis starts","Replace fetch_url with a load_document tool that validates the target is a document from an accepted source before fetching it, and describe exactly what it accepts and rejects"],"a":3,"why":"The subagent legitimately needs to open cited papers, often, so the capability stays; what is wrong is that the tool is generic. A constrained replacement that validates document URLs keeps the high-frequency need local while making the misuse impossible.","wrong":{"A":{"trap":"over-engineered","text":"Adds a coordinator round trip to about 40 fetches per run to fix a 7% misuse. Scoped access means keeping the common need local with a narrower tool."},"B":{"trap":"probabilistic","text":"An instruction leaves a general tool in place and hopes the model complies. The guide's fix is to replace the generic tool with a constrained one."},"C":{"trap":"reactive-too-late","text":"The wrong page has already been fetched and paid for before the filter runs, and 'looks like a document' is a heuristic the validated tool does not need."}},"cite":"Exam guide §2.3"},{"id":"D07","ts":"2.3","s":"de","bp":{"rank":4},"q":"Your extraction service offers three schema tools, extract_invoice, extract_receipt, and extract_contract, and the document type is not known before the call. With tool_choice set to auto, 3% of responses are plain text such as 'This appears to be a receipt from a hardware store' and the downstream parser rejects them. The model picks the right tool whenever it does call one. What is the most reliable fix?","o":["Force tool_choice to extract_invoice, since invoices are the most common type, and handle receipts and contracts in a follow-up turn","Add a line to the system prompt saying the model must always respond by calling one of the three extraction tools, never with text","Set tool_choice to any, so the model must call one of the tools while still choosing which schema fits the document","Detect plain-text replies in the parser and re-send those requests with the error text until a tool call is returned"],"a":2,"why":"auto permits a text reply; any requires a tool call but leaves the choice of tool to the model. The model already chooses correctly, so any closes the 3% gap without removing that choice.","wrong":{"A":{"trap":"wrong-problem","text":"Forcing one named tool guarantees a call but to the wrong schema for every receipt and contract. Forced selection is for when you know which tool must run."},"B":{"trap":"probabilistic","text":"An instruction makes text replies rarer but cannot guarantee their absence, which is what a parser needs. tool_choice enforces it at the API."},"D":{"trap":"reactive-too-late","text":"Retries recover failures after the fact and cost an extra call each time, when one parameter change prevents them."}},"cite":"Exam guide §2.3; notes/domain-2 §2.3"},{"id":"D08","ts":"2.3","s":"de","bp":{"rank":3},"q":"Your enrichment pipeline has extract_metadata, lookup_vendor, and classify_spend. lookup_vendor and classify_spend both need the vendor name and amounts that extract_metadata produces, but with tool_choice set to auto, 11% of runs call lookup_vendor first with a vendor name the model guessed. Wrong vendor matches then flow into 2 downstream reports. How should you configure the calls?","o":["Add a numbered instruction to the system prompt: call extract_metadata first, then lookup_vendor, then finally classify_spend","Force extract_metadata on the first request, then handle lookup_vendor and classify_spend in follow-up turns","Set tool_choice to any for every turn, so the model is required to call a tool before it writes any reply","Force tool_choice to extract_metadata on every turn, so that its fields are always present before any enrichment runs"],"a":1,"why":"The prerequisite must be guaranteed to run first, which is what forced selection does. After that turn the metadata exists, and the dependent tools are handled in follow-up turns where the model can choose them.","wrong":{"A":{"trap":"probabilistic","text":"Ordering by instruction is exactly what is failing 11% of the time today. An instruction cannot guarantee sequence."},"C":{"trap":"wrong-problem","text":"any guarantees that some tool is called, not which one, so lookup_vendor can still go first."},"D":{"trap":"over-engineered","text":"Forcing the same tool on every turn means lookup_vendor and classify_spend can never be called. Force only the first step."}},"cite":"Exam guide §2.3"},{"id":"D09","ts":"2.4","s":"dp","bp":{"rank":3},"q":"Your team added a code-intelligence MCP server to the project's .mcp.json; its tool search_code is symbol-aware, spans all 12 company repositories, and returns call sites with file paths. Its description reads 'Searches code.' In 80% of 'find all callers' requests the agent uses the built-in Grep instead and misses callers in other repositories. The server connects and its tools are listed. What should you change?","o":["Expand the search_code description: symbol-aware, covers all 12 repositories, returns call sites with paths, and when to prefer it over Grep","Deny the built-in Grep tool in project settings; search_code is then the only tool the agent can use for any code search","Move the server into each developer's user-scope ~/.claude.json, where its tools load earlier in every session and are offered before Grep is","Expose the repository index as an MCP resource the agent can browse to see the list of repositories before it decides which search tool to use"],"a":0,"why":"Discovery works, so the issue is selection. With a two-word description, the model cannot tell the MCP tool is more capable than Grep. The guide's fix is to describe the MCP tool's capabilities and outputs in detail.","wrong":{"B":{"trap":"over-engineered","text":"Removes a tool that is the right choice for local text search, such as error strings, to compensate for a description problem."},"C":{"trap":"nonexistent-feature","text":"Tools from all configured servers are discovered at connection time and available at the same time. Scope changes who gets the server, not its priority, and shared team tooling belongs in the project scope."},"D":{"trap":"wrong-problem","text":"Resources reduce exploratory calls by showing what data exists. They do not tell the model what search_code can do or when to choose it over Grep."}},"cite":"Exam guide §2.4"},{"id":"D10","ts":"2.5","s":"dp","bp":{"rank":2},"q":"An engineer asks the agent to find every caller of chargeCard in a legacy service with 3,000 files. Grep for 'chargeCard(' finds 6 call sites, but the module payments/index.ts re-exports the function under 2 other names, charge and legacyCharge, and production logs show far more traffic than 6 callers explain. Context budget is tight. What is the best approach?","o":["Use Glob to list every TypeScript file in the service and Read each one in order, so that no indirect call made through any of the aliases is missed","Grep for the broader pattern 'charge' across the whole service, which matches the original name and both aliases in a single search","Read payments/index.ts to list every name the function is exported under, then Grep for each of those names across the whole codebase","Read every file that imports from payments/index.ts and check each one by hand for calls that go through any of the aliased names"],"a":2,"why":"Tracing through a wrapper module is a two-step pattern: first enumerate every exported name, then search for each name. It is complete and costs a handful of targeted searches rather than bulk reads.","wrong":{"A":{"trap":"over-engineered","text":"Reading 3,000 files upfront is exactly the context-exhausting approach incremental exploration avoids."},"B":{"trap":"symptom-fix","text":"'charge' also matches charges, discharge, surcharge and many unrelated strings, which floods context and still needs manual sorting."},"D":{"trap":"wrong-problem","text":"Callers may import through other wrappers, not this file, and reading every importer in full is costly. Search by name first and read only what the search finds."}},"cite":"Exam guide §2.5"},{"id":"D11","ts":"2.5","s":"cc","bp":{"rank":4},"q":"Claude Code must change the timeout in only the third of 4 identical retry stanzas in a 600-line YAML file. Each stanza is byte-for-byte the same, including the lines around it, so Edit fails because its match text is not unique. Claude has retried the same Edit 3 times. What should it do next?","o":["Call Edit with replace_all set to true so the match no longer needs to be unique, then review the diff afterwards","Read the whole file, then Write the full contents back with only the third timeout changed","Use Grep with line numbers to locate the third stanza, then pass that line number to Edit as its target","Run sed through Bash to substitute the new timeout wherever the timeout pattern matches in the YAML file"],"a":1,"why":"Edit needs unique anchor text, and here no unique anchor exists. The documented fallback is Read the full file, then Write the modified content, which lets Claude change exactly one occurrence.","wrong":{"A":{"trap":"wrong-problem","text":"replace_all changes all 4 stanzas when only one should change. Reviewing the diff afterward does not undo that."},"C":{"trap":"nonexistent-feature","text":"Edit matches on text, not line numbers. There is no line-number target to pass."},"D":{"trap":"symptom-fix","text":"A pattern substitution hits every matching line, the same problem as replace_all, and moves a file edit into Bash where it is harder to review."}},"cite":"Exam guide §2.5"}];
+const STATEMENTS = {"1.1":"Agentic loops (stop_reason control flow)","1.2":"Coordinator–subagent orchestration","1.3":"Subagent invocation, context passing, spawning","1.4":"Multi-step workflows: enforcement & handoffs","1.5":"Agent SDK hooks (interception, normalization)","1.6":"Task decomposition strategies","1.7":"Session state, resumption, forking","2.1":"Tool interface design (descriptions, boundaries)","2.2":"Structured error responses for MCP tools","2.3":"Tool distribution & tool_choice","2.4":"MCP server integration (scoping, env vars, resources)","2.5":"Built-in tools (Read/Write/Edit/Bash/Grep/Glob)","3.1":"CLAUDE.md hierarchy & modular organization","3.2":"Custom slash commands & skills","3.3":"Path-specific rules (.claude/rules/ globs)","3.4":"Plan mode vs direct execution","3.5":"Iterative refinement techniques","3.6":"CI/CD integration (-p, --output-format json)","4.1":"Explicit criteria to reduce false positives","4.2":"Few-shot prompting","4.3":"Structured output via tool use + JSON schemas","4.4":"Validation, retry, and feedback loops","4.5":"Batch processing strategies","4.6":"Multi-instance & multi-pass review","5.1":"Context preservation in long interactions","5.2":"Escalation & ambiguity resolution","5.3":"Error propagation in multi-agent systems","5.4":"Context management in large codebase exploration","5.5":"Human review workflows & confidence calibration","5.6":"Provenance & uncertainty in multi-source synthesis"};
+const SCENARIOS = {"cs":"Customer Support Resolution Agent","ma":"Multi-Agent Research System","cc":"Code Generation with Claude Code","de":"Structured Data Extraction","dp":"Developer Productivity with Claude","ci":"Claude Code for CI"};
+const SCENARIO_TEXT = {"cs":["You are building a customer support agent on the Claude Agent SDK. It handles messy requests such as refunds, billing disputes and account problems, and reaches the company’s backend through MCP tools: looking up customers and orders, issuing refunds, and handing a case to a human.","The business wants most issues solved in the first conversation, without the agent acting beyond what it is allowed to decide on its own."],"ma":["You are building a research assistant on the Claude Agent SDK. A coordinator agent receives a research brief, splits it into parts, and hands each part to a specialist subagent: one searches the web, one reads and analyses documents, one combines the findings, and one writes the final report with citations.","Subagents don’t share memory. Each one sees only what the coordinator passes to it, and returns its results to the coordinator."],"cc":["Your team uses Claude Code every day to write new code, refactor, debug and write documentation.","You are deciding how to set it up for the whole team: what goes in CLAUDE.md, which custom commands and skills to share, and when a task needs a plan first instead of going straight to edits."],"dp":["You are building an internal tool on the Claude Agent SDK that helps engineers work in code they don’t know: finding their way around a large or old codebase, generating repetitive code, and automating chores.","The agent works through the built-in tools for reading, searching, editing and running commands, and connects to MCP servers for other systems."],"ci":["Your team runs Claude Code inside its continuous-integration pipeline. On every pull request, a job starts Claude Code with no one at the keyboard. It reviews the change, writes or updates tests, and posts its findings back to the pull request.","The pipeline has to read Claude’s output as data, so the format matters. A run must never stop to wait for input. Developers will start ignoring the bot if it repeats itself or flags things that aren’t real problems."],"de":["You are building a system that pulls structured data out of messy documents such as invoices, forms and reports. Claude’s output must match a JSON schema so that downstream systems can load it without fixing it by hand.","Documents vary a lot, and fields are sometimes missing or contradict each other. The system has to cope with those cases without inventing data."]};
+const DOMAINS = [{"tag":"D1","name":"Agentic Architecture & Orchestration","pct":27},{"tag":"D2","name":"Tool Design & MCP Integration","pct":18},{"tag":"D3","name":"Claude Code Configuration & Workflows","pct":20},{"tag":"D4","name":"Prompt Engineering & Structured Output","pct":20},{"tag":"D5","name":"Context Management & Reliability","pct":15}];
+const SC = SCENARIOS;
+const DOMAIN_OF = (id) => 'D' + String(id).split('.')[0];
+const $ = id => document.getElementById(id);
+
+$('eyebrow').textContent = META.eyebrow;
+$('title').textContent = META.title;
+$('intro').textContent = META.intro;
+$('factCount').textContent = Q.length;
+document.querySelector('.bar-title').textContent = META.title;
+$('useTimer').checked = !!META.timerDefault;
+if (META.defaultMode === 'practice') { const m = document.querySelector('.modes'); m.insertBefore($('startPractice'), $('startExam')); }
+
+let mode = null; // 'exam' | 'practice'
+let answers = new Array(Q.length).fill(null);
+let flags = new Array(Q.length).fill(false);
+let flagCursor = -1;
+let struck = Q.map(() => []); // option indices crossed out, per question
+let cur = null;               // question on screen while the paper is live; null = first in on-screen order
+let order = [];               // question numbers in on-screen order, set by build()
+let graded = false;
+document.body.dataset.grid = 'auto';
+const LIMIT = (META.minutes || 120) * 60;
+$('factMins').textContent = $('timerMins').textContent = LIMIT / 60;
+let timerId = null, remaining = LIMIT;
+let timedSaved = false;
+
+function store(){ try{ localStorage.setItem(META.storageKey, JSON.stringify({mode, answers, flags, struck, cur, graded, remaining, timed: !!timerId})); }catch(e){} }
+function restore(){
+  try{
+    const s = JSON.parse(localStorage.getItem(META.storageKey));
+    if(s && s.mode && Array.isArray(s.answers) && s.answers.length === Q.length){
+      mode = s.mode; answers = s.answers; graded = !!s.graded;
+      if(Array.isArray(s.flags) && s.flags.length === Q.length) flags = s.flags.map(Boolean);
+      if(Array.isArray(s.struck) && s.struck.length === Q.length) struck = s.struck.map(a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < 4))] : []);
+      if(Number.isInteger(s.cur) && s.cur >= 1 && s.cur <= Q.length) cur = s.cur;
+      remaining = (typeof s.remaining === 'number') ? s.remaining : LIMIT;
+      timedSaved = !!s.timed;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function groups() {
+  const items = Q.map((q, i) => ({ q, n: i + 1 }));
+  if (META.blocks) return META.blocks.map((b, i) => ({
+    head: `<span class="dtag">Block ${i + 1}</span><h2>${b.title}</h2>`, intro: b.intro, label: 'S' + (i + 1),
+    items: items.filter(x => x.q.block === b.id) }));
+  return DOMAINS.map(d => ({
+    head: `<span class="dtag">${d.tag}</span><h2>${d.name}</h2>`, meta: `${d.pct}% of exam`, label: d.tag,
+    items: items.filter(x => DOMAIN_OF(x.q.ts) === d.tag) }));
+}
+
+function build(){
+  const main = $('exam');
+  let html = '';
+  order = [];
+  groups().filter(g => g.items.length).forEach(g => {
+    g.items.forEach(({n}) => order.push(n));
+    html += `<section class="domain"><div class="domain-head">${g.head}<span class="dmeta">${g.meta ? g.meta + ' · ' : ''}${g.items.length} questions</span></div>`;
+    if (g.intro) html += `<p class="block-intro">${g.intro}</p>`;
+    g.items.forEach(({q, n}) => {
+      html += `<article class="q" id="q${n}"><div class="q-top"><span class="q-num">${String(n).padStart(2,'0')}</span><span class="q-text" tabindex="-1">${q.q}</span><button class="flag" type="button" data-q="${n}" aria-pressed="false" aria-label="Flag question ${n} for review">⚑ Flag</button></div>`;
+      html += `<span class="scenario">Scenario · ${SC[q.s]}</span> <span class="scenario ts">${q.ts} · ${STATEMENTS[q.ts]}</span><ul class="opts">`;
+      q.o.forEach((opt,i) => {
+        html += `<li><label class="opt" data-q="${n}" data-i="${i}"><input type="radio" name="q${n}" value="${i}"><span class="letter">${'ABCD'[i]}</span><span>${opt}</span></label><button class="strike" type="button" data-q="${n}" data-i="${i}" aria-label="Cross out option ${'ABCD'[i]}">⊘</button></li>`;
+      });
+      const wrong = Object.keys(q.wrong).sort().map(L => `<li><span class="x">✗ ${L}</span> <em>${q.wrong[L].trap}</em> — ${q.wrong[L].text}</li>`).join('');
+      html += `</ul><div class="ansline" id="al${n}"></div><div class="why"><b>Answer: ${'ABCD'[q.a]}.</b> ${q.why}<ul class="wrong">${wrong}</ul><span class="cite">Source: ${q.cite}</span></div></article>`;
+    });
+    html += `</section>`;
+  });
+  main.innerHTML = html;
+  main.addEventListener('change', onChange);
+  main.addEventListener('click', (e) => {
+    const s = e.target.closest('.strike');
+    if (s) { toggleStrike(parseInt(s.dataset.q, 10), parseInt(s.dataset.i, 10)); return; }
+    const b = e.target.closest('.flag'); if (!b || graded) return;
+    const n = parseInt(b.dataset.q, 10); flags[n-1] = !flags[n-1]; renderFlags(); store();
+  });
+  main.addEventListener('contextmenu', (e) => {
+    const o = e.target.closest('.opt'); if (!o || o.closest('.q').classList.contains('locked')) return;
+    e.preventDefault(); toggleStrike(parseInt(o.dataset.q, 10), parseInt(o.dataset.i, 10));
+  });
+  main.addEventListener('keydown', (e) => {
+    if (e.key !== 'x' && e.key !== 'X') return;
+    const o = e.target.closest('.opt'); if (!o || o.closest('.q').classList.contains('locked')) return;
+    e.preventDefault(); toggleStrike(parseInt(o.dataset.q, 10), parseInt(o.dataset.i, 10));
+  });
+}
+
+function toggleStrike(n, i){
+  if (graded || $('q'+n).classList.contains('locked') || answers[n-1] === i) return; // the chosen option can't be crossed out
+  const s = struck[n-1], k = s.indexOf(i);
+  if (k >= 0) s.splice(k, 1); else s.push(i);
+  renderQ(n); store();
+}
+
+function onChange(e){
+  const input = e.target;
+  if(input.name && input.name.startsWith('q')){
+    const n = parseInt(input.name.slice(1),10);
+    if(graded || (mode==='practice' && answers[n-1]!==null)) { renderQ(n); return; }
+    answers[n-1] = parseInt(input.value,10);
+    renderQ(n);
+    updateProgress();
+    store();
+    if(mode==='practice' && answers.every(a => a!==null)) { graded = true; showResults(true, false); store(); }
+  }
+}
+
+// --- exam screen: one question at a time while the paper is live ---
+const isPhone = () => matchMedia('(max-width:760px)').matches;
+function setStaged(){
+  const live = !!mode && !graded;
+  document.body.classList.toggle('staged', live);
+  if (live) show(cur);
+}
+function show(n){
+  if (!$('q'+n)) n = order[0];
+  cur = n;
+  document.querySelectorAll('#exam .q.current').forEach(el => el.classList.remove('current'));
+  $('q'+n).classList.add('current');
+  const newScenario = renderScenario(false); renderGrid();
+  const k = order.indexOf(n);
+  $('prevBtn').disabled = k <= 0;
+  $('nextBtn').disabled = k >= order.length - 1;
+  $('qStatus').textContent = `Question ${k + 1} of ${order.length}`;
+  $('qPane').scrollTop = 0;
+  // Phones scroll the page, not the pane: show the new scenario from its top, else the new question just under the bar.
+  if (isPhone()) window.scrollTo(0, newScenario ? 0 : Math.max(0, $('qPane').getBoundingClientRect().top + window.scrollY - $('topbar').offsetHeight));
+  else window.scrollTo(0, 0);
+}
+function go(n){
+  if (!$('q'+n)) return;
+  show(n); store();
+  $('q'+n).querySelector('.q-text').focus({preventScroll:true}); // keyboard and screen-reader users land on the new question
+}
+let scKey = null; // what the scenario pane shows; rebuilt only when it changes, so a collapsed phone panel stays collapsed
+function renderScenario(force){
+  const q = Q[cur-1], blocks = META.blocks || [];
+  const bi = blocks.findIndex(b => b.id === q.block), b = blocks[bi];
+  const key = `${b ? 'b' + b.id : 's' + q.s}|${isPhone()}`;
+  if (key === scKey && !force) return false;
+  scKey = key;
+  const kicker = b ? `Scenario ${bi + 1} of ${blocks.length}` : 'Scenario';
+  const title = b ? b.title : SC[q.s];
+  const body = b && b.intro ? `<p>${b.intro}</p>` : (SCENARIO_TEXT[q.s] || []).map(p => `<p>${p}</p>`).join('');
+  const head = `<div class="sc-kicker">${kicker}</div><h2 class="sc-title">${title}</h2>`;
+  $('scPane').innerHTML = isPhone()
+    ? `<details class="sc-details" open><summary>${head}</summary><div class="sc-body">${body}</div></details>`
+    : `${head}<div class="sc-body">${body}</div>`;
+  $('scPane').scrollTop = 0;
+  return true;
+}
+function renderGrid(){
+  if (!document.body.classList.contains('staged')) return;
+  $('gridRows').innerHTML = groups().filter(g => g.items.length).map(g =>
+    `<div class="grid-row"><span class="grid-row-label mono">${g.label}</span><div class="cells">` +
+    g.items.map(({n}) => {
+      const cls = ['cell', answers[n-1] !== null && 'answered', flags[n-1] && 'flagged', n === cur && 'current'].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" data-n="${n}" aria-label="Question ${n}, ${answers[n-1] !== null ? 'answered' : 'not answered'}${flags[n-1] ? ', flagged' : ''}"${n === cur ? ' aria-current="true"' : ''}>${n}</button>`;
+    }).join('') + `</div></div>`).join('');
+  $('gridCount').textContent = `${answers.filter(a => a !== null).length} of ${Q.length} answered`;
+  syncGridBtn();
+}
+const gridShown = () => getComputedStyle($('gridPanel')).display !== 'none';
+const syncGridBtn = () => $('gridBtn').setAttribute('aria-expanded', String(gridShown()));
+
+function renderQ(n){
+  const q = Q[n-1], el = $('q'+n), picked = answers[n-1];
+  const showFeedback = graded || (mode==='practice' && picked!==null);
+  el.classList.toggle('reveal', showFeedback);
+  el.classList.toggle('locked', showFeedback);
+  const al = $('al'+n);
+  if(al){
+    if(showFeedback && picked!==null){
+      const ok = picked===q.a;
+      al.textContent = ok ? `Your answer: ${'ABCD'[picked]} — Correct ✓` : `Your answer: ${'ABCD'[picked]} ✗ — Correct answer: ${'ABCD'[q.a]}`;
+      al.className = 'ansline ' + (ok?'ok':'miss');
+    } else if(showFeedback){
+      al.textContent = `Not answered — Correct answer: ${'ABCD'[q.a]}`;
+      al.className = 'ansline miss';
+    }
+  }
+  el.querySelectorAll('.opt').forEach(opt => {
+    const i = parseInt(opt.dataset.i,10);
+    const radio = opt.querySelector('input');
+    radio.checked = (i===picked);
+    radio.disabled = showFeedback;
+    opt.classList.toggle('sel', i===picked && !showFeedback);
+    const isStruck = !showFeedback && i!==picked && struck[n-1].includes(i); // the chosen option never shows crossed out
+    opt.classList.toggle('struck', isStruck);
+    const sb = opt.parentElement.querySelector('.strike');
+    sb.setAttribute('aria-pressed', String(isStruck));
+    sb.setAttribute('aria-label', `${isStruck ? 'Restore' : 'Cross out'} option ${'ABCD'[i]}`);
+    opt.classList.toggle('right', showFeedback && i===q.a);
+    opt.classList.toggle('wrong', showFeedback && i===picked && picked!==q.a);
+  });
+}
+
+function updateProgress(){
+  const done = answers.filter(a=>a!==null).length;
+  $('pfill').style.width = (done/Q.length*100)+'%';
+  $('pcount').textContent = done+' / '+Q.length;
+  $('unans').textContent = (mode==='exam' && done<Q.length) ? (Q.length-done)+' unanswered' : '';
+  renderGrid();
+}
+
+function renderFlags(){
+  const live = mode==='exam' && !graded;
+  $('exam').classList.toggle('examlive', live);
+  $('flagNav').style.display = live ? 'inline-block' : 'none';
+  $('flagNav').textContent = '⚑ ' + flags.filter(Boolean).length + ' flagged';
+  $('flagStatus').textContent = live ? flags.filter(Boolean).length + ' flagged for review' : '';
+  for(let n=1;n<=Q.length;n++){
+    const el = $('q'+n); if(!el) continue;
+    el.classList.toggle('flagged', flags[n-1]);
+    el.querySelector('.flag').setAttribute('aria-pressed', String(flags[n-1]));
+  }
+  renderGrid();
+}
+function nextFlag(){
+  const on = flags.map((f,i)=>f?i:-1).filter(i=>i>=0); if(!on.length) return;
+  const i = on.find(j=>j>flagCursor); flagCursor = (i===undefined) ? on[0] : i;
+  if (document.body.classList.contains('staged')) go(flagCursor+1);
+  const b = $('q'+(flagCursor+1)).querySelector('.flag');
+  b.scrollIntoView({block:'center'}); b.focus({preventScroll:true});
+}
+
+function fmt(s){ const m=Math.floor(s/60), ss=s%60; return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
+function startTimer(){
+  $('timer').style.display='inline-block';
+  $('timer').textContent = fmt(remaining);
+  timerId = setInterval(()=>{
+    remaining--;
+    if(remaining<=0){ clearInterval(timerId); grade(true); return; }
+    $('timer').textContent = fmt(remaining);
+    $('timer').classList.toggle('low', remaining<600);
+    if(remaining%15===0) store();
+  },1000);
+  store();
+}
+
+function begin(m, withTimer){
+  mode = m; $('hero').style.display='none';
+  $('topbar').style.display='block';
+  $('exam').style.display='block';
+  if(mode==='exam' && !graded) $('submitRow').style.display='flex';
+  build();
+  for(let n=1;n<=Q.length;n++) renderQ(n);
+  setStaged();
+  updateProgress();
+  renderFlags();
+  if(mode==='exam' && withTimer && !graded) startTimer();
+  if(graded) showResults(false);
+  store();
+}
+
+function grade(timedOut){
+  if(graded) return;
+  graded = true;
+  if(timerId){ clearInterval(timerId); timerId=null; }
+  $('timer').style.display='none';
+  $('submitRow').style.display='none';
+  for(let n=1;n<=Q.length;n++) renderQ(n);
+  renderFlags();
+  showResults(true, timedOut);
+  store();
+}
+
+function showResults(scrollTo, timedOut){
+  setStaged();
+  const correct = answers.reduce((c,a,i)=> c + (a===Q[i].a ? 1:0), 0);
+  const pct = Math.round(correct/Q.length*1000)/10;
+  $('scoreNum').innerHTML = pct + '<small>%</small>';
+  const above = correct/Q.length >= 0.72;
+  const v = $('verdict');
+  v.textContent = above ? 'AT OR ABOVE 72% RAW' : 'BELOW 72% RAW';
+  v.className = 'verdict ' + (above?'pass':'fail');
+  $('scoreSub').textContent = (timedOut?'Time expired — graded automatically. ':'') + `${correct} of ${Q.length} correct (raw). The real exam reports a scaled score whose mapping is unpublished, so this is not a pass/fail prediction.`;
+
+  // domain bars from task-statement prefixes
+  const bars = DOMAINS.map(d => { let c=0,t=0; Q.forEach((q,i)=>{ if(DOMAIN_OF(q.ts)!==d.tag) return; t++; if(answers[i]===q.a) c++; }); return {d,c,t,pct:t?c/t:0}; }).filter(b=>b.t>0);
+  const sorted=[...bars].sort((a,b)=>a.pct-b.pct);
+  const weak = new Set(sorted.slice(0,2).map(b=>b.d.tag));
+  $('dbars').innerHTML = bars.map(b=>`<div><div class="dbar-label"><b>${b.d.tag} · ${b.d.name}${weak.has(b.d.tag)&&b.pct<1?' — focus here':''}</b><span>${b.c} / ${b.t}</span></div><div class="dbar"><i class="${weak.has(b.d.tag)&&b.pct<1?'weak':''}" style="width:${b.pct*100}%"></i></div></div>`).join('');
+
+  // per-statement table + focus list
+  const per = {}; Q.forEach((q,i)=>{ const p = per[q.ts] || (per[q.ts]={c:0,t:0}); p.t++; if(answers[i]===q.a) p.c++; });
+  const weight = ts => (DOMAINS.find(d=>d.tag===DOMAIN_OF(ts))||{pct:0}).pct;
+  const rows = Object.keys(per).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  const ranked = [...rows].sort((a,b)=> (per[a].c/per[a].t) - (per[b].c/per[b].t) || weight(b)-weight(a));
+  const focus = ranked.filter(ts=>per[ts].c<per[ts].t).slice(0,5);
+  $('tstable').innerHTML = `<tr><th>Statement</th><th></th><th>Score</th></tr>` + rows.map(ts=>`<tr class="${per[ts].c<per[ts].t?'low':''}"><td class="n">${ts}</td><td>${STATEMENTS[ts]}</td><td class="n">${per[ts].c} / ${per[ts].t}</td></tr>`).join('');
+  $('focus').innerHTML = focus.length ? `<b>Focus next:</b> ${focus.map(ts=>`${ts} ${STATEMENTS[ts]}`).join(' · ')}` : '<b>Every statement clean.</b>';
+
+  // copy-for-tutor markdown
+  const date = new Date().toISOString().slice(0,10);
+  $('copybox').value = `## ${META.key} results — ${date}\nRaw ${pct}% · ${correct}/${Q.length} correct\n\n| Q | Statement | Picked | Correct | Result |\n|---|---|---|---|---|\n` +
+    Q.map((q,i)=>`| ${q.id} | ${q.ts} | ${answers[i]===null?'—':'ABCD'[answers[i]]} | ${'ABCD'[q.a]} | ${answers[i]===q.a?'✓':'✗'} |`).join('\n') + '\n';
+
+  $('results').classList.add('show');
+  if(scrollTo) $('results').scrollIntoView({behavior:'smooth'});
+}
+
+$('startExam').addEventListener('click', ()=> begin('exam', $('useTimer').checked));
+$('startPractice').addEventListener('click', ()=> begin('practice', false));
+$('submitBtn').addEventListener('click', ()=>{
+  const open = Q.length - answers.filter(a=>a!==null).length, flagged = flags.filter(Boolean).length;
+  const warn = [open ? open+' question'+(open>1?'s are':' is')+' still unanswered' : '', flagged ? flagged+' question'+(flagged>1?'s are':' is')+' still flagged for review' : ''].filter(Boolean);
+  // always confirm: on the exam screen the button sits just under Next, and grading can't be undone
+  if(!confirm(warn.length ? warn.join(' and ')+' — grade anyway?' : 'Grade the paper now? You won\'t be able to change your answers.')) return;
+  grade(false);
+});
+$('copyBtn').addEventListener('click', async ()=>{
+  const box = $('copybox'); box.classList.add('show');
+  try { await navigator.clipboard.writeText(box.value); $('copyBtn').textContent = 'Copied — paste into chat'; }
+  catch(e){ box.focus(); box.select(); $('copyBtn').textContent = 'Select all + copy from the box below'; }
+});
+$('flagNav').addEventListener('click', nextFlag);
+$('prevBtn').addEventListener('click', ()=> go(order[order.indexOf(cur) - 1]));
+$('nextBtn').addEventListener('click', ()=> go(order[order.indexOf(cur) + 1]));
+$('gridRows').addEventListener('click', (e)=>{ const c = e.target.closest('.cell'); if (c) go(parseInt(c.dataset.n, 10)); });
+$('gridBtn').addEventListener('click', ()=>{ document.body.dataset.grid = gridShown() ? 'closed' : 'open'; syncGridBtn(); });
+matchMedia('(max-width:760px)').addEventListener('change', ()=>{ if (document.body.classList.contains('staged')) renderScenario(true); syncGridBtn(); });
+$('printBtn').addEventListener('click', ()=> window.print());
+$('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Clear all answers and start over?')) return;
+  try{ localStorage.removeItem(META.storageKey); }catch(e){}
+  location.reload();
+});
+
+if(restore() && mode){ begin(mode, timedSaved && !graded); }
+</script>

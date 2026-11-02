@@ -1,0 +1,377 @@
+<title>Domain 4 — Prompt Engineering & Structured Output</title>
+<style>
+  :root {
+    --paper: #F4F5F8;
+    --panel: #FFFFFF;
+    --ink: #171A21;
+    --ink-soft: #4A5061;
+    --ink-faint: #838a9c;
+    --line: #E2E5EC;
+    --accent: #4A54D6;
+    --accent-soft: #ECEDFB;
+    --good: #16794C;
+    --good-soft: #E4F2EA;
+    --bad: #C0433B;
+    --bad-soft: #F8E7E5;
+    --shadow: 0 1px 2px rgba(20,22,30,.04), 0 12px 34px rgba(20,22,30,.09);
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0E1016; --panel: #171A22; --ink: #EDEFF5; --ink-soft: #AEB4C4;
+      --ink-faint: #757c8e; --line: #262A35; --accent: #8B93F2; --accent-soft: #21243A;
+      --good: #5CC38C; --good-soft: #16271F; --bad: #E88178; --bad-soft: #2B1B1A;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 16px 40px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F4F5F8; --panel: #FFFFFF; --ink: #171A21; --ink-soft: #4A5061;
+    --ink-faint: #838a9c; --line: #E2E5EC; --accent: #4A54D6; --accent-soft: #ECEDFB;
+    --good: #16794C; --good-soft: #E4F2EA; --bad: #C0433B; --bad-soft: #F8E7E5;
+    --shadow: 0 1px 2px rgba(20,22,30,.04), 0 12px 34px rgba(20,22,30,.09);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E1016; --panel: #171A22; --ink: #EDEFF5; --ink-soft: #AEB4C4;
+    --ink-faint: #757c8e; --line: #262A35; --accent: #8B93F2; --accent-soft: #21243A;
+    --good: #5CC38C; --good-soft: #16271F; --bad: #E88178; --bad-soft: #2B1B1A;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 16px 40px rgba(0,0,0,.45);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--sans); -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .deck {
+    max-width: 900px; margin: 0 auto; padding: 24px 20px 96px;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+
+  /* progress rail */
+  .rail { display: flex; gap: 5px; margin-bottom: 22px; }
+  .rail button {
+    flex: 1; height: 4px; border: 0; padding: 0; border-radius: 99px;
+    background: var(--line); cursor: pointer; transition: background .2s;
+  }
+  .rail button[data-on="1"] { background: var(--accent); }
+  .rail button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .stage { flex: 1; display: flex; }
+  .slide { display: none; width: 100%; flex-direction: column; justify-content: center; }
+  .slide[data-active="1"] { display: flex; }
+  @media (prefers-reduced-motion: no-preference) {
+    .slide[data-active="1"] { animation: rise .38s cubic-bezier(.2,.7,.2,1); }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); font-weight: 600;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .eyebrow .tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+    color: var(--bad); background: var(--bad-soft); border-radius: 5px;
+    padding: 3px 8px; text-transform: none; font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(30px, 6vw, 52px); line-height: 1.04; margin: 0 0 18px;
+    letter-spacing: -.02em; text-wrap: balance; font-weight: 800;
+  }
+  h2 {
+    font-size: clamp(24px, 4.6vw, 38px); line-height: 1.1; margin: 0 0 18px;
+    letter-spacing: -.02em; text-wrap: balance; font-weight: 780;
+  }
+  .lede { font-size: clamp(16px, 2.4vw, 20px); color: var(--ink-soft); line-height: 1.5; max-width: 60ch; }
+  .lede strong { color: var(--ink); font-weight: 680; }
+
+  /* title slide */
+  .title-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .chip {
+    font-family: var(--mono); font-size: 13px; color: var(--ink-soft);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 12px; box-shadow: var(--shadow);
+  }
+  .chip b { color: var(--accent); font-weight: 700; }
+
+  /* the rule slide */
+  .rule {
+    font-size: clamp(24px, 4.4vw, 40px); line-height: 1.18; font-weight: 760;
+    letter-spacing: -.015em; text-wrap: balance; margin: 0 0 22px;
+  }
+  .rule em { font-style: normal; color: var(--accent); }
+
+  /* contrast block */
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 26px; }
+  @media (max-width: 620px) { .vs { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 18px 20px; box-shadow: var(--shadow); position: relative;
+  }
+  .card .k {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; font-weight: 700; margin-bottom: 10px;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .card.trap { border-color: color-mix(in srgb, var(--bad) 34%, var(--line)); }
+  .card.trap .k { color: var(--bad); }
+  .card.fix { border-color: color-mix(in srgb, var(--good) 34%, var(--line)); }
+  .card.fix .k { color: var(--good); }
+  .card p { margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--ink); }
+  .card p + p { margin-top: 9px; color: var(--ink-soft); font-size: 14px; }
+  .card code, .lede code, li code {
+    font-family: var(--mono); font-size: .88em; background: var(--accent-soft);
+    color: var(--accent); padding: 1.5px 5px; border-radius: 5px; font-weight: 600;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 99px; display: inline-block; }
+  .dot.b { background: var(--bad); } .dot.g { background: var(--good); }
+
+  .picked {
+    margin-top: 22px; font-size: 14px; color: var(--ink-soft); line-height: 1.5;
+    padding: 12px 16px; border-left: 3px solid var(--bad); background: var(--bad-soft);
+    border-radius: 0 8px 8px 0;
+  }
+  .picked b { color: var(--bad); font-family: var(--mono); font-size: 13px; }
+
+  /* memorize facts */
+  .facts { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0 4px; }
+  .fact {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px 15px; box-shadow: var(--shadow); flex: 1 1 168px;
+  }
+  .fact .n { font-size: 20px; font-weight: 800; letter-spacing: -.01em; color: var(--accent); font-family: var(--mono); }
+  .fact .l { font-size: 13px; color: var(--ink-soft); margin-top: 4px; line-height: 1.35; }
+
+  /* recap table */
+  .tbl { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+  .trow { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--line); }
+  .trow:first-child { border-top: 0; }
+  .trow > div { padding: 12px 15px; font-size: 14px; line-height: 1.42; }
+  .trow .t { color: var(--ink-soft); background: var(--bad-soft); }
+  .trow .f { color: var(--ink); font-weight: 560; }
+  .trow .t::before { content: "✕ "; color: var(--bad); font-weight: 700; }
+  .trow .f::before { content: "✓ "; color: var(--good); font-weight: 700; }
+  .thead { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+  .thead .t, .thead .f { background: var(--panel); color: var(--ink-faint); font-weight: 700; }
+  .thead .t::before, .thead .f::before { content: ""; }
+
+  ul.plain { margin: 16px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 11px; }
+  ul.plain li { font-size: 15.5px; line-height: 1.45; padding-left: 26px; position: relative; color: var(--ink); }
+  ul.plain li::before {
+    content: ""; position: absolute; left: 4px; top: 8px; width: 7px; height: 7px;
+    border-radius: 99px; background: var(--accent);
+  }
+  ul.plain li span { color: var(--ink-soft); }
+
+  /* nav bar */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0; background: color-mix(in srgb, var(--paper) 86%, transparent);
+    backdrop-filter: blur(10px); border-top: 1px solid var(--line);
+  }
+  .nav-in { max-width: 900px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .count { font-family: var(--mono); font-size: 13px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .count b { color: var(--ink); }
+  .btns { display: flex; gap: 8px; }
+  .nav button {
+    font-family: var(--sans); font-size: 14px; font-weight: 600; color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 9px;
+    padding: 9px 16px; cursor: pointer; box-shadow: var(--shadow); transition: transform .12s, border-color .2s;
+  }
+  .nav button:hover { border-color: var(--accent); }
+  .nav button:active { transform: translateY(1px); }
+  .nav button:disabled { opacity: .4; cursor: default; }
+  .nav button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .domain-map { display: flex; gap: 6px; margin-top: 22px; flex-wrap: wrap; }
+  .dm { font-family: var(--mono); font-size: 12px; padding: 6px 10px; border-radius: 7px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); }
+  .dm b { color: var(--ink); }
+  .dm.miss { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); color: var(--bad); background: var(--bad-soft); }
+</style>
+
+<div class="deck">
+  <div class="rail" id="rail" role="tablist" aria-label="Slides"></div>
+
+  <div class="stage">
+    <!-- 1 -->
+    <section class="slide" data-active="1">
+      <div class="eyebrow">CCA Foundations · Domain 4</div>
+      <h1>Prompt Engineering &amp; Structured Output</h1>
+      <p class="lede">The domain that decides your score. It carries <strong>20% of the exam</strong>, and your diagnostic landed at <strong>3 of 6</strong> — the biggest weighted gap you have.</p>
+      <div class="title-meta">
+        <span class="chip"><b>20%</b> exam weight</span>
+        <span class="chip"><b>6</b> task statements</span>
+        <span class="chip"><b>3</b> missed at baseline</span>
+      </div>
+      <div class="domain-map">
+        <span class="dm"><b>4.1</b> criteria</span>
+        <span class="dm"><b>4.2</b> few-shot</span>
+        <span class="dm miss"><b>4.3</b> schemas</span>
+        <span class="dm miss"><b>4.4</b> retry</span>
+        <span class="dm miss"><b>4.5</b> batch</span>
+        <span class="dm"><b>4.6</b> review</span>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide">
+      <div class="eyebrow">The through-line · read this twice</div>
+      <p class="rule">When two options both seem to work, pick the <em>designed mechanism</em> — not machinery, and not "tell the model to try harder."</p>
+      <p class="lede">Structural and deterministic beats probabilistic. A schema keyword, a config expansion, or one feedback line beats a new service or a sterner instruction. <strong>This single idea explains all three of your D4 misses.</strong></p>
+    </section>
+
+    <!-- 3 · 4.1 -->
+    <section class="slide">
+      <div class="eyebrow">4.1 · Explicit criteria</div>
+      <h2>Cut false positives with categories, not confidence</h2>
+      <p class="lede">A model's self-assessed confidence is <strong>not calibrated</strong>. "Be conservative" and "only report high-confidence findings" do not improve precision.</p>
+      <div class="vs">
+        <div class="card trap"><div class="k"><span class="dot b"></span>Trap</div>
+          <p>"Report only issues you're highly confident about."</p>
+          <p>Doubles down on the uncalibrated signal that already failed.</p></div>
+        <div class="card fix"><div class="k"><span class="dot g"></span>Instinct</div>
+          <p>Name the <b>categories</b>: report bugs &amp; security, skip style &amp; local patterns.</p>
+          <p>A noisy category poisons trust in accurate ones — disable it while you fix its prompt.</p></div>
+      </div>
+    </section>
+
+    <!-- 4 · 4.2 -->
+    <section class="slide">
+      <div class="eyebrow">4.2 · Few-shot prompting</div>
+      <h2>Show 2–4 examples — with the reasoning</h2>
+      <p class="lede">When detailed instructions still produce inconsistent output, targeted examples are the strongest fix. Examples that show <strong>why</strong> one action beats the alternatives let the model generalize judgment to new inputs.</p>
+      <div class="vs">
+        <div class="card trap"><div class="k"><span class="dot b"></span>Trap</div>
+          <p>Rewrite the prose longer and more precise; enumerate every case you've seen.</p>
+          <p>More prose is still prose; enumeration only pattern-matches the past.</p></div>
+        <div class="card fix"><div class="k"><span class="dot g"></span>Instinct</div>
+          <p>2–4 input→output pairs for the <b>ambiguous</b> cases, each showing the reasoning.</p>
+          <p>Fixes format drift, null-on-odd-formats, and extraction hallucination.</p></div>
+      </div>
+    </section>
+
+    <!-- 5 · 4.3 MISSED -->
+    <section class="slide">
+      <div class="eyebrow">4.3 · Structured output <span class="tag">you missed this · Q21</span></div>
+      <h2>Required fields make the model fabricate</h2>
+      <p class="lede">A <code>required</code> field for data that may not exist forces the model to invent a plausible value. Make genuinely-absent fields <strong>nullable / optional</strong> so <code>null</code> is a legal answer.</p>
+      <div class="vs">
+        <div class="card trap"><div class="k"><span class="dot b"></span>Trap</div>
+          <p>Tell the model to write the string <code>"NONE"</code> when the PO number is missing.</p>
+          <p>Sentinel leaks into downstream data and still fights <code>required</code>.</p></div>
+        <div class="card fix"><div class="k"><span class="dot g"></span>Instinct</div>
+          <p>Make <code>po_number</code> nullable in the schema.</p>
+          <p>Enums: add <code>"unclear"</code> / <code>"other"</code>. And remember — <code>tool_use</code> kills <em>syntax</em> errors, never <em>semantic</em> ones.</p></div>
+      </div>
+      <p class="picked"><b>You picked B</b> — the "NONE" instruction. That's fixing a schema problem at the prompt layer. The schema is the mechanism.</p>
+    </section>
+
+    <!-- 6 · 4.4 MISSED -->
+    <section class="slide">
+      <div class="eyebrow">4.4 · Validation &amp; retry <span class="tag">you missed this · Q22</span></div>
+      <h2>Retry = resend with the error attached</h2>
+      <p class="lede">A useful retry sends the document <strong>plus the failed extraction plus the specific validation error</strong>, so the model can self-correct the exact failure. Format and structural errors are precisely what this fixes.</p>
+      <div class="vs">
+        <div class="card trap"><div class="k"><span class="dot b"></span>Trap</div>
+          <p>Strip the failing field from the schema, then re-add it in a later pass.</p>
+          <p>A two-pass pipeline redesign for something one feedback line fixes.</p></div>
+        <div class="card fix"><div class="k"><span class="dot g"></span>Instinct</div>
+          <p>Resend with the validation error appended.</p>
+          <p>Limit: retries fix format/structure — they <b>cannot</b> conjure information that isn't in the document.</p></div>
+      </div>
+      <p class="picked"><b>You picked D</b> — schema surgery. Reach for the one-line feedback loop before rebuilding the pipeline.</p>
+    </section>
+
+    <!-- 7 · 4.5 MISSED -->
+    <section class="slide">
+      <div class="eyebrow">4.5 · Batch API <span class="tag">you missed this · Q23</span></div>
+      <h2>Batch trades latency for cost — memorize the terms</h2>
+      <div class="facts">
+        <div class="fact"><div class="n">50%</div><div class="l">cheaper than sync</div></div>
+        <div class="fact"><div class="n">≤ 24h</div><div class="l">window · <b>no</b> latency SLA</div></div>
+        <div class="fact"><div class="n">custom_id</div><div class="l">correlates req ↔ resp</div></div>
+        <div class="fact"><div class="n">no tools</div><div class="l">no mid-request tool calls</div></div>
+      </div>
+      <p class="lede" style="margin-top:18px">No SLA means <strong>latency-tolerant work only</strong> — overnight reports, weekly audits. Never a blocking pre-merge check a developer waits on.</p>
+      <p class="picked"><b>You picked D</b> — batch both with a sync fallback. That's machinery. Just match each workflow to the right API: nightly → batch, blocking → sync.</p>
+    </section>
+
+    <!-- 8 · 4.6 -->
+    <section class="slide">
+      <div class="eyebrow">4.6 · Multi-instance review</div>
+      <h2>A model can't review its own work</h2>
+      <p class="lede">The instance that generated the code keeps its reasoning context and won't seriously question its own decisions. Stronger prompts and more thinking budget <strong>don't fix this</strong> — the bias is contextual.</p>
+      <ul class="plain">
+        <li>Dispatch an <b>independent instance</b> with no generation context for the review. <span>Fresh eyes catch the concurrency bug the author approved.</span></li>
+        <li>Large PRs: <b>per-file passes</b> for local issues + a separate <b>cross-file integration pass</b>. <span>Fixes attention dilution.</span></li>
+        <li>A bigger context window does not fix attention <em>quality</em>. <span>Consensus voting can suppress real intermittent catches.</span></li>
+      </ul>
+    </section>
+
+    <!-- 9 · recap -->
+    <section class="slide">
+      <div class="eyebrow">Recap · trap → instinct</div>
+      <h2>The eight reflexes to carry into the exam</h2>
+      <div class="tbl">
+        <div class="trow thead"><div class="t">The tempting trap</div><div class="f">The correct instinct</div></div>
+        <div class="trow"><div class="t">"Be conservative / high-confidence only"</div><div class="f">Explicit categorical criteria; mute noisy categories</div></div>
+        <div class="trow"><div class="t">Required field for maybe-absent data</div><div class="f">Nullable / optional — required causes fabrication</div></div>
+        <div class="trow"><div class="t"><code>tool_choice:"auto"</code> when a call is mandatory</div><div class="f"><code>"any"</code>, or force a specific tool</div></div>
+        <div class="trow"><div class="t">Retry when the info isn't in the document</div><div class="f">Retry only fixes format / structure errors</div></div>
+        <div class="trow"><div class="t">Batch API for a blocking pre-merge check</div><div class="f">Sync API; batch only for latency-tolerant work</div></div>
+        <div class="trow"><div class="t">Schema compliant = data correct</div><div class="f">Schema kills syntax only; add semantic checks</div></div>
+        <div class="trow"><div class="t">Bigger window to fix a messy 14-file review</div><div class="f">Multi-pass: per-file + integration</div></div>
+        <div class="trow"><div class="t">Self-review in the same session</div><div class="f">Independent second instance</div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-in">
+    <span class="count"><b id="cur">1</b> / <span id="tot">9</span></span>
+    <div class="btns">
+      <button id="prev">← Prev</button>
+      <button id="next" class="primary">Next →</button>
+    </div>
+  </div>
+</nav>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const rail = document.getElementById('rail');
+  const cur = document.getElementById('cur');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  document.getElementById('tot').textContent = slides.length;
+  let i = 0;
+
+  slides.forEach((_, n) => {
+    const b = document.createElement('button');
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-label', 'Slide ' + (n + 1));
+    b.addEventListener('click', () => go(n));
+    rail.appendChild(b);
+  });
+  const dots = Array.from(rail.children);
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.setAttribute('data-active', k === i ? '1' : '0'));
+    dots.forEach((d, k) => d.setAttribute('data-on', k <= i ? '1' : '0'));
+    cur.textContent = i + 1;
+    prev.disabled = i === 0;
+    next.disabled = i === slides.length - 1;
+  }
+  prev.addEventListener('click', () => go(i - 1));
+  next.addEventListener('click', () => go(i + 1));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { go(i + 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(i - 1); e.preventDefault(); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End') go(slides.length - 1);
+  });
+  go(0);
+</script>

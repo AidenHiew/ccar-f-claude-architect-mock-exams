@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 30 — Does it show Claude the right answer?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  dl.words { margin: 1rem 0 1.6rem; }
+  dl.words dt { font-weight: 700; margin-top: .7rem; }
+  dl.words dd { margin: .15rem 0 0 1.2rem; }
+  .check { background: var(--code-bg); border-radius: 6px; padding: .8rem 1rem; margin: 1rem 0 1.4rem; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .85rem; line-height: 1.4; }
+  .pair > div { border: 1px solid var(--rule); border-radius: 6px; padding: .8rem .9rem; }
+  .pair h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 .5rem; }
+  .pair .row { display: flex; justify-content: space-between; gap: .5rem; border: 1px solid var(--rule); border-radius: 5px; padding: .3rem .5rem; margin: .3rem 0; }
+  .pair .bad { background: #fbe3e1; }
+  .pair .good { background: var(--good-bg); }
+  .pair .verdict { margin: .6rem 0 0; font-weight: 600; }
+  .pair code { font-size: .8rem; }
+  @media (max-width: 40rem) { .pair { grid-template-columns: 1fr; } }
+  @media print { .pair .row, .check { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 30 · Domain 3 · Task statement 3.5, with one card on 4.2 (the exam is split into 5 domains, its main topic areas, and each domain into numbered task statements)</p>
+  <h1>Does it show Claude the right answer?</h1>
+  <p class="subtitle">In late October you lost 3 questions in a row the same way: Claude's output was wrong, the developer knew the right output, and you picked a test or a check over showing Claude the right output. This page shows all 3 in full, plus 1 question from the other topic (4.2). You don't need to remember any of them.</p>
+  <p><strong>3.5</strong> is the exam guide's topic number for improving Claude's work round by round in Claude Code (the official guide lists what the exam tests). <strong>4.2</strong> is putting examples in a prompt. They are your last 2 weak topics.</p>
+
+  <p><strong>The plain question.</strong> When Claude keeps getting an answer wrong and you know the right answer: does this option <em>show</em> Claude the right answer, or does it only <em>tell</em> Claude it got it wrong?</p>
+
+  <p><strong>An everyday example.</strong> A new cashier keeps giving the wrong change.</p>
+  <ul>
+    <li>You could check: "Is the change made of coins and notes?" Every wrong answer passes. The check is real, but it can't spot the problem.</li>
+    <li>You could say "wrong" each time. Now the cashier knows <em>that</em> it's wrong, but still not what right is.</li>
+    <li>Or you show them: "$20 for a $13.40 bill: $6.60 back. $10 for $7.25: $2.75 back." Now they can see the pattern.</li>
+  </ul>
+
+  <blockquote class="key">
+    <strong>The one idea:</strong> if the right outputs are known and words keep failing, pick the option that hands Claude real inputs with their exact right outputs, for the inputs that are going wrong.<ul><li>A check on the shape (a valid code, a format pattern, all fields filled) passes on wrong answers.</li><li>Tests on inputs that already work miss the problem.</li><li>Tests first are right when there are many listed cases or a speed target: then you need a check you can re-run after every new version.</li></ul>
+  </blockquote>
+
+  <h2>Words to start with</h2>
+  <dl class="words">
+    <dt>Stem</dt><dd>The question's own text, above the four options.</dd>
+    <dt>Input/output examples</dt><dd>A few real inputs, each with the exact output it should become. They show Claude the change instead of describing it.</dd>
+    <dt>A check on the shape</dt><dd>A test that looks at what kind of output it is, not whether it is the right one: "is it one of the 8 codes?", "does it match the format pattern?", "are all 3 fields filled?" A wrong answer of the right kind passes.</dd>
+    <dt>Tests first, share the failures</dt><dd>Write a set of automatic checks for what the code must do before Claude changes it. Run them on each new version and paste the failures back to Claude, until all pass.</dd>
+    <dt>Regular expression</dt><dd>A pattern that text must match, such as "letter, digit, dash". It checks the format only.</dd>
+    <dt>JSON schema check</dt><dd>A check that the output has the right fields of the right types. Again, the shape only.</dd>
+    <dt>Prose</dt><dd>Ordinary written sentences, here: describing the format in words.</dd>
+  </dl>
+  <p><strong>Words that appear in the past questions</strong> (you need these only to read them):</p>
+  <ul>
+    <li><em>Carrier:</em> a delivery company. <em>Tracking update:</em> a status message such as "OUT FOR DEL" (out for delivery). <em>Status code:</em> the company's own fixed label for each status.</li>
+    <li><em>Bay:</em> a section of library shelving. <em>flr:</em> floor.</li>
+    <li><em>Pre-existing condition:</em> an illness a pet had before its insurance began. <em>Assessor:</em> a person who checks insurance claims. <em>Overturn:</em> decide the flag was wrong.</li>
+  </ul>
+
+  <h2>Part 1 · A check, or the right answer? (3.5)</h2>
+  <div class="pair" aria-label="Diagram: the same wrong output passing a shape check, while an input/output example shows the right answer">
+    <div>
+      <h3>A check on the shape</h3>
+      <p class="row bad"><code>"OUT FOR DEL"</code><span>→ <code>DELIVERED</code></span></p>
+      <p class="row good"><span>Is it one of the 8 codes?</span><span>✓ pass</span></p>
+      <p class="verdict">The wrong answer passes. Claude learns nothing.</p>
+    </div>
+    <div>
+      <h3>An input/output example</h3>
+      <p class="row good"><code>"OUT FOR DEL"</code><span>→ <code>OUT_FOR_DELIVERY</code></span></p>
+      <p class="row good"><code>"With driver - final mile"</code><span>→ <code>OUT_FOR_DELIVERY</code></span></p>
+      <p class="verdict">Claude sees what right looks like and copies the pattern.</p>
+    </div>
+  </div>
+  <p>(The codes in the diagram are made up.)</p>
+  <p>Ask three things of each option, in this order:</p>
+  <ol class="steps">
+    <li><strong>Does the stem say the right outputs are known?</strong> ("has the correct result", "knows the right code", "knows the right split")</li>
+    <li><strong>Does this option contain them?</strong> Real inputs, each with its exact output. A check on the shape doesn't.</li>
+    <li><strong>Is it about the inputs that are going wrong?</strong> Not the ones that already work.</li>
+  </ol>
+  <p>Your picks on the 3 cards in this part each fail one of these. The first 2 fail step 2; the third fails step 3.</p>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 5, 26 Oct, question 4</p>
+  <p class="mc-stem">A developer asked Claude for a function that turns free-text shelf locations from 9 branches, such as &quot;2nd flr, bay 14 L&quot; and &quot;Level 2 / Bay 14 / left&quot;, into one standard format. <mark>After 3 rounds of describing the target format in prose</mark>, each new version still formats some branches' locations differently. <mark>The developer has the correct result for each branch's style of location</mark>. What should they give Claude next?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A test that checks each output matches the format's regular expression</div><div class="mc-k"><b>✓ Correct: C</b>3 raw locations, each with the exact output the function should return</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>A longer prose description of the target format, part by part</span></li><li><span class="mc-l">B</span><span>Questions from Claude about each branch before it rewrites the code</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The two clues: words have failed 3 times, and the developer already has the right result for each style. So what Claude is missing is a picture of the right answer.</li><li>The test (your pick) checks that each output <em>matches the format</em>. A location can match the format exactly and still say "right" when the shelf is on the left. The test can say pass or fail; it can't show Claude which answer is right.</li><li>C hands Claude 3 real locations with the exact output each should become. That is the right answer, shown.</li></ul></div>
+</section>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 6, question 1</p>
+  <p class="mc-stem">A developer asked Claude for a function that maps tracking updates from 6 carriers, such as &quot;OUT FOR DEL&quot; and &quot;With driver - final mile&quot;, to the company's 8 status codes. After 2 rounds of prose corrections, <mark>each output is one of the 8 codes, but about 1 in 10 is the wrong one</mark>, and which carriers go wrong changes with each version. <mark>The developer knows the right code for each carrier's updates</mark>. What should they give Claude next?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A test that checks each result is one of the 8 valid status codes</div><div class="mc-k"><b>✓ Correct: C</b>4 raw carrier updates, each with the exact status code it should map to</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A fuller prose description of what each of the 8 status codes means</span></li><li><span class="mc-l">D</span><span>Questions from Claude about each carrier before it rewrites the map</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>Same shape as the shelf-location card above (26 Oct), one day later. The stem even tells you the check would pass: every output is already one of the 8 codes.</li><li>The test (your pick) asks "is this a valid code?" The wrong outputs are valid codes, just the wrong ones. So the test passes on exactly the answers you need fixed.</li><li>C gives 4 real updates, each with the exact code it should become. That carries the knowledge the developer has and Claude lacks.</li></ul></div>
+</section>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 6, question 7</p>
+  <p class="mc-stem">A developer asked Claude Code for a function that splits the owner name on each claim form, such as &quot;Dr and Mrs J. Okafor&quot; or &quot;Okafor, Jane (Ms)&quot;, into title, first name and surname. After 2 rounds of prose corrections, about 1 in 8 names still splits wrongly, <mark>mostly the less common styles</mark>, though each result has all 3 fields filled. <mark>The developer knows the right split for each style</mark>. What should they give Claude next?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>Tests for the 2 most common name styles, then share the failures</div><div class="mc-k"><b>✓ Correct: A</b>3 raw names, each with the exact title, first name and surname</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A JSON schema check that each result fills all 3 name fields</span></li><li><span class="mc-l">C</span><span>A longer prose description of how each name style should split</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>This time the test option did carry real answers, but for the wrong names. The wrong splits are "mostly the less common styles"; tests on the 2 most common styles check names that already work.</li><li>A gives 3 names with their exact title, first name and surname. Pick the 3 that are going wrong and Claude sees exactly what right looks like for them.</li><li>B, the schema check, is the same trap as the valid-code test in the carrier card (Weak Rows Paper 6, question 1): every result already fills all 3 fields, so the wrong splits pass it.</li></ul></div>
+</section>
+
+
+  <div class="check"><strong>The check:</strong> if an option is a test, ask "would the wrong outputs in the stem pass it?" If they would, it can't fix them. If the stem says the developer knows the right answers, look for the option that writes them down.</div>
+
+  <h2>Part 2 · When tests first <em>are</em> right (3.5)</h2>
+  <p>This is the other side of the line: when tests first beat examples.</p>
+  <table class="cgrid">
+    <tr><th>The stem says</th><th>Pick</th><th>Why examples lose</th></tr>
+    <tr><td>Many listed cases (for example, 11 pricing rules a team has written down) plus a speed target (for example, the function must answer within 50 milliseconds)</td><td>Write tests for the cases and the speed first, then share failures each round</td><td>3 examples can't cover 11 rules, and an example never measures speed.</td></tr>
+    <tr><td>Words keep failing, the right outputs are known, a few styles go wrong</td><td>2–3 inputs with their exact outputs</td><td>—</td></tr>
+  </table>
+  <p>One more point: a test that <em>does</em> carry an exact output is really an input/output example written as a test. The exam guide lists test cases that pair a concrete input with its expected output as a fix for edge cases (unusual inputs the code mishandles), for instance a migration script (a script that copies data from an old table into a new one) that mishandles empty (null) values. So don't reject an option for saying "test". Reject it if it only checks the shape, or if it checks the wrong inputs.</p>
+
+  <h2>Part 3 · One 4.2 card: rules before examples</h2>
+  <p>On the prompt side you went the other way in the same paper: examples, when the rules weren't written yet.</p>
+  <table class="cgrid">
+    <tr><th>What the stem shows</th><th>Add to the prompt</th></tr>
+    <tr><td>Only a vague line ("flag likely pre-existing conditions"), and an exact definition exists but isn't in the prompt</td><td>The definition: what counts. (Topic 4.1 is writing these rules in place of a vague line.)</td></tr>
+    <tr><td>Rules written (for example, a list of 7 or 11 rules), and new cases still slip past</td><td>2–4 hard cases, each with the answer and the reason</td></tr>
+  </table>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 6, question 8</p>
+  <p class="mc-stem">Assessors want each claim flagged when the condition may have started before the policy did. <mark>The prompt says only &quot;flag likely pre-existing conditions&quot;</mark>. The insurer's policy wording <mark>defines this exactly</mark>: signs recorded in the pet's history before the start date, or in the first 14 days of cover. Assessors overturn 40% of the flags. What should you add to the prompt first?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>3 hard claims, each marked flag or no flag, with the reason for the call</div><div class="mc-k"><b>✓ Correct: A</b>The policy wording: signs before cover began or in its first 14 days</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>A step that sends each flagged claim to an assessor before it is paid</span></li><li><span class="mc-l">D</span><span>A rule to flag a claim only when the model is highly confident</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>On 4.2 you swung the other way: examples, when the rules weren't written yet. The prompt has one vague line, and the insurer has an exact definition that isn't in it.</li><li>The order is: no rules → write the rules (A). Rules written and cases still slip past → 2–4 hard cases with the reason (your pick, one step too early).</li></ul></div>
+</section>
+
+
+  <h2>Summary</h2>
+  <table class="cgrid">
+    <tr><th>If the stem says…</th><th>Pick</th><th>Not</th></tr>
+    <tr><td>Words failed; the right outputs are known</td><td>Real inputs with their exact outputs, for the ones going wrong</td><td>A check on the shape; tests on inputs that already work; more prose</td></tr>
+    <tr><td>Many listed cases, a speed target</td><td>Tests first, share failures</td><td>3 examples (too few, no speed)</td></tr>
+    <tr><td>A test option gives an input and its exact expected output</td><td>Fine: it is an example</td><td>—</td></tr>
+    <tr><td>Prompt has only a vague line; a definition exists</td><td>Write the definition in</td><td>Hard-case examples (one step too early)</td></tr>
+    <tr><td>Rules tried, cases still slip past</td><td>2–4 hard cases with the reason</td><td>Another rule</td></tr>
+  </table>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>Claude maps carrier updates to 8 status codes. Every output is one of the 8 codes, but 1 in 10 is the wrong code. Why can't a test that checks "is it one of the 8 codes?" fix this?</li>
+    <li>When would you pick tests first over 3 input/output examples?</li>
+  </ol>
+
+  <h2>Five new practice questions</h2>
+  <p>Before you read the options, ask: are the right outputs known? Then: which option shows them, for the inputs that go wrong? After you answer, a short explanation appears under the question.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If a test option and an examples option both look right, bring the question and we'll ask "would the wrong outputs pass this test?" together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> the official exam guide (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 3.5, 4.1, 4.2.<br>
+    <strong>Course notes:</strong> <a href="../notes/domain-3-claude-code-config.md">notes/domain-3-claude-code-config.md</a> §3.5 · <a href="../notes/domain-4-prompt-engineering.md">notes/domain-4-prompt-engineering.md</a> §4.1 and §4.2.<br>
+    <strong>Miss history:</strong> learning records 0048 (Weak Rows Paper 5) and 0049 (Weak Rows Paper 6).<br>
+    <strong>Previous:</strong> <a href="0029-tests-questions-or-examples.html">Lesson 29 — Tests, questions or examples?</a> · <a href="0027-write-down-the-line-or-show-hard-cases.html">Lesson 27 — Write down the line, or show the hard cases?</a> · <a href="0013-io-examples.html">Lesson 13 — Input/output examples</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A developer asked Claude for a function that turns dates from 5 booking systems, such as \"03/04/2026\" and \"4 Mar 26\", into one date format. After 2 rounds of describing the systems in words, every output is a valid date in the right format, but about 1 in 12 has the day and month swapped. The developer knows the right date for each system's style. What should they give Claude next?",
+    opts: [
+      "A test that checks each output is a valid date in the right format",
+      "4 raw dates from the systems that go wrong, each with the exact date",
+      "A longer description of which systems put the day before the month",
+      "Questions from Claude about each booking system before it rewrites"
+    ],
+    ok: 1,
+    fb: "The right dates are known, and every wrong output is already a valid date in the right format, so A would pass them all. B shows the exact right date for the inputs going wrong. C is more of the words that already failed twice. D asks about things the developer already knows."
+  },
+  {
+    stem: "Claude is rewriting a tax function. The finance team has listed 16 rules it must follow, including tax-free items, a $75 threshold and rounding to the cent on each line. It must also return within 30 ms for an invoice with 500 lines. The current version breaks 3 of the 16 rules. How should the developer drive the rewrite?",
+    opts: [
+      "Give Claude 3 invoices, each with the exact tax it should come to",
+      "Have Claude ask them about the tax rules before it changes the code",
+      "Write tests for the 16 rules and the 30 ms limit, then share failures",
+      "Describe the 3 broken rules in more detail in one long prose message"
+    ],
+    ok: 2,
+    fb: "16 listed rules plus a speed target: tests first, run every round, failures pasted back. A's 3 invoices can't cover 16 rules and never measure speed. B asks about rules the finance team has already listed. D is more prose."
+  },
+  {
+    stem: "A developer asked Claude to turn free-text phone numbers into one international format. After 2 rounds of corrections in words, local mobile numbers come out right, but numbers with an extension, such as \"(08) 9555 1234 ext 12\", and numbers written with a +61 prefix still come out wrong. The developer knows the right result for each. What should they give Claude next?",
+    opts: [
+      "Tests for 5 local mobile numbers, each with the exact result expected",
+      "A check that each output starts with + and is 12 to 15 characters long",
+      "3 numbers with an extension or a +61 prefix, each with its exact result",
+      "A fuller description of the target format, with each part explained"
+    ],
+    ok: 2,
+    fb: "The right results are known, and only the extension and +61 numbers go wrong. C shows exact results for exactly those. A carries exact results too, but for local mobiles, which already work. B is a check on the shape that wrong numbers can pass. D is more words."
+  },
+  {
+    stem: "Claude wrote a migration script that copies 40,000 customer rows into a new table. It works on most rows, but rows with an empty (null) phone number come out with the text \"null\" in the new phone field. The developer knows what each such row should become. What should they give Claude?",
+    opts: [
+      "A test case: a row with a null phone, and the exact row it should become",
+      "A test that checks the new table has 40,000 rows after the migration",
+      "A longer description of how empty values should be treated in general",
+      "Plan mode (Claude plans first and edits nothing until you approve)"
+    ],
+    ok: 0,
+    fb: "A is a test, and it is right: it carries a real input (a null-phone row) and its exact expected output. That is an input/output example written as a test, and the exam guide names this case. B checks the row count, which the broken script already gets right. C is prose. D plans from the same misunderstanding."
+  },
+  {
+    stem: "A claims prompt says only \"flag claims that may be fraud\". Assessors overturn 45% of the flags. The fraud team has a written list of 6 signs it acts on, such as a claim made within 7 days of the policy starting, but the list isn't in the prompt. What should you add to the prompt first?",
+    opts: [
+      "3 hard claims, each marked fraud or not fraud, with the reason why",
+      "A step that sends each flagged claim to the fraud team for a check",
+      "A line asking the model to flag only when it is very sure of fraud",
+      "The fraud team's 6 signs, as the rules for when to flag a claim"
+    ],
+    ok: 3,
+    fb: "No rules are written yet: one vague line, and the team's 6 signs aren't in the prompt. Write them in first. A is the next step, once rules exist and hard cases still slip past. B isn't a prompt change. C asks the model to flag only when it feels very sure, which doesn't make flags more precise; written rules do."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10 — Who gets which tools, and when they must call one</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .turns { font-family: var(--sans); font-size: .88rem; border-left: 3px solid var(--rule); margin: 1.2rem 0 1.6rem; padding-left: 1rem; }
+  .turns .t { margin: .55rem 0; }
+  .turns .t code { font-size: .78rem; }
+  .turns .bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 10 · Domain 2 · Task statement 2.3</p>
+  <h1>Who gets which tools, and when they must call one</h1>
+  <p class="subtitle">Scope the tool set per agent. Then use <code>tool_choice</code> per request, not per pipeline.</p>
+
+  <blockquote class="key">
+    The one question for every 2.3 sequencing stem: <strong>does the API make this step happen first, or am I only asking nicely, and is the force still on after the step is done?</strong>
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> You're teaching someone a recipe. The onions have to be chopped before anything goes in the pan. You could write "chop first" at the top of the recipe. Usually that works, but sometimes they start frying anyway. Or you could stand beside them and hand over only the knife until the onions are done. That guarantees the order. But if you keep handing over only the knife after the onions are chopped, they can never pick up the pan, and dinner never happens. Force the first step, then hand the kitchen back.</p>
+
+  <p>In the API, "hand over only the knife" is <code>tool_choice</code> naming one tool. It is set on <em>each request</em>, and an agent loop sends a new request after every tool result. So you can force turn one and switch back to <code>auto</code> afterwards.</p>
+
+  <p><strong>Where this has cost you points:</strong> the two misses below are the two opposite mistakes.</p>
+  <table class="cgrid">
+    <tr><th>Where</th><th>What you picked</th><th>What goes wrong</th><th>What the right answer did</th></tr>
+    <tr><td>D2 drill, 8 Oct, Q4</td><td>List the order in the prompt, keep <code>auto</code></td><td>"Chop first" written at the top. That was already the thing failing.</td><td>Force <code>extract_metadata</code> on turn one only</td></tr>
+    <tr><td>D2 drill, 9 Oct, Q8</td><td>Force <code>extract_metadata</code> on every turn</td><td>Knife only, forever. The next tools are never allowed.</td><td>Force turn one, then <code>auto</code></td></tr>
+    <tr><td>Real exam, Sept (this objective: 0%)</td><td colspan="2">Question details aren't released. The objective covers forcing a tool call and ordering prerequisite calls.</td><td>Sections 2–3 below</td></tr>
+  </table>
+  <p>Exception, kept for last: if a tool call must happen but the model should choose <em>which</em> tool (for example, one of three extraction schemas), use <code>any</code>, not a named tool. Section 2 has all four settings. Section 1 starts with a different question: which tools each agent should have at all.</p>
+
+  <h2>1 · Fewer tools, chosen for the role</h2>
+  <p>Lesson 9 showed that every tool's description goes into the prompt on every turn. Each extra tool is one more candidate the model has to rule out. The exam guide states the result: giving an agent 18 tools instead of 4–5 makes it pick the right one less reliably, because it has more options to weigh, and agents given tools outside their specialization tend to misuse them, for example a synthesis agent that starts running web searches (guide §2.3). Anthropic's tool-writing guide says the same from the other side: <em>"too many tools or overlapping tools can also distract agents"</em> (<a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing effective tools for agents</a>).</p>
+
+  <p>The guide gives three moves. Each one keeps what the agent needs and removes what it can misuse:</p>
+  <table class="cgrid">
+    <tr><th>Move</th><th>When the stem shows</th><th>Guide example</th></tr>
+    <tr><td><strong>Scope</strong> each agent to its role's tools</td><td>An agent with many tools using some outside its job</td><td>4–5 tools per subagent, not 18</td></tr>
+    <tr><td><strong>Add a narrow cross-role tool</strong> for a frequent need, and send the rare complex cases through the coordinator</td><td>Frequent round trips to the coordinator for simple lookups</td><td><code>verify_fact</code> for the synthesis agent (85% simple checks); the 15% that need deep research still go through the coordinator</td></tr>
+    <tr><td><strong>Constrain</strong> a generic tool</td><td>A needed tool used for things it should not do</td><td><code>fetch_url</code> → <code>load_document</code> that validates document URLs (drill Q6, which you got right)</td></tr>
+  </table>
+  <p>Look at what the wrong answers do instead: give everything to everyone ("to be safe"), take the tool away entirely so every use becomes a coordinator round trip, or keep the tool and add an instruction. The guide's answer sits in the middle: <strong>least privilege, with the frequent case kept local</strong>.</p>
+
+  <h2>2 · The four <code>tool_choice</code> settings</h2>
+  <p>From <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools#forcing-tool-use">Define tools · Forcing tool use</a>:</p>
+  <table class="cgrid">
+    <tr><th>Setting</th><th>The model must…</th><th>Use when</th></tr>
+    <tr><td><code>{"type": "auto"}</code></td><td>decide: call a tool, or reply in text. Default when tools are provided</td><td>Conversation, where a text reply is sometimes the right answer</td></tr>
+    <tr><td><code>{"type": "any"}</code></td><td>call <em>one of</em> the tools; it picks which</td><td>A text reply would break the downstream step, and the model should choose among several schemas (drill Q7)</td></tr>
+    <tr><td><code>{"type": "tool", "name": "x"}</code></td><td>call <em>exactly</em> tool x</td><td>You know which step must happen now, such as a prerequisite</td></tr>
+    <tr><td><code>{"type": "none"}</code></td><td>not call any tool. Default when no tools are provided</td><td>A turn that must be text only</td></tr>
+  </table>
+  <p>One detail that shows up in distractors: with <code>any</code> or <code>tool</code>, the API prefills the assistant turn to force the tool call, so the model <em>"will not emit a natural language response or explanation before <code>tool_use</code> content blocks, even if explicitly asked to do so."</em> If you need an explanation as well as the call, use <code>auto</code> and ask for the tool in the user message.</p>
+
+  <h2>3 · Sequencing: force the first step, then hand back the choice</h2>
+  <p>This is the half of objective 29 you missed. The key fact is that <strong><code>tool_choice</code> is a parameter of each API request</strong>. An agentic loop sends a new request after every tool result, so each turn can have its own setting. Here is drill Q8's pipeline done correctly:</p>
+  <div class="turns">
+    <div class="t"><strong>Request 1</strong> · <code>tool_choice: {"type":"tool","name":"extract_metadata"}</code> → the model must call extract_metadata. You run it and append the <code>tool_result</code>: vendor name and amounts are now in the conversation.</div>
+    <div class="t"><strong>Request 2</strong> · <code>tool_choice: {"type":"auto"}</code> → the model reads the real vendor name and calls lookup_vendor with it. Nothing is guessed.</div>
+    <div class="t"><strong>Request 3</strong> · <code>auto</code> → it calls classify_spend, then finishes with <code>end_turn</code>.</div>
+  </div>
+  <p>Now your pick, forcing extract_metadata on every turn:</p>
+  <div class="turns">
+    <div class="t"><strong>Request 1</strong> · forced → extract_metadata. Fine.</div>
+    <div class="t bad"><strong>Request 2</strong> · forced again → the model <em>must</em> call extract_metadata again. lookup_vendor is never allowed.</div>
+    <div class="t bad"><strong>Request 3…n</strong> · the same, until your iteration cap stops the loop. The pipeline never reaches enrichment.</div>
+  </div>
+
+  <blockquote class="key">
+    Forcing <strong>guarantees the next call</strong>. Use it for the turn that must happen first, then return the choice to the model, because the dependent steps need tools that a forced setting does not allow.
+  </blockquote>
+
+  <div class="explain">
+    <p><b>Why the other Q8 options fail</b></p>
+    <p><code>any</code> on every turn guarantees that <em>some</em> tool is called, not which one, so lookup_vendor can still come first. A numbered instruction in the system prompt is the control that was already failing 11% of the time. Neither one guarantees the order.</p>
+  </div>
+
+  <h2>4 · What changed in the current docs (for real-world use)</h2>
+  <p>The docs now list models where forced tool use is not supported: on <strong>Claude Opus 5.5, Sonnet 5.5, Fable 5.1 and Mythos 5.1</strong>, <code>any</code> and <code>tool</code> return a 400 error. The recommended replacement is <code>auto</code> with strict tool use, or structured outputs when you need a fixed JSON shape. The exam guide (v0.2) still tests <code>any</code> and forced selection as described above. <strong>Answer the exam from the guide.</strong> Keep the change in mind for real builds. It is also why <code>notes/domain-2</code> flags it in the traps table.</p>
+
+  <hr class="rule">
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer in chat before the quiz.
+    <ol class="steps">
+      <li>Walk through what happens on request 2 if extract_metadata is forced on every turn. Why does the pipeline never finish?</li>
+      <li>A stem needs a guaranteed tool call, but the right tool depends on the document. <code>any</code> or forced? What one-word difference decides it?</li>
+      <li>The synthesis agent needs quick fact checks 85% of the time. Why is giving it the full web-search toolset worse than a <code>verify_fact</code> tool, and why is taking all lookups away also worse?</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Questions 1–5 cover this lesson. Questions 6–7 bring back 4.1 and 4.4, both missed on the D4 quiz on 13 Oct, to space out your practice.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Questions?</strong> Ask in chat. Sequencing is easiest to understand by tracing requests one at a time, and we can do that together on any stem.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools#forcing-tool-use">Claude docs — Define tools, "Forcing tool use"</a> (fetched 2026-10-09): the four options, the prefill note, and the model-support table. Then the <a href="https://platform.claude.com/cookbook/tool-use-tool-choice">Tool choice cookbook</a> for runnable auto / tool / any examples.<br>
+    <strong>Exam source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a> §2.3 · <a href="../notes/domain-2-tool-design-mcp.md">notes/domain-2</a> §2.3.<br>
+    <strong>Reference:</strong> <a href="../reference/tool-design.html">Tool design quick reference</a> · <strong>Previous:</strong> <a href="0009-how-claude-picks-a-tool.html">Lesson 9 — How Claude picks a tool</a> · <strong>Next:</strong> <a href="0011-what-is-a-schema.html">Lesson 11 — What a schema is</a>
+  </p>
+
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A pipeline must call validate_address before ship_order can use the cleaned address. Under auto, 9% of runs call ship_order first with the raw address. How should the requests be configured?",
+    opts: [
+      "Force validate_address on request one, then auto on later turns",
+      "Force validate_address on every request until ship_order is done",
+      "Set any on every request so that a tool is always called first",
+      "Add an ordered list of the two steps to the agent system prompt"
+    ],
+    ok: 0,
+    fb: "Force the prerequisite once, then hand the choice back so the dependent tool can be called. B can never reach ship_order. C guarantees some tool, not which one. D is the kind of instruction that is already failing 9% of the time."
+  },
+  {
+    stem: "A classifier must always return one of four schema tools, and the model should decide which schema fits each ticket. Text replies break the parser. Which tool_choice setting?",
+    opts: [
+      "auto, plus a firm system prompt line that bans plain text replies",
+      "tool, naming the schema that the most common tickets need",
+      "any, so a tool call is required but the model picks the schema",
+      "none, then parse the free text into the right schema yourself"
+    ],
+    ok: 2,
+    fb: "Guaranteed call plus model choice is exactly what any does. A is still probabilistic. B forces one schema for every ticket. D gives up the guarantee entirely."
+  },
+  {
+    stem: "With tool_choice set to any, a developer asks the model to explain its choice before calling a tool, but no explanation ever appears. Why?",
+    opts: [
+      "The system prompt is too long, so the instruction gets dropped",
+      "The API prefills the turn and forces the tool call to come first",
+      "The tool description does not mention that explanations are wanted",
+      "The max_tokens value is too low to leave room for the explanation"
+    ],
+    ok: 1,
+    fb: "With any or tool, the API prefills the assistant turn to force a tool call, so no natural-language text comes before the tool_use block, even when asked. For an explanation as well, use auto and request the tool in the user message."
+  },
+  {
+    stem: "A synthesis subagent was given all 16 tools in the system. It now runs web searches mid-synthesis, and 80% of its lookups are simple fact checks. Best change?",
+    opts: [
+      "Keep all 16 tools and make every one of their descriptions longer",
+      "Remove all lookup tools and send every check to the coordinator",
+      "Tell the subagent in its prompt to search only when truly needed",
+      "Give it its role's few tools plus a scoped verify_fact for checks"
+    ],
+    ok: 3,
+    fb: "Least privilege with the frequent case kept local: role tools plus a narrow cross-role tool, and complex research still goes through the coordinator. A leaves 16 candidates on every turn. B adds a round trip to every simple check. C is an instruction trying to do a tool boundary's job."
+  },
+  {
+    stem: "Per the current Claude docs, which tool_choice values still work on Claude Opus 5.5, where forced tool use is not supported?",
+    opts: [
+      "Only tool, since a named tool is checked against the given schema",
+      "Only any, since the model is still free to choose the tool itself",
+      "auto and none; any and tool return a 400 error on these models",
+      "All four values, but any and tool are treated the same as auto"
+    ],
+    ok: 2,
+    fb: "The docs table: on Opus 5.5, Sonnet 5.5, Fable 5.1 and Mythos 5.1, any and tool return a 400, while auto and none still work. Use auto with strict tool use, or structured outputs. The exam guide (v0.2) does not test this; it is for real builds."
+  },
+  {
+    stem: "Spaced review (4.1). A code-review bot's naming findings are dismissed 70% of the time, and developers now skip its security findings too. Rewriting the naming criteria will take three weeks. What should happen now?",
+    opts: [
+      "Tell the bot to report naming issues only when highly confident",
+      "Turn off naming findings until the rewritten criteria are ready",
+      "Keep naming findings but mark them as low priority in the output",
+      "Ask developers to give a written reason for each naming dismissal"
+    ],
+    ok: 1,
+    fb: "The noisy category is costing trust in the accurate one, so take it out while it is fixed (guide §4.1: temporarily disable high false-positive categories). A is the 'be confident' instruction the guide says does not improve precision. C is your D4 Q8 pick: the noise still reaches developers, just labelled. D adds work and leaves the noise in place."
+  },
+  {
+    stem: "Spaced review (4.4). An invoice extractor retries with the validation error appended. Dates written '3 Oct' fail the ISO format check. contract_value is always missing, because the value appears only in a pricing schedule that is never sent. What change?",
+    opts: [
+      "Keep retrying both kinds, appending each validation error each time",
+      "Make both fields nullable, and let each record save without them",
+      "Stop retries for both and send every failed record to human review",
+      "Retry the date errors; for the value, supply the pricing schedule"
+    ],
+    ok: 3,
+    fb: "Retry fixes format errors, because the right answer is in the document. It cannot fix information the model was never given (guide §4.4). A retries something that cannot succeed. B is your D4 Q5 pick: nullable is right when the value doesn't exist anywhere, but here it exists in a document you didn't send. C gives up the cheap fix for dates."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

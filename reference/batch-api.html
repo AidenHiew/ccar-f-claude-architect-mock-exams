@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Batch API</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ref dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1.2rem 0; align-items: baseline; }
+  .ref dt { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; }
+  .ref dd { margin: 0; font-size: 1rem; }
+  .decision { font-family: var(--sans); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; margin: 1.4rem 0; }
+  .decision div { display: grid; grid-template-columns: 1fr 1fr; }
+  .decision div:not(:first-child) { border-top: 1px solid var(--rule); }
+  .decision span { padding: .6rem .9rem; font-size: .92rem; }
+  .decision .h { background: var(--code-bg); font-weight: 600; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+  .decision .a { border-left: 1px solid var(--rule); }
+</style>
+</head>
+<body>
+<main class="page ref">
+  <p class="eyebrow">CCA Foundations · Quick reference · 4.5</p>
+  <h1>Batch API</h1>
+  <p class="subtitle">Message Batches API — the memorize-these facts and the one decision rule.</p>
+
+  <div class="decision">
+    <div><span class="h">If…</span><span class="h a">Then…</span></div>
+    <div><span>A caller / human is <strong>waiting</strong> on the result</span><span class="a">Synchronous API</span></div>
+    <div><span>Nothing waits — overnight, weekly, bulk eval</span><span class="a">Batch API (−50%)</span></div>
+    <div><span>"Get the saving but keep it fast"</span><span class="a">Trap — no such option; keep it sync</span></div>
+  </div>
+
+  <h2>Hard facts</h2>
+  <dl>
+    <dt>cost</dt><dd>50% cheaper (input + output) than the standard API.</dd>
+    <dt>latency</dt><dd>Most batches &lt; 1 hour, but <strong>no SLA</strong>; hard cap <strong>24 h</strong>, then unsent requests expire (unbilled).</dd>
+    <dt>correlate</dt><dd><code>custom_id</code> (1–64 chars). Results return in <strong>any order</strong> — always match by <code>custom_id</code>, never array position.</dd>
+    <dt>limits</dt><dd>≤ 100,000 requests <em>or</em> 256 MB per batch, whichever first.</dd>
+    <dt>retention</dt><dd>Results downloadable for 29 days after creation.</dd>
+    <dt>failures</dt><dd>Per-request status: <code>succeeded</code>, <code>errored</code>, <code>canceled</code>, <code>expired</code>. Resubmit only the failed items (found via <code>custom_id</code>).</dd>
+    <dt>shape</dt><dd>One request → one response, async. No agentic tool loop inside a single batch request (can't execute a tool and feed the result back mid-request).</dd>
+  </dl>
+
+  <h2>Exam tells</h2>
+  <p><strong>"developer waits / pre-merge / blocking"</strong> in the stem → synchronous. <strong>"nightly / weekly / overnight / bulk"</strong> → Batch. Any option offering <em>batch pricing + a fallback/polling/timeout to stay fast</em> is the over-engineered distractor.</p>
+
+  <div class="footer">
+    <hr class="rule">
+    <p>Source: <a href="https://platform.claude.com/docs/en/build-with-claude/batch-processing">Anthropic — Batch processing</a> · Lesson: <a href="../lessons/0001-batch-api.html">The Batch API decision</a></p>
+  </div>
+</main>
+</body>
+</html>

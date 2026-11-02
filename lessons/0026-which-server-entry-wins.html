@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 26 — Which server entry wins?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+  dl.words { margin: 1rem 0 1.6rem; }
+  dl.words dt { font-weight: 700; margin-top: .7rem; }
+  dl.words dd { margin: .15rem 0 0 1.2rem; }
+  .check { background: var(--code-bg); border-radius: 6px; padding: .8rem 1rem; margin: 1rem 0 1.4rem; }
+  ol.order { list-style: none; padding: 0; margin: 1rem 0 1.4rem; counter-reset: o; }
+  ol.order li { counter-increment: o; border: 1px solid var(--rule); border-radius: 6px; padding: .55rem .9rem .55rem 3rem; margin: .45rem 0; position: relative; }
+  ol.order li::before { content: counter(o); position: absolute; left: .9rem; top: .5rem; font-family: var(--sans); font-weight: 700; font-size: 1.2rem; }
+  ol.order li.win { border-width: 2px; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 26 · Domain 2 · Task statement 2.4 (connecting MCP servers to Claude Code)</p>
+  <h1>Which server entry wins?</h1>
+  <p class="subtitle">On D2/D3 Paper 4 (your fourth practice paper on Domains 2 and 3, sat on 21 October) you lost four questions: all three on setting up MCP servers (questions 9, 10 and 11) and one on CLAUDE.md (question 15). Each one is shown below in full, in teaching order rather than paper order, with your pick and the correct answer, so you don't need to remember any of them.</p>
+
+  <p><strong>The plain question.</strong> When you add a tool server to Claude Code, who gets it, in which projects, and which copy is used when two have the same name?</p>
+
+  <p><strong>An everyday example.</strong> You work in an office. On the kitchen wall there is a shared phone list that everyone in the office uses. Your phone has your own contacts, which go with you to every office you visit. And on your desk in this office there's a sticky note with a few numbers that only you use, only here. Say "IT help" is on all three, with three different numbers. You ring the sticky note number: it's the most specific to you and to this office. If there's no sticky note, you use the wall list. Your phone's contact is the last resort.</p>
+  <p>Claude Code keeps tool servers in the same three places, and picks between same-named ones in the same order.</p>
+
+  <blockquote class="key">
+    <strong>The one idea:</strong> where you add a server decides who gets it and in which projects. When two places have a server with the same name, the one closest to you and this project wins: local, then project, then user.
+  </blockquote>
+
+  <h2>Words to start with</h2>
+  <dl class="words">
+    <dt>CLAUDE.md and CLAUDE.local.md</dt><dd>Text files of standing instructions that Claude reads, such as "store prices in pence". A project can have a CLAUDE.md at the top of its folder and more inside sub-folders; when Claude works in a sub-folder, it reads all the files from the top down to that folder. Being read later doesn't make a file win; they all apply at once. <code>CLAUDE.local.md</code> is the same kind of file for just you, in one project, kept out of git (the project's shared history, which every teammate gets). Both hold <em>instructions</em> for Claude; neither sets up a server.</dd>
+    <dt>MCP server</dt><dd>An add-on program that gives Claude extra tools, such as reading a database or a ticket tracker. Each server has a <em>name</em> (like <code>shop-db</code>) and an <em>entry</em>: the settings that say how to reach it.</dd>
+    <dt><code>claude mcp add</code></dt><dd>The command you type in your terminal to add a server. For example, <code>claude mcp add lint -- node tools/lint-server.js</code> adds a server named <code>lint</code> that Claude Code starts by running <code>node tools/lint-server.js</code>. The <code>--</code> separates Claude Code's own settings (before it) from the command that starts the server (after it).</dd>
+    <dt>Flag</dt><dd>An extra setting typed after a command, starting with <code>--</code>. <code>--scope user</code> is the flag <code>--scope</code> with the value <code>user</code>.</dd>
+    <dt>Scope</dt><dd>Which group a server is set up for. There are three: <strong>local</strong>, <strong>project</strong> and <strong>user</strong>. The table in section 1 explains each.</dd>
+    <dt><code>~/</code>, committed</dt><dd><code>~/</code> is your home folder on your own computer; nobody else's sessions read it. A <em>committed</em> file is saved into git, the project's shared history, so every teammate gets it.</dd>
+    <dt>Session</dt><dd>One run of Claude Code: you start it by typing <code>claude</code> in your terminal, and it lasts until you close it. Commands starting with <code>/</code>, such as <code>/mcp</code>, are typed inside a session.</dd>
+    <dt>Environment variable</dt><dd>A named value set on one person's computer, outside any project file, such as <code>CATALOG_URL=http://localhost:4000</code>. Each person can set a different value, or none.</dd>
+    <dt>stdio and http</dt><dd>Two ways Claude Code can reach a server. A <strong>stdio</strong> server is a program on your machine that Claude Code starts with a command. An <strong>http</strong> server is already running somewhere and is reached at a web address (a url). You choose with the <code>--transport</code> flag, for example <code>--transport http</code>. The docs' basic form for a server started with a command, <code>claude mcp add name -- command</code>, leaves it out.</dd>
+  </dl>
+  <p>Other words are explained in the section where they first come up.</p>
+
+  <h2>1 · Three scopes: who gets the server</h2>
+  <p>This table is the whole of section 1. The scope you pick decides two things: who gets the server, and in which projects.</p>
+  <table class="cgrid">
+    <tr><th>Scope</th><th>How you add it</th><th>Saved in</th><th>Who gets it</th><th>Which projects</th></tr>
+    <tr><td><strong>local</strong> (the default)</td><td><code>claude mcp add</code> with <strong>no</strong> <code>--scope</code> (or <code>--scope local</code>)</td><td><code>~/.claude.json</code>, filed under this project's folder</td><td>Only you</td><td>This project only</td></tr>
+    <tr><td><strong>project</strong></td><td><code>--scope project</code></td><td><code>.mcp.json</code> at the top of the project folder, committed</td><td>The whole team (each person approves it once; see section 4)</td><td>This project only</td></tr>
+    <tr><td><strong>user</strong></td><td><code>--scope user</code></td><td><code>~/.claude.json</code></td><td>Only you</td><td>All your projects</td></tr>
+  </table>
+  <p>Two things people mix up. First, <strong>local and user are saved in the same file</strong>, <code>~/.claude.json</code>. The difference is that a local server is filed under one project's folder, so it appears only there. Second, <strong>local is the default</strong>: if you leave out <code>--scope</code>, you get "only me, only this project".</p>
+  <p>In the question below, an engineer wanted a server for only themselves, in only this repository. That is local, and you picked user. One thing to know first: the command the engineer ran wrote the server into <code>.mcp.json</code>, which is the team's shared, committed file, so every teammate would get it.</p>
+<section class="mc">
+  <p class="mc-h">D2/D3 Paper 4, 21 Oct, question 11</p>
+  <p class="mc-stem">An engineer has written a lint MCP server that runs on their machine with node tools/lint-server.js. They want it <mark>in this repository's sessions only</mark>, and <mark>the 7 teammates on their squad shouldn't see it</mark>. They ran claude mcp add --scope project --transport http lint node tools/lint-server.js. The server failed to connect, and the command also added an entry to .mcp.json. Which command should they have run?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>claude mcp add --scope user lint -- node tools/lint-server.js</div><div class="mc-k"><b>✓ Correct: A</b>claude mcp add lint -- node tools/lint-server.js</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>claude mcp add --scope project lint -- node tools/lint-server.js</span></li><li><span class="mc-l">D</span><span>claude mcp add --transport http lint http://localhost:3000</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>Your pick, <code>--scope user</code>, means "only you, in <em>every</em> project you open". The question said this repository only.</li><li>Leaving <code>--scope</code> out gives local scope: only you, only this project. That is exactly what was asked.</li><li>The engineer's first command was wrong in two ways. <code>--scope project</code> wrote the server into the shared <code>.mcp.json</code>, so the 7 teammates would get it. And <code>--transport http</code> tells Claude Code to find the server at a web address, but this server is a program started with a command (<code>node tools/lint-server.js</code>).</li><li>The correct command also puts <code>--</code> before that command. It marks where Claude Code's own settings end and the command that starts the server begins.</li></ul></div>
+</section>
+  <div class="check"><strong>The check:</strong> answer two questions from the stem. Who gets it: just me, or the team? Which projects: this one, or all of mine? Just me + this one = local (no flag). Team + this one = project. Just me + all of mine = user.</div>
+
+  <h2>2 · Same name in two scopes: which one wins</h2>
+  <p>A team's <code>.mcp.json</code> can define a server, and you can add your own server with the <em>same name</em> at local or user scope. Claude Code then connects to that name once, using the first entry it finds when it checks in this order:</p>
+  <ol class="order">
+    <li class="win"><strong>Local</strong>: only you, only this project. Checked first, so it wins.</li>
+    <li><strong>Project</strong>: the team's <code>.mcp.json</code>.</li>
+    <li><strong>User</strong>: only you, all your projects. Loses to both.</li>
+  </ol>
+  <p>Like the sticky note, the wall list and your phone: the most specific one wins. Two more facts from the Claude Code docs. The <strong>whole entry</strong> from the winning scope is used; settings are not mixed from two scopes. And <code>claude mcp list</code> shows a warning when the same name is set up in more than one scope with different urls or commands.</p>
+  <p>In the question below, an engineer wanted their own database instead of the team's, for themselves, in this repository only. You picked a line in <code>CLAUDE.local.md</code> (instructions for just you, in one project).</p>
+<section class="mc">
+  <p class="mc-h">D2/D3 Paper 4, 21 Oct, question 9</p>
+  <p class="mc-stem">The project's committed .mcp.json defines a server named shop-db that points at the shared staging database. One engineer wants their sessions in this repository to <mark>use their own local database instead</mark>, <mark>without changing the committed file or anyone else's setup</mark>. <mark>Their 2 other projects should be unaffected</mark>. What should they do?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add a line to CLAUDE.local.md telling Claude to use their database</div><div class="mc-k"><b>✓ Correct: D</b>Add their own shop-db server at local scope for this project</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Edit the url in .mcp.json on their machine and simply never commit that change</span></li><li><span class="mc-l">B</span><span>Add their own shop-db server at user scope in ~/.claude.json</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> <code>CLAUDE.local.md</code> holds instructions for Claude to read. Which database the <code>shop-db</code> server connects to is not an instruction; it is a setting in the server's entry. A line of text can't change where the server connects. The fix is a second server with the <em>same name</em>, <code>shop-db</code>, added at local scope with the engineer's own database. When two scopes have a server with the same name, local wins over project, so this engineer gets their database, in this repo only. The committed <code>.mcp.json</code> is untouched, so teammates still get staging. User scope (B) would lose: project wins over user, so staging would still be used.</div>
+</section>
+  <div class="check"><strong>The check:</strong> before you pick a CLAUDE.md or CLAUDE.local.md line, ask: is the thing a Claude instruction (how to write code, what to call things) or a connection (which server, which address)? A memory file can only change instructions. A connection is changed by a server entry.</div>
+
+  <h2>3 · Placeholders in <code>.mcp.json</code>: <code>${VAR}</code> and <code>${VAR:-default}</code></h2>
+  <p>The team's <code>.mcp.json</code> is committed, so everyone gets the same text. But people often need different values: their own API key, or their own copy of a service. A <em>placeholder</em> in the file is filled in on each person's machine from an environment variable when Claude Code reads it. Two forms:</p>
+  <ul class="steps">
+    <li><code>${VAR}</code>: replaced by the value of the environment variable <code>VAR</code>. Used for secrets: the file says <code>Bearer ${API_KEY}</code> (a <em>header</em> is extra information sent with each request to an http server; <code>Bearer</code> is the usual word before a login key), so the key never goes into git, and each person sets <code>API_KEY</code> on their own machine.</li>
+    <li><code>${VAR:-default}</code>: replaced by <code>VAR</code> if it is set, and by the <code>default</code> text after <code>:-</code> if it isn't. Used when most people should get one value with no setup, and a few want their own.</li>
+  </ul>
+  <p>This is the example from the Claude Code docs:</p>
+  <pre class="code">{
+  "mcpServers": {
+    "api-server": {
+      "type": "http",
+      "url": "${API_BASE_URL:-https://api.example.com}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${API_KEY}"
+      }
+    }
+  }
+}</pre>
+  <p>Someone who never set <code>API_BASE_URL</code> gets <code>https://api.example.com/mcp</code>. Someone who set it to <code>http://localhost:4000</code> gets <code>http://localhost:4000/mcp</code>. Everyone's key comes from their own <code>API_KEY</code>, and none is written in the file.</p>
+  <p>What if a <code>${VAR}</code> has no default and the person hasn't set it? The server still loads, with the text <code>${VAR}</code> left in unchanged, as literal text, and <code>claude mcp list</code> and <code>/mcp</code> show a warning naming the missing variable.</p>
+  <p>Placeholders work in a server's <code>command</code>, <code>args</code> (the words after the command), <code>env</code>, <code>url</code> and <code>headers</code>. Don't confuse these with <code>$ARGUMENTS</code>, a placeholder used in skills (saved instructions you start by typing a command such as <code>/fix-bug</code>): it is filled in from what you type after that command, not from an environment variable.</p>
+  <p>In the question below, 3 engineers wanted their own catalog service, and everyone else the shared one with no setup. You picked a file that doesn't exist. ("Shell" in option A means the person's terminal, where environment variables are set.)</p>
+<section class="mc">
+  <p class="mc-h">D2/D3 Paper 4, 21 Oct, question 10</p>
+  <p class="mc-stem">Your committed .mcp.json points the catalog server at the team's shared catalog API through a hard-coded url. 3 engineers who work on the catalog want to point it at their own local API while they work, and <mark>everyone else should keep the shared one with no setup</mark>. Today those 3 edit the file and <mark>keep forgetting to undo it</mark>. What should the url be?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>The shared API, plus a committed .mcp.local.json that Claude Code reads first</div><div class="mc-k"><b>✓ Correct: B</b>${CATALOG_URL:-https://catalog.internal}, with the shared API as the default</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>${CATALOG_URL}, with every engineer setting it in their own shell</span></li><li><span class="mc-l">C</span><span>The shared API, plus a same-named server in the 3 engineers' ~/.claude.json</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> there is no <code>.mcp.local.json</code>. The Claude Code docs list three scopes for your servers, local, project and user, stored in two places: <code>.mcp.json</code> for project, and <code>~/.claude.json</code> for local and user. The option named a file that sounds right because <code>CLAUDE.local.md</code> and <code>settings.local.json</code> exist, but MCP has no file like that. The correct answer puts a placeholder with a fallback in the committed file: <code>${CATALOG_URL:-https://catalog.internal}</code>. For the 3 engineers who set <code>CATALOG_URL</code> on their machine, it becomes their own API. For everyone else it becomes the shared API, with nothing to set up and nothing to undo.</div>
+</section>
+  <div class="check"><strong>The check:</strong> "everyone gets X with no setup, a few want their own" → <code>${VAR:-X}</code>. "Each person has their own secret" → <code>${VAR}</code>, with no default.</div>
+
+  <h2>4 · Check what actually connected</h2>
+  <p>Three commands show you what Claude Code found:</p>
+  <table class="cgrid">
+    <tr><th>Command</th><th>Where you type it</th><th>What it shows</th></tr>
+    <tr><td><code>claude mcp list</code></td><td>Your terminal</td><td>Your configured servers, each with a status: <code>✔ Connected</code>, <code>✘ Failed to connect</code>, <code>! Needs authentication</code> (needs you to log in), or <code>⏸ Pending approval</code>. Also the warnings from sections 2 and 3: a name set up in two scopes with different urls or commands, or a missing variable.</td></tr>
+    <tr><td><code>claude mcp get shop-db</code></td><td>Your terminal</td><td>The details of one server, and on a failure, why it failed.</td></tr>
+    <tr><td><code>/mcp</code></td><td>Inside a Claude Code session</td><td>Each server's status, and the number of tools each connected server offers.</td></tr>
+  </table>
+  <p><strong>Pending approval</strong> matters for team servers. For safety, Claude Code asks each person before it uses a server from a project's <code>.mcp.json</code>. Until they say yes, the server shows <code>⏸ Pending approval (run `claude` to approve)</code> and its tools aren't there. Running <code>claude</code> in the project shows the question.</p>
+  <p>The exam guide adds one fact here: tools from <strong>all</strong> the connected servers are found when Claude Code connects, and the agent can use all of them at once. A team server and your personal server don't take turns.</p>
+
+  <h2>5 · Two things that don't exist</h2>
+  <p>Twice on that paper you picked a setting that sounds real but isn't in Claude Code. The first was a committed <code>.mcp.local.json</code> file "that Claude Code reads first", in the catalog question (question 10) in section 3. There is no such file: MCP servers are saved only in <code>.mcp.json</code> (project) and <code>~/.claude.json</code> (local and user). The second, in the question below, was an <code>override: true</code> line meant to make one CLAUDE.md replace another. "Frontmatter" is a short block of settings between two <code>---</code> lines at the very top of a file; CLAUDE.md files have no <code>override</code> setting there or anywhere else.</p>
+<section class="mc">
+  <p class="mc-h">D2/D3 Paper 4, 21 Oct, question 15</p>
+  <p class="mc-stem">The root CLAUDE.md says 'Store prices as integers in pence'. The team that owns app/Legacy/ added app/Legacy/CLAUDE.md saying 'Prices here are decimals in pounds', <mark>expecting it to replace the root rule inside that folder</mark>. When Claude edits files in app/Legacy/, <mark>1 in 4 of its changes now mixes the two formats</mark>. What should the team change?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Add override: true to the frontmatter of app/Legacy/CLAUDE.md</div><div class="mc-k"><b>✓ Correct: A</b>Reword the root rule to name app/Legacy/ as the exception, with its own format</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>Move the legacy rule into the root CLAUDE.md, under an app/Legacy heading</span></li><li><span class="mc-l">D</span><span>Put the legacy rule in a CLAUDE.local.md inside app/Legacy/ instead</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> CLAUDE.md files have no <code>override</code> setting. The Claude Code docs say all the CLAUDE.md files Claude finds are added together, not used to replace each other. So in <code>app/Legacy/</code>, Claude reads both rules at once: pence from the root file, pounds from the folder file. When two files disagree, the docs say Claude may pick either one, with no fixed rule. That fits the 1 in 4 mixed changes. The fix is to make the files stop disagreeing: the root rule says pence everywhere <em>except</em> <code>app/Legacy/</code>, which uses pounds.</div>
+</section>
+  <p>Why do these feel real? Similar names exist: <code>CLAUDE.local.md</code>, <code>.claude/settings.local.json</code> (a file of your own Claude Code settings for one project, such as permissions), and "local scope". But each "local" thing is its own feature with its own home. One more trap from the Claude Code docs: <code>.claude/settings.local.json</code> is a general settings file, and local-scope MCP servers are <strong>not</strong> saved in it. They go in <code>~/.claude.json</code>.</p>
+  <div class="check"><strong>The check:</strong> if an option names a file or setting you have never seen in the docs or these lessons, treat that as a reason to doubt it, not as a clever trick you missed.</div>
+
+  <h2>Summary table</h2>
+  <p>Every fact from this page, in one place.</p>
+  <table class="cgrid">
+    <tr><th>You want…</th><th>Use</th></tr>
+    <tr><td>A server for only you, in this project only</td><td><code>claude mcp add name -- command</code> (no <code>--scope</code>: local is the default). Saved in <code>~/.claude.json</code> under this project.</td></tr>
+    <tr><td>A server for the whole team, in this project</td><td><code>--scope project</code>. Saved in the committed <code>.mcp.json</code>. Each person approves it once.</td></tr>
+    <tr><td>A server for only you, in all your projects</td><td><code>--scope user</code>. Saved in <code>~/.claude.json</code>.</td></tr>
+    <tr><td>Your own version of a team server, here only</td><td>A server with the <strong>same name</strong> at local scope. Local beats project beats user. The whole winning entry is used.</td></tr>
+    <tr><td>A secret in a shared <code>.mcp.json</code></td><td><code>${API_KEY}</code>; each person sets <code>API_KEY</code> on their machine.</td></tr>
+    <tr><td>One value for everyone, a few want their own</td><td><code>${VAR:-shared value}</code></td></tr>
+    <tr><td>To see what connected and how many tools</td><td><code>claude mcp list</code> or <code>claude mcp get name</code> in the terminal; <code>/mcp</code> in a session.</td></tr>
+    <tr><td>A team server whose tools are missing for one person</td><td>Check <code>claude mcp list</code>. <code>⏸ Pending approval</code> → run <code>claude</code> in the project and approve it.</td></tr>
+    <tr><td>Change which server Claude connects to</td><td>A server entry. Never a CLAUDE.md or CLAUDE.local.md line: those are instructions, not connections.</td></tr>
+  </table>
+  <p>Not real: <code>.mcp.local.json</code>, and <code>override: true</code> in a CLAUDE.md.</p>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>You run <code>claude mcp add</code> with no <code>--scope</code>. Who gets the server, and in which projects?</li>
+    <li>The team's <code>.mcp.json</code> and your local scope both have a server called <code>db</code>. Which one does your session use?</li>
+    <li>A shared <code>.mcp.json</code> says <code>${API_URL:-https://api.internal}</code>. What does a teammate who never set <code>API_URL</code> get?</li>
+  </ol>
+
+  <h2>Six new practice questions</h2>
+  <p>Before you read the options, answer for yourself: who should get it, which projects, and is it a connection or an instruction? After you answer, a short explanation appears under the question.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If two scopes both look right, bring the question here and we'll answer "who gets it" and "which projects" for each.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/mcp">Claude Code docs: Connect Claude Code to tools via MCP</a>, fetched 21 October 2026. Sections used: "MCP installation scopes" (the scope table, local is the default, local stored in <code>~/.claude.json</code> under the project's path and not in <code>.claude/settings.local.json</code>; project in <code>.mcp.json</code>, approval prompt; user across all projects), "Scope hierarchy and precedence" (local, then project, then user; the whole entry is used, fields aren't merged), "Environment variable expansion in <code>.mcp.json</code>" (<code>${VAR}</code>, <code>${VAR:-default}</code>, expansion in command / args / env / url / headers, unset variables without a default load unexpanded with a warning), "Managing your servers" and "Server status" (<code>claude mcp list</code>, <code>claude mcp get</code>, <code>/mcp</code>, the status labels including <code>⏸ Pending approval</code>), "Configuration warnings" (same name in more than one scope; missing environment variable), "Tool availability" (<code>/mcp</code> shows the tool count), "Option 3: Add a local stdio server" (the <code>--</code> separator; stdio servers run as local processes).<br>
+    <strong>CLAUDE.md loading:</strong> <a href="https://code.claude.com/docs/en/memory">Claude Code docs: How Claude remembers your project</a>, fetched 21 October 2026: discovered files are concatenated into context rather than overriding each other; if two files give different guidance for the same behaviour, Claude may pick one arbitrarily.<br>
+    <strong>Official exam guide</strong> (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statement 2.4.<br>
+    <strong>Miss history:</strong> learning record 0036 (D2/D3 Paper 4, 21 Oct).<br>
+    <strong>Previous:</strong> <a href="0025-who-starts-the-helpers.html">Lesson 25 — Who starts the helpers</a> · <a href="0024-who-it-reaches-when-it-switches-on.html">Lesson 24 — Who it reaches, and when it switches on</a> · <strong>Reference:</strong> <a href="../reference/scope-map.html">Scope map</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A data scientist working in the forecasting repository runs claude mcp add notebook -- python tools/nb_server.py, with no other flags. The next morning a teammate opens the same repository and asks why they don't have the notebook server. Where was the server saved?",
+    opts: [
+      "In ~/.claude.json, for this person in this repo only",
+      "In the repo's .mcp.json, waiting for teammates to approve",
+      "In ~/.claude.json, for this person in all their projects",
+      "In .claude/settings.local.json, kept out of git in this repo"
+    ],
+    ok: 0,
+    fb: "No --scope means local scope: saved in ~/.claude.json, filed under this project's folder, for this person only. That's why the teammate doesn't have it. B is what --scope project does. C is what --scope user does. D: settings.local.json is a general settings file; the docs say local-scope MCP servers are not saved there."
+  },
+  {
+    stem: "A server named tickets is set up in 3 places. At user scope it points at a sandbox tracker. The project's committed .mcp.json points it at the team's tracker. At local scope for this project, it points at a copy running on the developer's laptop. In this project, what does Claude Code connect to?",
+    opts: [
+      "The team's tracker, because the committed file is shared",
+      "The sandbox tracker, because user scope is set up first",
+      "The laptop copy, because local scope is checked first",
+      "All three, with each one's tools listed side by side"
+    ],
+    ok: 2,
+    fb: "When one name is in several scopes, Claude Code connects to it once, using local first, then project, then user. Local is set here, so the laptop copy wins. D: same-named servers don't stack; only one entry is used. claude mcp list also warns that the name is set up in more than one scope."
+  },
+  {
+    stem: "The committed .mcp.json defines a docs-search server with a url and an Authorization header that carries each person's login token. A developer adds their own docs-search at local scope with a different url and no headers. Now every request from their sessions is rejected as not logged in. Why?",
+    opts: [
+      "Only the local entry is used, and it has no header",
+      "The two entries merge, but the project url is used",
+      "Local entries can't send headers to an http server",
+      "The project header is used, but its token expired"
+    ],
+    ok: 0,
+    fb: "The local entry wins, and the whole winning entry is used: settings aren't mixed from two scopes. It has no Authorization header, so requests go out with no login. The fix is to put the header in the local entry too. B: there's no merging. C: local entries can have headers. D: the project entry isn't used at all in this person's sessions."
+  },
+  {
+    stem: "The team's committed .mcp.json has a maps server whose Authorization header holds a real API key, typed into the file in full. Each of the 9 engineers has their own maps key, and the key must stay out of git from now on. What should the header say instead?",
+    opts: [
+      "Bearer $ARGUMENTS, filled in when the server starts",
+      "Bearer MAPS_KEY, read from a CLAUDE.local.md line",
+      "Bearer [key], with each engineer editing it locally",
+      "Bearer ${MAPS_KEY}, each engineer setting MAPS_KEY"
+    ],
+    ok: 3,
+    fb: "${MAPS_KEY} is replaced by the MAPS_KEY environment variable on each engineer's machine, so the committed file holds no secret. A: $ARGUMENTS belongs to skills, where it is filled in from what you type after the skill's command; .mcp.json doesn't fill it in. B: a CLAUDE.local.md line is an instruction for Claude, not a setting, and bare MAPS_KEY is sent as the literal word. C: hand-editing a shared file means each engineer must remember never to commit their key, the same trap as the catalog question above, where engineers kept forgetting to undo their edits."
+  },
+  {
+    stem: "The committed .mcp.json sets a reports server's url to ${REPORTS_URL}/mcp, with no default after it. A new engineer has never set REPORTS_URL on their machine. What does Claude Code do with this server when they start it?",
+    opts: [
+      "Claude Code won't start until REPORTS_URL is set",
+      "It loads with ${REPORTS_URL} left as text, and a warning",
+      "It drops the server and doesn't list it anywhere",
+      "It uses the reports url in the user's ~/.claude.json"
+    ],
+    ok: 1,
+    fb: "With no :-default, an unset variable isn't replaced: the server still loads with the text ${REPORTS_URL} in its url, and claude mcp list and /mcp show a warning naming REPORTS_URL. A default, such as ${REPORTS_URL:-https://reports.internal}, would give the new engineer a working url with no setup. D: Claude Code doesn't fill an unset variable from servers in ~/.claude.json."
+  },
+  {
+    stem: "Your team added a search server to the committed .mcp.json yesterday. One teammate says Claude never uses its tools. In their terminal, claude mcp list shows the server as ⏸ Pending approval (run `claude` to approve). What should they do?",
+    opts: [
+      "Re-add the server with claude mcp add --scope project",
+      "Add override: true to the server's entry in .mcp.json",
+      "Run claude in the repo and approve the project server",
+      "Add a CLAUDE.local.md line telling Claude to load it"
+    ],
+    ok: 2,
+    fb: "Pending approval means the entry is there, but Claude Code is waiting for this person's yes: for safety, it asks before using servers from a project's .mcp.json. Running claude in the repo shows that question. After approving, /mcp should show the server connected, with its tool count. A adds again what is already there. B: there is no override setting. D: an instruction can't connect a server."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9 — How Claude picks a tool</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 9 · Domain 2 · Task statement 2.1</p>
+  <h1>How Claude picks a tool</h1>
+  <p class="subtitle">The description is the only thing the model knows about your tool. Fix misrouting where the model reads.</p>
+
+  <blockquote class="key">
+    The one question for every 2.1 stem: <strong>what did the model read just before it picked the wrong tool?</strong>
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> A temp starts on the front desk. There are two trays, labelled only "Mail" and "Post". The boss has stuck a note on the screen: "Anything about money goes in Mail." By lunch, invoices are in the right tray, but so are refund complaints, and fan letters that mention prize money. The temp isn't careless. They're doing exactly what the labels and the note told them. There are two ways to fix it. If the labels are vague, rewrite them ("Mail: invoices from suppliers. Not complaints, they go to Post."). If the labels are already clear but one word keeps sending things to the wrong tray, the note is the problem. Take it down.</p>
+
+  <p>Claude choosing a tool is the same. It never sees your code. It sees only each tool's name and description, plus your system prompt, all in one block of text. So when it picks wrong, the cause is something it read.</p>
+
+  <p><strong>Where this has cost you points:</strong></p>
+  <table class="cgrid">
+    <tr><th>Where</th><th>What the question showed</th><th>What the right answer did</th></tr>
+    <tr><td>Real exam, Sept (this objective: 0%)</td><td>Question details aren't released. The objective is about expanding tool descriptions with examples, input formats, and how a tool differs from similar ones.</td><td>Rewrite the labels (section 2 below)</td></tr>
+    <tr><td>D2 drill, 9 Oct, Q3 (missed)</td><td>Descriptions already rewritten. Errors fell, then stopped falling. 17 of 19 remaining errors contain the phrase "analyze the content of". The system prompt says "start with your content analysis tool".</td><td>Take the note down: reword that system prompt line</td></tr>
+  </table>
+  <p>Exception, kept for last: sometimes no label can be clear, because one tool does several different jobs. Then you split the tool (section 3, third row).</p>
+
+  <h2>1 · What the model sees</h2>
+  <p>When you send a request with <code>tools</code>, the API does not hand the model your code. It builds one prompt out of three things: the tool definitions as JSON Schema, your own system prompt, and the tool configuration (<a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools#tool-use-system-prompt">Define tools · Tool use system prompt</a>). The skeleton the docs publish:</p>
+<pre class="code"><span class="dim">In this environment you have access to a set of tools ...</span>
+Here are the functions available in JSONSchema format:
+<span class="hl">{{ TOOL DEFINITIONS IN JSON SCHEMA }}</span>
+<span class="hl">{{ USER SYSTEM PROMPT }}</span>
+{{ TOOL CONFIGURATION }}</pre>
+  <p>Two consequences follow, and the whole of 2.1 hangs on them.</p>
+  <ol class="steps">
+    <li><strong>A tool is its name, description and schema, nothing else.</strong> The model never sees the implementation. If the description does not say what an input looks like or when not to use the tool, the model has to guess. Anthropic's docs put it bluntly: detailed descriptions are <em>"by far the most important factor in tool performance."</em></li>
+    <li><strong>Your system prompt sits in the same prompt as the descriptions.</strong> An instruction there that names a tool, or ties a word to one, is read alongside the descriptions on every turn. The exam guide's version: keyword-sensitive instructions <em>"can create unintended tool associations"</em> that override well-written descriptions (guide §2.1).</li>
+  </ol>
+
+  <blockquote class="key">
+    Misrouting is a reading problem. Ask what the model read that led it there: <strong>a thin description, two descriptions that overlap, one tool hiding several jobs, or a system-prompt line pulling the other way.</strong>
+  </blockquote>
+
+  <h2>2 · What a description has to carry</h2>
+  <p>The docs list four things every description should explain, and suggest at least 3–4 sentences each (<a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools#best-practices-for-tool-definitions">Best practices for tool definitions</a>). The exam guide adds input formats, example queries, edge cases, and boundaries against similar tools. Merged, that gives a five-point checklist. Here it is applied to <code>lookup_order</code> from drill Q1:</p>
+
+<pre class="code"><span class="dim">// before — what Q1's agent saw</span>
+"description": "Looks up an order"
+
+<span class="dim">// after</span>
+"description": "Returns one order's status, items, amounts and shipping
+  events. <span class="hl">Input: order_id, exactly 10 characters, e.g. ORD8812041</span>
+  (no '#', no spaces). <span class="hl">Use when the customer has given an order ID.</span>
+  <span class="hl">If you only have an email or name, call search_orders first</span>;
+  it returns candidate order IDs. <span class="hl">Does not return payment card
+  details or refund eligibility.</span>"</pre>
+
+  <table class="cgrid">
+    <tr><th>Checklist item</th><th>Where it is in the "after"</th><th>The failure it prevents</th></tr>
+    <tr><td>What it does and returns</td><td>first sentence</td><td>calling it for data it does not have</td></tr>
+    <tr><td>Input format, with an example</td><td>10 characters, <code>ORD8812041</code></td><td>the 9% validation failures in Q1</td></tr>
+    <tr><td>When to use it</td><td>"customer has given an order ID"</td><td>calling it too early</td></tr>
+    <tr><td>When to use the sibling instead</td><td>"only an email → search_orders"</td><td>never reaching for search_orders</td></tr>
+    <tr><td>Limits</td><td>"does not return card details"</td><td>misplaced trust in the result</td></tr>
+  </table>
+
+  <p>Parameter names are part of the description. Anthropic's tool-writing guide gives the example of naming a parameter <code>user_id</code> instead of <code>user</code>, and reports that precise refinements to tool descriptions were part of how Claude Sonnet 3.5 reached state-of-the-art on SWE-bench Verified (<a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing effective tools for agents</a>).</p>
+
+  <h2>3 · Four causes, four fixes</h2>
+  <p>Every 2.1 question describes a misrouting symptom. Your job is to find which of four causes the stem describes, then pick the fix that goes with it. The evidence is in the numbers, especially <em>where the errors cluster</em>.</p>
+
+  <table class="cgrid">
+    <tr><th>What the stem shows</th><th>Cause</th><th>Designed fix</th></tr>
+    <tr><td>One-line descriptions; errors spread across many requests</td><td>Thin description</td><td><strong>Expand</strong> with the five-point checklist</td></tr>
+    <tr><td>Two tools whose descriptions could both claim the same request (<code>analyze_content</code> vs <code>analyze_document</code>)</td><td>Overlap</td><td><strong>Rename</strong> and rewrite to a distinct purpose (<code>analyze_content</code> → <code>extract_web_results</code>); prefix by service when servers collide (<code>jira_search</code>)</td></tr>
+    <tr><td>One tool doing several jobs whose outputs must differ</td><td>Generic tool</td><td><strong>Split</strong> into purpose-specific tools with their own input and output contracts</td></tr>
+    <tr><td>Descriptions already fixed; leftover errors cluster on one phrase</td><td>System prompt keyword</td><td><strong>Reword the system prompt</strong> so no instruction ties a word to a tool</td></tr>
+  </table>
+
+  <p>Your Q3 miss is the last row. Re-read the stem as evidence:</p>
+  <div class="explain">
+    <p><b>Already fixed</b> "Two weeks ago you rewrote both descriptions … misrouting fell from 31% to 19% and then stopped improving." Row 1 has been done; doing more of it will not help.</p>
+    <p><b>Clustered</b> "In 17 of every 19 remaining misroutes, the request contains 'analyze the content of'." The errors share a phrase, not a document type.</p>
+    <p><b>Cause named</b> "Whenever content needs analysis, start with your content analysis tool." That phrase triggers that line.</p>
+    <p><b>Your pick</b> Few-shot examples add more text to the same prompt while the conflicting line stays in place. They might lower the rate; they cannot remove the cause. That is the <span class="tag">probabilistic</span> trap.</p>
+  </div>
+
+  <h2>4 · Split or consolidate? Both are right, in different places</h2>
+  <p>The current docs also say <em>"consolidate related operations into fewer tools"</em>, for example one tool with an <code>action</code> parameter instead of <code>create_pr</code>, <code>review_pr</code> and <code>merge_pr</code>. The exam guide says to <em>split</em> a generic <code>analyze_document</code> into three. They do not contradict each other. My synthesis of the two sources, not a sentence from either:</p>
+  <table class="cgrid">
+    <tr><th></th><th>Consolidate (one tool, action parameter)</th><th>Split (several tools)</th></tr>
+    <tr><td>Signal</td><td>Same resource, same kind of input and result; only the verb changes</td><td>Different jobs whose outputs must have different shapes</td></tr>
+    <tr><td>Why</td><td>Fewer near-identical tools for the model to choose between</td><td>No single description or output schema can be precise for all the jobs</td></tr>
+    <tr><td>Example</td><td>PR create / review / merge</td><td>extract data points · summarize · verify a claim</td></tr>
+  </table>
+  <p><strong>On the exam, follow the guide.</strong> When a stem shows one generic tool producing the wrong <em>shape</em> of output for one of its jobs, the answer is to split it. That was drill Q4, which you got right.</p>
+
+  <hr class="rule">
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer these in chat, in your own words, before you take the quiz. Writing it out is where it sticks.
+    <ol class="steps">
+      <li>Why can a sentence in the system prompt beat a well-written tool description? Use the "one prompt" picture from section 1.</li>
+      <li>A stem says misrouting is 25% and spread evenly across every request type. The tools have one-line descriptions. Which of the four causes is it, and why not the system prompt?</li>
+      <li>Give one case where you would consolidate tools and one where you would split, and the signal that tells them apart.</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Five questions in new settings. Each option has about the same length, so length tells you nothing.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course and can go deeper on any section, or work through a stem with you.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools#best-practices-for-tool-definitions">Claude docs — Define tools, "Best practices for tool definitions"</a> (fetched 2026-10-09). Read the good-versus-poor <code>get_stock_price</code> example. Then <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing effective tools for agents</a>, sections "Namespacing your tools" and "Prompt-engineering your tool descriptions".<br>
+    <strong>Exam source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a> §2.1 · <a href="../notes/domain-2-tool-design-mcp.md">notes/domain-2</a> §2.1.<br>
+    <strong>Next:</strong> <a href="0010-tool-choice-and-sequencing.html">Lesson 10 — Who gets which tools, and when they must call one</a> · <strong>Reference:</strong> <a href="../reference/tool-design.html">Tool design quick reference</a> · <strong>Previous:</strong> Lesson 8
+  </p>
+
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A billing agent has get_invoice ('Gets invoice data') and get_payment ('Gets payment data'), and picks the wrong one in 15% of turns, spread across all request types. Which addition to get_invoice's description helps most?",
+    opts: [
+      "What it returns, its input format, and when to use get_payment",
+      "A note that it is the main tool and should always be tried first",
+      "The names of the internal database tables that the tool reads",
+      "The tool's name and purpose repeated in capitals for emphasis"
+    ],
+    ok: 0,
+    fb: "One-line descriptions and errors spread evenly point to a thin description (row 1). The fix is the checklist: what it returns, input format, and the boundary against its sibling. B adds a bias, not information. C describes the implementation, which the model never needs. D adds emphasis without content."
+  },
+  {
+    stem: "Misrouting jumped the day someone added 'Always check payments before replying' to the system prompt. The tool descriptions have not changed, and the errors cluster on messages that mention 'payment'. What should you inspect first?",
+    opts: [
+      "The tool descriptions, because they are always the root cause",
+      "The model version, since newer models route tools differently",
+      "The new system prompt line, which ties a keyword to one tool",
+      "The tool count, since two tools are too many for this agent"
+    ],
+    ok: 2,
+    fb: "The timing and the cluster both point at the new line. It sits in the same prompt as the descriptions and ties the word 'payment' to a tool. A ignores that the descriptions did not change. B and D are not supported by anything in the stem."
+  },
+  {
+    stem: "One tool, process_text(text, task), translates, scores sentiment, and redacts personal data. Each downstream consumer expects a different output shape, and its description is already detailed. Best redesign?",
+    opts: [
+      "Add more worked examples of each job to the long description",
+      "Split it into three tools, each with its own input and output",
+      "Validate every output and retry with the error until it parses",
+      "Move the three job definitions into the agent's system prompt"
+    ],
+    ok: 1,
+    fb: "Three jobs, three output shapes, one tool: no description can be precise for all of them. Splitting gives each job its own contract (row 3). A repeats a fix that has already been made. C catches failures after they happen. D moves the problem into the system prompt."
+  },
+  {
+    stem: "Per the current Claude docs, when is one tool with an action parameter better than several separate tools?",
+    opts: [
+      "When the jobs return different shapes that each caller parses",
+      "When each tool description is too short to tell the tools apart",
+      "When several subagents need to call the same tool at the same time",
+      "When the operations share one resource and one kind of result"
+    ],
+    ok: 3,
+    fb: "Consolidate when only the verb changes: create, review and merge a PR share a resource and a result type. A is the signal to split. B is fixed by expanding the descriptions, not by merging tools. C has nothing to do with tool shape."
+  },
+  {
+    stem: "An agent connects a Jira server and a Confluence server, and both expose a tool named search. It searches the wrong system 20% of the time. What is the most direct fix?",
+    opts: [
+      "Rename them jira_search and confluence_search and describe each",
+      "Remove the Confluence server so that only one search tool is left",
+      "Tell the model in the system prompt to try Jira first, then Confluence",
+      "Return fewer results from each search to cut down the noise"
+    ],
+    ok: 0,
+    fb: "Two tools with the same name and overlapping purpose (row 2). Prefixing by service is the docs' namespacing advice, and each description then says which system it searches. B loses a capability. C sets a fixed order instead of letting the request decide. D does not help selection."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

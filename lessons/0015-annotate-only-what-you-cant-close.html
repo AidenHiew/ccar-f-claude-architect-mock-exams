@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 15 — Go get it, or say it's missing</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .explain { border-left: 3px solid var(--rule); padding: .1rem 0 .1rem 1.1rem; margin: 1.2rem 0; }
+  .explain p { margin: .35rem 0; }
+  .explain b { font-family: var(--sans); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .test { font-family: var(--sans); font-size: 1.15rem; background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; margin: 1.4rem 0; line-height: 1.6; }
+  .test b { color: var(--accent); }
+  .story { border-left: 3px solid var(--accent); padding: .2rem 0 .2rem 1.1rem; margin: 1.2rem 0; }
+  .story p { margin: .4rem 0; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 15</p>
+  <h1>Go get it, or say it's missing</h1>
+  <p class="subtitle">One question that would have fixed three of your last four misses.</p>
+
+  <h2>The one question</h2>
+  <p>Many exam stems describe something <strong>missing</strong>: a region left out of a report, an empty field, findings people ignore. When you see that, ask:</p>
+
+  <p class="test"><b>Can the system still go and get it?</b><br>
+  Yes → the right answer <b>goes and gets it</b>.<br>
+  No → the right answer <b>says honestly that it's missing</b>. No making things up, no hiding it.</p>
+
+  <p>The trap is a wrong option that only <em>writes a note saying it's missing</em> when the system could have gone and got it. The note sounds responsible, but the job still isn't done.</p>
+
+  <h2>An everyday example</h2>
+  <div class="story">
+    <p>Your boss asks for a report covering 6 regions. Two are missing.</p>
+    <p><strong>If you just didn't look them up</strong>, adding "Note: 2 regions missing" at the bottom is a bad answer. Go and look them up.</p>
+    <p><strong>If the data doesn't exist anywhere</strong>, then "Note: no data exists for these 2 regions" is the right answer. Making up numbers, or quietly dropping the regions, would be wrong.</p>
+  </div>
+
+  <h2>Your three misses</h2>
+  <p>Each time, you picked the note. Each time, the system could have gone and got the thing.</p>
+
+  <table class="cgrid">
+    <tr><th>Question</th><th>What you picked</th><th>Could the system get it?</th><th>Right answer</th></tr>
+    <tr class="mine"><td>D1 Q8 · report missing regions</td><td>Add a note listing the missing regions</td><td class="y">Yes <span class="why">nobody had searched for them</span></td><td>Coordinator sends searches for them</td></tr>
+    <tr class="mine"><td>D4 Q5 · missing PO number</td><td>Allow the field to be empty</td><td class="y">Yes <span class="why">it's on the purchase order, which just wasn't sent</span></td><td>Send the purchase order</td></tr>
+    <tr class="mine"><td>D4 Q8 · noisy performance comments</td><td>Label them "low priority"</td><td class="y">Yes <span class="why">you can switch the category off</span></td><td>Switch it off until it's fixed</td></tr>
+  </table>
+
+  <blockquote class="key">
+    A note that says "this is missing" doesn't fix anything. <strong>If the system could still get it, go and get it.</strong>
+  </blockquote>
+
+  <h2>When the note <em>is</em> the right answer</h2>
+  <p>Only when nothing the system does can get the missing thing. These three show up on the exam:</p>
+
+  <table class="cgrid">
+    <tr><th>Situation</th><th>Why it can't be fetched</th><th>Right answer</th></tr>
+    <tr class="win"><td>A contract has no termination clause</td><td>It was never written</td><td>Leave the field empty, so nothing is made up. <span class="why">You got this right on D4 Q1.</span></td></tr>
+    <tr class="win"><td>The only source refuses access, and nothing else covers it</td><td>Retrying won't change a refusal</td><td>Deliver the report and mark that part "gap: source unavailable"</td></tr>
+    <tr class="win"><td>Two trustworthy sources give different numbers</td><td>There isn't one true number to find</td><td>Report both, with where each came from. Don't pick one or average them.</td></tr>
+  </table>
+
+  <h2>Never right: pretending it's fine</h2>
+  <p>One kind of wrong answer is always wrong: making the problem look like it isn't there. Examples are returning an empty list when the database is actually down (your D2 retake Q7), filling a required field with a guess, or leaving the missing part out so the report "looks complete". An honest note always beats a hidden problem.</p>
+
+  <p>One last detail: sometimes "go and get it" means <em>hand it to a person who can</em>. On D4 Q5 the right answer said "send the purchase order, <em>or route it to review</em>". Passing it to someone who can find the missing thing still counts as getting it. Writing "empty" and moving on doesn't.</p>
+
+  <h2>Explain it back (answer in chat)</h2>
+  <div class="explain">
+    <p><b>1</b> D4 Q1 and D4 Q5 both offered "let the field be empty". It was right for one and wrong for the other. Which fact in each question decides it?</p>
+    <p><b>2</b> A search times out twice. The report then covers 3 of 5 topics and marks the other 2 "gap: source unavailable". Good answer or bad? What would make it bad?</p>
+    <p><b>3</b> In your own words: what's the one question, and what do you do for each answer?</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Practice: six new cases</h2>
+  <p>For each one, ask: can the system still go and get it?</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher, so ask me anything.</strong> If any option that says "flag it", "note it" or "leave it empty" looks right to you, bring it here and we'll run the one question on it together.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Where this comes from:</strong> the <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">official exam guide</a>, task statements 1.2, 4.3, 4.4, 5.3, 5.6.</p>
+    <p><strong>Miss history:</strong> D1 Q8 in learning record 0018; D4 Q5 and Q8 in 0019; D2 retake Q7 in 0016 (tool order). Full questions are in <code>tutor/question-bank.md</code>. Related: Lesson 5 (stop it happening beats noticing it afterwards).</p>
+    <p><strong>Previous:</strong> <a href="0014-glob-vs-grep.html">Lesson 14 — Glob finds files, Grep finds lines</a> · <strong>Next:</strong> <a href="0016-when-a-retry-can-help.html">Lesson 16 — When a retry can help</a></p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "An invoice extractor returns a null currency on 12% of invoices. Every one is a multi-page PDF whose currency appears only on page 2, and the pipeline sends page 1 only. Best fix?",
+    opts: [
+      "Keep currency nullable and flag those rows for human review",
+      "Default a missing currency to the vendor's usual currency",
+      "Send every page of each invoice through the extraction step",
+      "Add a prompt rule telling the model to search harder for it"
+    ],
+    ok: 2,
+    fb: "Can the system get it? Yes: the currency is on page 2, which the pipeline never sends. So send every page. Flagging only notes a problem you could fix, defaulting makes up a value, and no prompt can make the model read a page it never received."
+  },
+  {
+    stem: "A contract extractor must return governing_law. 9% of contracts never state one, and the legal team confirms none is implied. The field is required, and those rows come back as 'New York'. Best fix?",
+    opts: [
+      "Make governing_law nullable so a missing clause returns null",
+      "Retry each extraction with feedback until a value appears",
+      "Send the contract's full amendment history to the extractor",
+      "Reject any row equal to New York and send it for review"
+    ],
+    ok: 0,
+    fb: "Can the system get it? No: legal confirmed there's no clause. A required field forces the model to make one up, so let it be empty. Retrying can't find what isn't there, the history has nothing to find, and rejecting 'New York' throws out contracts that really are New York."
+  },
+  {
+    stem: "Two credible industry reports put 2024 market size at $4.1B and $5.3B, using different methodologies. The synthesis subagent must write the market-size section. Best handling?",
+    opts: [
+      "Report the average of the two estimates as the market size",
+      "Keep the more recent report's figure and drop the other",
+      "Search until a third source breaks the tie, then report it",
+      "Report both with their sources and the methodology gap"
+    ],
+    ok: 3,
+    fb: "Can the system get one true number? No: two trustworthy methods really disagree. Report both and say where each came from. Averaging makes up a number, dropping one hides the disagreement, and a third source is just a vote."
+  },
+  {
+    stem: "Human agents receive escalations reading 'customer context unavailable' in 30% of cases. The agent had the customer ID, order and root cause from its tools, but the handoff payload has no fields for them. Best fix?",
+    opts: [
+      "Keep the note so humans know to look the customer up",
+      "Add customer ID, order and root cause to the handoff",
+      "Have humans read the full transcript for every case",
+      "Tell the agent to restate key details in its last reply"
+    ],
+    ok: 1,
+    fb: "Can the system get it? Yes: the agent already had the details, and the handoff just has nowhere to put them. Add the fields. The note gives up on something easy to fix, the human doesn't have the transcript, and a chat reply isn't the handoff."
+  },
+  {
+    stem: "One subtopic's only source is a licensed database that returns 403 for your credentials. No other source covers it, and the report is due today. How should the coordinator handle it?",
+    opts: [
+      "Omit the subtopic quietly so the report reads as complete",
+      "Retry the database with exponential backoff until it works",
+      "Deliver the report with the subtopic marked as a known gap",
+      "Have the synthesis agent fill it from general knowledge"
+    ],
+    ok: 2,
+    fb: "Can the system get it? No: a 403 is a refusal, retrying won't change it, and no other source exists. So say honestly it's missing. Leaving it out quietly hides the problem, retrying can't fix a refusal, and general knowledge makes up findings with no source."
+  },
+  {
+    stem: "A brief names 8 competitors. In 25% of reports, 2 of them are missing. Logs show the coordinator dropped them while decomposing, so no subagent was ever asked about them. Best fix?",
+    opts: [
+      "Check coverage against the brief and re-delegate the gaps",
+      "Add a section listing competitors that have no findings",
+      "Raise results per search so more competitors are found",
+      "Ask the search subagent to look for competitors broadly"
+    ],
+    ok: 0,
+    fb: "Can the system get it? Yes: nobody searched for them. The coordinator checks the report against the brief and sends searches for what's missing. The list is just a note, and more results or broader searching might help by luck but never check the brief."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

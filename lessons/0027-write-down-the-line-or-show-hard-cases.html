@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 27 — Write down the line, or show the hard cases?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  dl.words { margin: 1rem 0 1.6rem; }
+  dl.words dt { font-weight: 700; margin-top: .7rem; }
+  dl.words dd { margin: .15rem 0 0 1.2rem; }
+  .check { background: var(--code-bg); border-radius: 6px; padding: .8rem 1rem; margin: 1rem 0 1.4rem; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: 1rem 0 1.4rem; font-family: var(--sans); font-size: .88rem; line-height: 1.45; }
+  .pair > div { border: 1px solid var(--rule); border-left-width: 5px; border-radius: 6px; padding: .7rem .9rem; }
+  .pair .vague { border-left-color: var(--bad); background: var(--bad-bg); }
+  .pair .crit { border-left-color: var(--good); background: var(--good-bg); }
+  .pair b { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; }
+  .pair pre { font-family: var(--mono); font-size: .8rem; white-space: pre-wrap; margin: .3rem 0; background: none; padding: 0; }
+  .line { margin: 1.2rem 0 1.8rem; font-family: var(--sans); font-size: .82rem; line-height: 1.35; }
+  .line .row { display: grid; grid-template-columns: 9.5rem repeat(3, 1fr) .5rem repeat(3, 1fr); gap: .3rem; align-items: stretch; margin: .45rem 0; }
+  .line .lab { font-weight: 700; padding: .35rem 0; }
+  .line .chip { border: 1px solid var(--rule); border-radius: 5px; padding: .35rem .4rem; text-align: center; color: var(--ink-soft); }
+  .line .bar { background: var(--accent); border-radius: 2px; }
+  .line .bar.off { background: repeating-linear-gradient(to bottom, var(--rule) 0 4px, transparent 4px 8px); }
+  .line .on { background: var(--good-bg); border-color: var(--good); color: var(--ink); font-weight: 600; }
+  .line .skip { background: var(--bad-bg); border-color: var(--bad); color: var(--ink); font-weight: 600; }
+  .line .hd { font-size: .74rem; color: var(--ink-soft); text-align: center; border: 0; padding: 0; }
+  .line .ex { border-width: 2px; border-color: var(--ink); }
+  .legend { font-family: var(--sans); font-size: .82rem; line-height: 2; }
+  .legend .chip { border: 1px solid var(--rule); border-radius: 5px; padding: .1rem .4rem; }
+  .legend .on { background: var(--good-bg); border-color: var(--good); }
+  .legend .skip { background: var(--bad-bg); border-color: var(--bad); }
+  .legend .ex { border-width: 2px; border-color: var(--ink); }
+  .line .note { grid-column: 2 / -1; font-size: .78rem; color: var(--ink-soft); margin: -.1rem 0 .5rem; }
+  .line .chip { min-width: 0; hyphens: auto; }
+  @media (max-width: 40rem) {
+    .line .row { grid-template-columns: repeat(3, 1fr) .3rem repeat(3, 1fr); font-size: .7rem; gap: .2rem; }
+    .line .lab { grid-column: 1 / -1; padding: .4rem 0 0; }
+    .line .row > div:first-child:empty { display: none; }
+    .line .note { grid-column: 1 / -1; }
+    .line .chip { padding: .25rem .1rem; }
+    .pair { grid-template-columns: 1fr; }
+  }
+  @media print { .pair > div, .line .chip, .line .bar, .check { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 27 · Domains 4 and 5 · Task statements 4.1, 4.2, 5.5 (the exam is split into 5 domains, its main topic areas)</p>
+  <h1>Write down the line, or show the hard cases?</h1>
+  <p class="subtitle">On 23 October you sat three papers: Weak Rows Paper 1, Weak Rows Paper 2 and Representative Mock 3. On all three you lost a question of the same kind: the model flags too much, and the stem lists what really counts. Each time you picked examples, and the answer was to write the list into the prompt. This page shows those three questions in full, plus four more from the same day where a fix from a neighbouring topic was picked. You don't need to remember any of them.</p>
+  <p>Three topic numbers from the exam guide come up on this page: <strong>4.1</strong> is writing clear criteria into the prompt, <strong>4.2</strong> is giving the model examples, and <strong>5.5</strong> is deciding which results a person checks. The page itself is in four parts, numbered 1 to 4.</p>
+
+  <p><strong>The plain question.</strong> A model flags far too many things. Do you write down what to flag and what to skip, or do you show it examples?</p>
+
+  <p><strong>An everyday example.</strong> You hire someone new to check staff expense receipts. Day one you tell them: "flag anything odd." By lunch they have flagged 80 receipts, and 6 are real problems. Coffee bought on a Saturday, a taxi tip and a total rounded to the nearest pound all looked odd to them.</p>
+  <p>So you show them 3 receipts that really were fraud. The next day they still flag the coffee and the tips: nobody told them those are fine. Then you write on a card: <em>"Flag only: a receipt over £500 with no manager approval, the same receipt claimed twice, a shop not on our supplier list. Ignore: tips, rounding, weekend dates."</em> The flags drop to about the real ones.</p>
+  <p>The fraud receipts showed what a problem looks like. Only the card said where the line is, and what sits on the safe side of it.</p>
+
+  <blockquote class="key">
+    <strong>The one idea:</strong> when the question tells you what really counts, write it into the prompt: what to flag, and what to skip. Examples of real problems can't cut false flags, because they never show the model what to leave alone. Examples are the fix only when rules were already written and new cases keep slipping past them.
+  </blockquote>
+
+  <h2>Words to start with</h2>
+  <dl class="words">
+    <dt>Stem</dt><dd>The question's own text, above the four options.</dd>
+    <dt>Prompt</dt><dd>The written instructions given to the model before it does a task.</dd>
+    <dt>Flag, false flag</dt><dd>A flag is the model saying "a person should look at this". A false flag is one where the person looks and finds nothing wrong. Too many false flags and people stop reading the flags at all, including the real ones. <em>Precision</em> is the share of flags that are real: 41 real out of 600 flags is low precision.</dd>
+    <dt>Criteria</dt><dd>A written list in the prompt that says what to flag and what to skip, by name. "Flag a premium above the quoted amount; ignore a different font or layout" is criteria. "Flag anything serious" is not: it doesn't name anything.</dd>
+    <dt>Few-shot examples</dt><dd>Short worked cases written into the prompt. Each one is a piece of the input (a few lines of a document or of code), the right answer for it, and, in the best ones, a sentence on <em>why</em>. They are not extra documents sent for processing; they sit in the prompt beside the instructions. "Few-shot" just means "a few examples".</dd>
+    <dt>Score, threshold, calibrate</dt><dd>Some pipelines have the model give each extracted value a score from 0 to 1. A threshold (or cutoff) is the line: values below it go to a person. <em>Calibrating</em> means setting that line from real results: take a set of documents a person already checked by hand, see how often the model was wrong at each score, and put the cutoff at the score below which that field is wrong too often to trust.</dd>
+    <dt>Hand-checked set</dt><dd>Documents a person has already checked, value by value. It is the answer key you compare the model's scores against. The exam guide calls it a "labelled set".</dd>
+    <dt>Random and stratified sample</dt><dd>A random sample picks items by chance, to measure how often the model is wrong. A <em>stratified</em> sample first splits the items into groups (for example by document type) and samples from each group, so one bad group can't hide inside a good overall average.</dd>
+    <dt>Rubric</dt><dd>A written marking guide: rules for what gets which mark or score.</dd>
+  </dl>
+  <p><strong>Words that appear in the past questions:</strong> a <em>pipeline</em> is a chain of automatic steps that documents pass through. A <em>subagent</em> is one model run that does one job inside a bigger system (a "synthesis subagent" combines the others' results). To <em>extract</em> a value is to pull it out of a document, such as a date or a total. A <em>quota briefing</em> is a report used to set fishing limits, and <em>biomass</em> is the total weight of a fish stock. A <em>policy schedule</em> is the page of an insurance policy listing its price (the premium), its dates and who is covered (the <em>named insured</em>); the <em>certificate</em> is the separate proof-of-cover document. A <em>pull request</em> is a proposed code change that colleagues review. An <em>N+1 query</em> is code that asks the database once per item inside a loop, instead of once for all items; <em>includes</em> is a way to load the related records in advance, so a loop over them asks the database nothing.</p>
+  <p><strong>Which way scores point:</strong> some questions have the model score how <em>odd</em> something is (high = flag it). Others have it score how <em>confident</em> it is in a value (low = send it to a person). For confidence scores, "below the threshold" means "goes to a person". For oddness scores, "above" means "flag it".</p>
+
+  <h2>Part 1 · A vague line is not the same as criteria</h2>
+  <p>When we reviewed Representative Mock 3 (its question is the first card at the end of Part 2), you asked: "isn't it better to provide 3 examples so the model can make a better judgement?" Behind that is a fair belief: examples are concrete, and an instruction is not. That is true of a <em>vague</em> instruction. It is not true of criteria. Here they are side by side, for the site inspection reports in that question. The criteria text is made up for this page:</p>
+  <div class="pair">
+    <div class="vague"><b>Vague: what was tried</b><pre>Flag any safety concerns.
+Focus on serious issues.</pre>The model still has to guess what "serious" means. It guesses the same way as before, so the flags barely change.</div>
+    <div class="crit"><b>Criteria: what fixes it</b><pre>Flag: roof leaks, exposed live wiring,
+missing guard rails.
+Skip: weathered cable ties, faded labels,
+cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that says skip it.</div>
+  </div>
+  <p>Criteria are concrete directions too. They are just written as a list instead of shown as cases. So when a stem says a vague line was tried and "changed little", read that as: <em>vague</em> instructions fail. It does not mean writing things down fails. The exam guide says it directly: lines like "be conservative" or "only report high-confidence findings" don't improve precision; specific criteria for what to report and what to skip do.</p>
+
+  <h2>Part 2 · Why examples from one side of the line can't cut false flags</h2>
+  <p>Picture every note in the reports in a row, from clearly routine on the left to clearly serious on the right. Somewhere in the middle is the line. The false flags are the routine notes on the left that the model calls serious.</p>
+  <p class="legend"><span class="chip on">green</span> = the model is told to flag it. <span class="chip skip">red</span> = told to skip it. <span class="chip">plain</span> = nothing tells the model what to do with it. <span class="chip ex">★</span> = one of the examples written into the prompt.</p>
+  <div class="line" aria-label="Diagram: notes from routine to dangerous, and what each fix covers">
+    <div class="row"><div></div><div class="chip hd">routine</div><div class="chip hd"></div><div class="chip hd">near the line</div><div></div><div class="chip hd">near the line</div><div class="chip hd"></div><div class="chip hd">serious</div></div>
+    <div class="row"><div class="lab">Examples of real problems only</div><div class="chip">cable ties</div><div class="chip">faded label</div><div class="chip">loose gutter</div><div class="bar off"></div><div class="chip">cracked seal</div><div class="chip on ex">★ roof leak</div><div class="chip on ex">★ live wire</div></div>
+    <div class="note">All the examples sit on the far right. Nothing shows the model what to do with the routine notes, which are where the false flags come from.</div>
+    <div class="row"><div class="lab">Criteria (4.1)</div><div class="chip skip">cable ties</div><div class="chip skip">faded label</div><div class="chip skip">loose gutter</div><div class="bar"></div><div class="chip on">cracked seal</div><div class="chip on">roof leak</div><div class="chip on">live wire</div></div>
+    <div class="note">The list draws the line: named things to flag on the right, named things to skip on the left.</div>
+    <div class="row"><div class="lab">Hard-case examples (4.2)</div><div class="chip">cable ties</div><div class="chip">faded label</div><div class="chip skip ex">★ loose gutter</div><div class="bar"></div><div class="chip on ex">★ cracked seal</div><div class="chip">roof leak</div><div class="chip">live wire</div></div>
+    <div class="note">Used when a list can't be finished: a few cases right next to the line, on both sides, each with why. From those, the model works out the rest. Part 3 shows when.</div>
+  </div>
+  <p>The notes in the diagram are made up. The point is where each fix puts its information. In the three cards at the end of this part, your picks all put it on one side only: three serious defects, five normal schedules, four papers that agree. None of them tells the model where the line is. Examples of normal cases fail in a matching way: every real case differs from them a little, and they don't say which differences matter.</p>
+  <div class="check"><strong>The check:</strong> if the stem names the real problems, or the causes of the false flags, pick the option that writes them into the prompt: what to flag <em>and</em> what to skip.</div>
+
+<section class="mc">
+  <p class="mc-h">Representative Mock 3, 23 Oct, question 49</p>
+  <p class="mc-stem">The prompt asks Claude to flag &quot;any safety concerns&quot; in site inspection reports. Reviewers find that <mark>3 of every 4 flags are routine notes</mark> such as &quot;cable ties weathered&quot;, while 2 real roof-penetration leaks were missed last quarter. Adding <mark>&quot;focus on serious issues&quot;</mark> to the prompt changed little. What change should you make?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Add 3 examples of serious defects to the prompt as few-shot examples</div><div class="mc-k"><b>✓ Correct: D</b>Add to the prompt what to flag, such as roof leaks, and what to skip</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Run the same prompt twice per report and keep flags found in both runs</span></li><li><span class="mc-l">C</span><span>Ask for routine notes in a second list beside the safety flags</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The problem was <em>too many</em> flags: 3 routine notes for every real one. The 3 examples in your pick are all serious defects. They show the model what a real flag looks like, but nothing in them says "weathered cable ties: skip". The routine notes keep coming.</li><li>"Focus on serious issues" failed because it is <em>vague</em>: the model still has to guess what "serious" means. That doesn't show that writing things down fails.</li><li>D writes the line down: flag roof leaks (and the other named problems), skip routine notes such as weathered cable ties. So D fixes both problems in the stem: the routine notes now have a rule that says skip, and the leaks that were missed are now named.</li></ul></div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 1, 23 Oct, question 18</p>
+  <p class="mc-stem">The pipeline flags a policy schedule for an account assistant when <mark>&quot;something looks unusual&quot;</mark>. Of 600 flags last month, 41 were real problems, and assistants now skim past flags. <mark>The real problems were of 3 kinds</mark>: a premium above the quoted amount, a policy period that differs from the certificate, and a named insured that differs from the client record. What change cuts the false flags?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add 5 examples of normal schedules for the model to compare each one against</div><div class="mc-k"><b>✓ Correct: B</b>Flag only on the 3 named conditions, with the differences to ignore listed</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Have the model score each schedule 1–10 for oddness and flag only 8 or above</span></li><li><span class="mc-l">D</span><span>Send flags to the assistants in daily batches of 50, sorted oldest first</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the stem hands you the list: the 3 kinds of real problem. When the stem names what counts, write it down as the rule (B). Your pick, 5 normal schedules, shows the model what "normal" looks like, but every real schedule differs from those 5 in many small ways. The model still has to decide which differences matter, which is the same guess that produced 559 false flags (600 flags, of which 41 were real). A doesn't help either: a 1–10 "oddness" score comes from the same vague sense of "unusual".</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 13</p>
+  <p class="mc-stem">The document-analysis subagent flags any figure in a paper that &quot;looks inconsistent with our survey data&quot;. Of 420 flags last quarter, <mark>290 turned out to be tonnes against kilograms, a different survey year or rounding</mark>. A prompt line saying <mark>&quot;only flag discrepancies you are highly confident about&quot;</mark> cut the flags by 5%. What change cuts the false flags?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add 4 papers that agree with the survey data for the subagent to compare against</div><div class="mc-k"><b>✓ Correct: B</b>Flag only same species, area and year gaps over 10%, after converting units</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Have the subagent score each discrepancy 0–100 and pass on scores over 80</span></li><li><span class="mc-l">D</span><span>Let the synthesis subagent drop the flagged figures it judges unimportant</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>In option B, "gaps over 10%" means the paper's figure and the survey's figure differ by more than 10%.</li><li>The stem names the 3 causes of the false flags: units, survey year, rounding. B answers each one: compare like with like (same species, area and year), convert units first, and allow a margin for rounding.</li><li>Papers that <em>agree</em> with the survey data (your pick) show nothing about the differences that don't matter. A paper in kilograms still looks like it disagrees with a table in tonnes.</li><li>The prompt line that was tried, "only flag what you are highly confident about", is the vague kind. The exam guide names it as an instruction that does not improve precision.</li><li><strong>You first picked B</strong>, then switched because 10% looked too big. Judge the method first: B was the only option that dealt with the 3 named causes. A number that looks a little off on the right method still beats the wrong method.</li></ul></div>
+</section>
+
+  <h2>Part 3 · When examples are the right fix</h2>
+  <p>Examples win in one situation: the cases are judgement calls that can't all be listed. The stem tells you by saying both of these:</p>
+  <ul class="steps">
+    <li>Rules were <strong>already written</strong>, and they didn't fix it.</li>
+    <li><strong>New cases keep turning up</strong> that the rules miss.</li>
+  </ul>
+  <p>"Rules" here means a named list, like the 9 skip rules in the card below. A vague line such as "focus on serious issues" doesn't count: it names nothing, so it counts as no rules, and the fix is still to write criteria (Part 1).</p>
+  <p>Then you give 2 to 4 cases that sit right next to the line, on both sides, each with the reason it is one or the other. The model learns the reasoning and applies it to cases nobody listed. This is the "hard-case examples" row in the diagram.</p>
+  <p>One more thing from the exam guide, so this doesn't swing too far: criteria can carry examples. When a review sorts problems into levels such as high, medium and low (severity levels), the guide says to define each level <em>and</em> give a code example for each: for instance, "High: data can be lost. Example: deleting rows with no backup." The examples there explain the criteria; they don't replace them.</p>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 3</p>
+  <p class="mc-stem">The review flags &quot;possible N+1 query&quot; on 45% of pull requests, and developers dismiss 70% of those flags. Most dismissed flags are loops over records already loaded with includes earlier in the method, or loops over 2 or 3 fixed items. <mark>A list of 9 skip rules for N+1 flags was added last month</mark>; dismissals fell only to 64%, and <mark>each week reviewers find another harmless shape the rules miss</mark>. What should you add?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A pause on N+1 flags until the skip list covers every harmless loop shape</div><div class="mc-k"><b>✓ Correct: A</b>4 code cases, each a harmless loop or a real N+1, with why it is which</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A tenth skip rule for loops that run over a fixed list of fewer than 4 items</span></li><li><span class="mc-l">C</span><span>A 0–1 score on each N+1 flag, posting only flags that score above 0.8</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> here, unlike the three cards above, rules <em>were</em> written (9 of them) and barely moved the number (70% to 64%). And a new harmless loop turns up every week, so the list can never be finished. That is the sign for examples. Option A in plain words: put 4 short pieces of code in the prompt. Two are loops that look like an N+1 but are fine (the records were already loaded earlier; the loop runs over 3 fixed items). Two are real N+1s. Each one says why. From the reasons, the model learns the judgement and can apply it to shapes nobody listed. Pausing a noisy kind of flag is a real move (the exam guide lists it under 4.1), but only <em>while you fix its prompt</em>. D waits for a skip list that will never cover every shape, so the flags never come back.</div>
+</section>
+
+  <div class="check"><strong>The check:</strong> did the stem say rules were tried <em>and</em> new cases keep slipping past them? Then 2–4 examples near the line, with reasons. If no rules were tried and the stem names what counts, write the rules.</div>
+
+  <h2>Part 4 · First name what is broken, then pick the fix</h2>
+  <p>On Weak Rows Paper 2 you knew each fix but often picked the one from a neighbouring topic. The fixes are all real; each one fixes a different broken thing. So before reading the options, say in a few words what is broken. Then use this table.</p>
+  <table class="cgrid">
+    <tr><th>What is broken (from the stem)</th><th>Topic</th><th>The fix</th></tr>
+    <tr><td>The model has no clear rule for what counts. The stem names the real problems, or the causes of the false flags. Often a vague line was tried and changed little.</td><td>4.1 criteria</td><td>Criteria: name what to flag and what to skip.</td></tr>
+    <tr><td>Rules were already written, and new judgement-call cases keep slipping past them.</td><td>4.2 examples</td><td>2–4 examples near the line, both sides, each with why.</td></tr>
+    <tr><td>The scores don't match reality (wrong values with high scores, right ones with low), and a hand-checked set exists.</td><td>5.5 review</td><td>Calibrate: set each field's cutoff from its error rate on the hand-checked set.</td></tr>
+    <tr><td>The source document itself gives 2 different values.</td><td>5.5 review</td><td>Send it to a person, whatever the score.</td></tr>
+    <tr><td>Nothing is broken: the scores are calibrated, but there are only so many checks.</td><td>5.5 review</td><td>Spend the checks on the lowest calibrated scores first.</td></tr>
+    <tr><td>You need to know how accurate the model is (for example before reviewing less).</td><td>5.5 review</td><td>A random sample, stratified by document type and field, including high scores.</td></tr>
+  </table>
+  <p>The three 5.5 questions from Weak Rows Paper 2 are below. In each, read the highlighted phrases and say what is broken before you look at the two answers.</p>
+
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 8</p>
+  <p class="mc-stem">Officers can check about 250 of the 3,000 documents processed each week. The model gives each extracted field a score from 0 to 1, and any document with a field under 0.9 goes to review: 1,400 a week. <mark>Spot checks find many wrong fields at 0.95 and many right ones at 0.7</mark>. <mark>Officers hand-checked every field on 1,800 documents last season</mark>. What should the team do?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>Put 5 low-scoring documents from the 1,800 in the prompt as examples</div><div class="mc-k"><b>✓ Correct: C</b>Set each field's cutoff from its error rate by score on the 1,800</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Write a rubric telling the model when a field should get a low score</span></li><li><span class="mc-l">B</span><span>Lower the cutoff from 0.9 to 0.6 until the queue fits 250 a week</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> what is broken here is the <em>scores</em>: a 0.95 is often wrong and a 0.7 often right, so a cutoff of 0.9 means nothing yet. And the stem gives you an answer key: 1,800 documents a person already checked field by field. Calibrating (C) means: for each field, look at how often the model was wrong at each score on those 1,800, and set the cutoff at the score below which that field is wrong too often to trust. Then a score means a measured error rate. Your pick puts 5 of those documents in the prompt as examples. That might change how the model reads documents, but it never ties a score to an error rate, so the review cutoff is still a guess. B also just guesses: it picks the number that makes the queue fit 250, and the scores stay unreliable.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 17</p>
+  <p class="mc-stem">A paper gives a cod stock biomass of <mark>41,000 tonnes in its abstract and 14,000 tonnes in its results table</mark>. The subagent extracted 41,000 with a score of 0.97, above the 0.9 threshold calibrated on hand-checked figures, so it went straight into a quota briefing. In a review of 200 figures that skipped review, <mark>6 of the 7 errors came from documents that gave 2 different values for the same figure</mark>. What should change?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Re-calibrate the 0.9 threshold on a new labelled set that includes such papers</div><div class="mc-k"><b>✓ Correct: D</b>Send a figure to a scientist when its source gives 2 values, whatever its score</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Have the subagent take the results-table value whenever a paper gives 2 values</span></li><li><span class="mc-l">C</span><span>Write criteria telling the subagent when to lower its own score for a figure</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> what is broken here is the <em>source document</em>: the paper says 41,000 in one place and 14,000 in another. The model read 41,000 correctly, so its high score was honest. It is like copying a phone number perfectly from a page that has a typo in it: a better copier can't fix the page. Calibration (your pick) is already done, and re-doing it can't help: a correct copy of a wrong figure scores high, just as a correct copy of a right figure does, so no cutoff can tell them apart. The exam guide says to send contradictory source documents to a person. So D: when the source gives 2 values, a scientist decides, whatever the score.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 19</p>
+  <p class="mc-stem">The 3 scientists can check 400 figures a month out of about 2,500 extracted, and every figure feeds a quota briefing. <mark>Field thresholds were calibrated last quarter on 1,500 hand-checked figures</mark>, and about 1,100 figures a month fall below them. A board member suggests the subagent's scores should not decide anything. <mark>How should the 400 checks be allocated?</mark></p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A random 400 of the 1,100, as a fair sample of the figures below threshold</div><div class="mc-k"><b>✓ Correct: C</b>The 400 figures with the lowest calibrated scores, lowest first</div></div>
+  <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>The 400 figures for the species with the largest quotas this year</span></li><li><span class="mc-l">D</span><span>Explicit criteria for the subagent to rank its own figures by doubt</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> nothing is broken here: the scores are already calibrated, so a low score really does mean a likely error. The question is only how to spend 400 checks. Send them where the errors are most likely: lowest calibrated score first (C). A random sample (your pick) is the tool for <em>measuring</em> how accurate the model is. It would spread the 400 checks evenly and leave many of the likely errors unchecked. The board member's suggestion is there to tempt you, and it is wrong: once scores are calibrated against hand-checked data, they are exactly what should decide the order.</div>
+</section>
+
+  <div class="check"><strong>The check:</strong> before the options, finish the sentence "What is broken is ___." The answer is one of: the rules; the cases the rules miss; the scores; the source document; nothing, there are just too few checks; or we haven't measured how accurate it is. Each one has its own row in the table.</div>
+
+  <h2>Summary</h2>
+  <table class="cgrid">
+    <tr><th>If the stem says…</th><th>Pick</th><th>Not</th></tr>
+    <tr><td>Too many flags, and it names the real problems or the causes</td><td>Criteria: flag these, skip those</td><td>Examples of real problems, or of normal ones; a confidence score</td></tr>
+    <tr><td>A vague line was tried ("serious issues", "only if confident")</td><td>Criteria</td><td>Reading it as proof that written rules fail</td></tr>
+    <tr><td>Rules were tried, new cases keep slipping past</td><td>2–4 near-the-line examples with why</td><td>One more rule; pausing and waiting for a list that can never be complete</td></tr>
+    <tr><td>Scores don't match errors, hand-checked set exists</td><td>Calibrate each field's cutoff on that set</td><td>Those documents as prompt examples; a rubric</td></tr>
+    <tr><td>The source gives 2 values</td><td>A person decides, whatever the score</td><td>Re-calibrating</td></tr>
+    <tr><td>Calibrated, too few checks</td><td>Lowest calibrated score first</td><td>A random sample</td></tr>
+    <tr><td>How accurate is it, per type?</td><td>Stratified random sample</td><td>The overall average; the model rating itself</td></tr>
+  </table>
+  <p>One habit from the survey-data card in Part 2 (Weak Rows Paper 2, question 13: you picked the right answer first, then switched because 10% looked too big): once you have found the option with the right method, keep it, even if one number in it looks a little off. Change a first pick only if a phrase in the stem breaks it.</p>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>A prompt said "focus on serious issues" and the flags hardly changed. Does that show written rules don't work?</li>
+    <li>The site inspection prompt flags weathered cable ties. Why can't adding 3 examples of real roof leaks stop that?</li>
+    <li>When are examples a better fix than a written list?</li>
+  </ol>
+
+  <h2>Six new practice questions</h2>
+  <p>Before you read the options, finish the sentence "What is broken is ___", or say "nothing is broken", as in Part 4. After you answer, a short explanation appears under the question.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If two fixes both look right, bring the question and we'll name what is broken together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> the official exam guide (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 4.1, 4.2, 5.5.<br>
+    <strong>Course notes:</strong> <a href="../notes/domain-4-prompt-engineering.md">notes/domain-4-prompt-engineering.md</a> §4.1 and §4.2 · <a href="../notes/domain-5-context-reliability.md">notes/domain-5-context-reliability.md</a> §5.5.<br>
+    <strong>Miss history:</strong> learning records 0041 (Weak Rows Paper 1), 0042 (Weak Rows Paper 2) and 0043 (Representative Mock 3), all 23 Oct.<br>
+    <strong>Previous:</strong> <a href="0026-which-server-entry-wins.html">Lesson 26 — Which server entry wins?</a> · <a href="0013-io-examples.html">Lesson 13 — Input/output examples</a> · <a href="0017-check-each-part-before-skipping-review.html">Lesson 17 — Check each part before skipping review</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A council's review step flags planning applications that \"might break the rules\". Of 300 flags last month, 60 were real. Planners say the real ones are of 3 kinds: a building over 9 m tall, a wall within 1 m of the boundary, and no tree survey on a site with protected trees. A prompt line \"only flag clear breaches\" made little difference. What change should you make?",
+    opts: [
+      "Add 4 approved applications, each with why it passes",
+      "Name in the prompt what counts as a breach and what doesn't",
+      "Flag only buildings over 9 m tall, the most common breach",
+      "Run the review twice and keep flags found by both runs"
+    ],
+    ok: 1,
+    fb: "What is broken is the rule: \"might break the rules\" doesn't say which rules. The stem names the 3 real kinds, so write them into the prompt, with what isn't a breach. \"Only flag clear breaches\" was the vague kind of line, so its failure says nothing against criteria. A shows only applications that pass: even with reasons, they don't name the 3 real breaches, so the model still guesses which differences matter. C names only 1 of the 3 kinds, so the other 2 real breaches would be missed. D repeats the same vague prompt twice."
+  },
+  {
+    stem: "A support inbox labels each email \"complaint\" or \"question\". The prompt has both definitions and 12 rules. Polite or sarcastic complaints (\"Great, the third late delivery this month!\") are still labelled questions about 30% of the time, and each week staff find a new phrasing the rules miss. What should you add?",
+    opts: [
+      "A 13th rule, with why sarcastic praise means a complaint",
+      "A pause on complaint labels until the rules cover all",
+      "3 hard emails, each with its label and why it is that one",
+      "A 0–1 score per label, keeping only those above 0.8"
+    ],
+    ok: 2,
+    fb: "What is broken is that the rules can't keep up: 12 were written, and new phrasings keep slipping past. That is when examples win. Put 3 hard emails in the prompt, close to the line, each with why it is a complaint or a question. The model learns the reasoning and applies it to new phrasings. A covers one more phrasing; next week brings another. B waits for a list that can't be finished. D scores the same unclear judgement."
+  },
+  {
+    stem: "An invoice pipeline gives each extracted field a score from 0 to 1. Fields under 0.85 go to a clerk. Spot checks find many wrong totals scored 0.96 and many correct ones scored 0.6. The clerks are already at full capacity. They hand-checked every field on 2,500 invoices last year. What should the team do?",
+    opts: [
+      "Set each field's cutoff from its error rate on the 2,500",
+      "Put 4 low-scoring invoices from the 2,500 in the prompt",
+      "Write a rubric for when the model should score a field low",
+      "Raise the cutoff to 0.95 to send more fields to a clerk"
+    ],
+    ok: 0,
+    fb: "What is broken is the scores: high scores are often wrong, low ones often right. And a hand-checked set exists. Calibrate: for each field, see how often the model was wrong at each score on the 2,500, and set the cutoff there. B uses the checked invoices as prompt examples, which never ties a score to an error rate. C is a rubric, a fix for how the model reasons, not for scores that don't match errors. D picks a new number by guess, not from error rates, and sends more work to clerks who are already full."
+  },
+  {
+    stem: "A lease gives the monthly rent as £2,400 in clause 3 and £4,200 in the payment schedule. The model extracted £2,400 with a score of 0.98, above a threshold calibrated on 1,000 hand-checked leases, so no one reviewed it. An audit finds that most errors that skipped review came from leases giving 2 different rents. What should change?",
+    opts: [
+      "Re-calibrate the threshold on leases with 2 rent figures",
+      "Always take the lower of the 2 rents when the lease differs",
+      "Tell the model to lower its score when it is less certain",
+      "Send leases with 2 different rents to a person to decide"
+    ],
+    ok: 3,
+    fb: "What is broken is the source: the lease contradicts itself. The model read clause 3 correctly, so the high score was honest, and no cutoff catches a correct copy of a wrong number. A contradictory source goes to a person, whatever the score. A re-tunes a cutoff that was already calibrated. B picks one value by a rule, and the lower figure may be the typo. C still relies on the model's own score."
+  },
+  {
+    stem: "Thresholds for each field were calibrated last month on 2,000 hand-checked claims forms. About 900 forms a week now have a field below its threshold, and the team can check 300. The goal is to catch as many wrong forms as possible. A manager says it would be fairer to pick the 300 at random. How should the 300 checks be chosen?",
+    opts: [
+      "A random 300 of the 900, as a fair spread of all of them",
+      "The 300 with the lowest calibrated scores, lowest first",
+      "The 300 forms from the clients with the largest claims",
+      "Criteria for the model to rank its own forms by doubt"
+    ],
+    ok: 1,
+    fb: "Nothing is broken: the scores are calibrated, so a low score really does mean a likely error. With only 300 checks, spend them where errors are most likely: lowest calibrated score first. A, a random sample, measures how accurate the model is; it doesn't send the likely errors to people. C picks by claim size, not by how likely an error is. D swaps calibrated scores for the model's own uncalibrated ranking."
+  },
+  {
+    stem: "Last month's extractions were 97% correct overall. Today a person also spot-checks some of the extractions that score above threshold. The manager wants to stop those spot-checks. The pipeline handles 5 kinds of document, and no one has checked accuracy for each kind. What should the team do before stopping the spot-checks?",
+    opts: [
+      "Review the 200 lowest-scoring extractions from last month",
+      "Ask the model to rate its own accuracy on each kind",
+      "Check a sample of high scores from every kind of document",
+      "Trust the 97% overall and stop the review this month"
+    ],
+    ok: 2,
+    fb: "What is missing is a measurement: nobody knows how accurate each kind of document is. A 97% average can hide one kind that is badly wrong. A stratified sample checks high-scoring extractions from each of the 5 kinds (and, where it matters, each field), so a bad kind shows up before the spot-checks stop. A checks the lowest scores, which already go to a person; it says nothing about the high-scoring extractions that would no longer be checked. B asks the model to rate itself. D trusts the average the exam guide warns about."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

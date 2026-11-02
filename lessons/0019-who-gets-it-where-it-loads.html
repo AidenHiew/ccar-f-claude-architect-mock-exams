@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 19 — Who gets it, and where does it load?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code, .map code { overflow-wrap: anywhere; }
+  .map { display: grid; grid-template-columns: 6.5rem 1fr 1fr; gap: 0; margin: 1.4rem 0 1.8rem; font-family: var(--sans); font-size: .86rem; line-height: 1.4; }
+  .map > div { border-top: 1px solid var(--rule); border-left: 1px solid var(--rule); padding: .6rem .7rem; }
+  .map > div:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .map > div:nth-last-child(-n+3) { border-bottom: 1px solid var(--rule); }
+  .map .hd { font-weight: 600; color: var(--ink-soft); font-size: .78rem; background: var(--code-bg); }
+  .map .who { font-weight: 700; }
+  .map .cell code { display: block; margin: .15rem 0; }
+  .map .cell small { display: block; color: var(--ink-soft); margin-top: .35rem; }
+  .map .none { color: var(--ink-soft); font-style: italic; }
+  .map .team { background: var(--good-bg); }
+  @media (max-width: 34rem) { .map { grid-template-columns: 4.6rem 1fr 1fr; font-size: .78rem; } .map > div { padding: .45rem .4rem; } }
+  pre.cfg { background: var(--code-bg); padding: .8rem 1rem; font-family: var(--mono); font-size: .8rem; line-height: 1.45; overflow-x: auto; }
+  pre.cfg .hl { background: #f3dfb0; }
+  @media print { .map .hd, pre.cfg { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 19 · Domains 2 and 3 · Task statements 3.1, 3.2, 2.4</p>
+  <h1>Who gets it, and where does it load?</h1>
+  <p class="subtitle">Every "where should this go?" question in Claude Code has the same answer key, once you ask two plain questions in order.</p>
+
+  <blockquote class="key">
+    Before you read the options, answer two questions about the thing being set up:<br>
+    1. <strong>Who needs it?</strong> The whole team, or just me?<br>
+    2. <strong>Where should it load?</strong> In this project only, or in all my projects?<br>
+    The two answers point to one box on the map below. The right option is the file in that box.
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> You work in a team office, and you also visit other offices.</p>
+  <ul class="steps">
+    <li><strong>The team noticeboard in this office.</strong> Everyone in the office reads it. It doesn't follow you anywhere. (Team, this place.)</li>
+    <li><strong>A sticky note on your own desk in this office.</strong> Only you see it, and only when you sit here. (Me, this place.)</li>
+    <li><strong>The notebook in your bag.</strong> Only you read it, and it comes to every office you visit. (Me, everywhere.)</li>
+  </ul>
+  <p>A reminder about your own login for this office goes on the sticky note. Put it on the noticeboard and the whole team reads it. Put it in the notebook and you carry it to offices where it means nothing. Claude Code has the same three places, for instructions, for skills and commands, and for MCP servers.</p>
+
+  <p><strong>Where this has cost you points.</strong> Here are the four questions in full, as you saw them, with your pick and the correct answer.</p>
+<section class="mc">
+  <p class="mc-h">D3 quiz, 16 Oct, Q3</p>
+  <p class="mc-stem">A developer on a 9-person team wants Claude to know their personal staging sandbox URL and that they like verbose test output. Both apply <mark>only to this repository</mark>. <mark>Teammates must not see</mark> these notes, and the developer's <mark>other repositories must not pick them up</mark> either. Where should the notes go?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>In ~/.claude/CLAUDE.md, which is only ever loaded by this developer's own sessions</div><div class="mc-k"><b>✓ Correct: C</b>In a CLAUDE.local.md at the project root, which stays out of version control</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>In the project's root CLAUDE.md under a section headed with this developer's username</span></li><li><span class="mc-l">D</span><span>In a personal skill in ~/.claude/skills/ that the developer invokes in each session</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> "who" was right (just me) but "where" was wrong. <code>~/.claude/CLAUDE.md</code> loads in <em>every</em> repo you open, and the stem says the other repos must not pick the notes up. Me + this project is <code>CLAUDE.local.md</code>.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D2 Paper 2, 16 Oct, R09</p>
+  <p class="mc-stem">Your team's project .mcp.json, committed to the repo, configures the community Jira MCP server with its token written as ${JIRA_API_TOKEN}. <mark>Eleven engineers use its 9 tools daily</mark>. A new engineer cloned the repo yesterday and <mark>skipped the onboarding step that sets team environment variables</mark>, and Claude Code shows no Jira tools in their sessions. What should they do?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>Copy the Jira server entry into their own user-level ~/.claude.json with their token written in directly, then restart Claude Code</div><div class="mc-k"><b>✓ Correct: A</b>Set JIRA_API_TOKEN in their own environment, restart Claude Code, then confirm in /mcp that the Jira server and its tools appear</div></div>
+  <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>Replace ${JIRA_API_TOKEN} in .mcp.json with a shared team token and commit it, which keeps everyone's setup consistent</span></li><li><span class="mc-l">D</span><span>Expand the Jira tool descriptions in .mcp.json, which helps Claude Code discover and prefer the Jira tools over built-ins</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the shared server was already in the right box (team, this project), and it worked for the other eleven. Only one machine was missing its environment variable. Copying the server into a personal file moves it to the wrong box, and writing the token in directly is the thing <code>${VAR}</code> exists to avoid.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q19</p>
+  <p class="mc-stem">The team shares an /incident-summary skill in .claude/skills/. One engineer wants a version that writes in a terser style <mark>for their own notes</mark>, and <mark>must not change what the other 11 engineers get</mark>. They tried editing the shared SKILL.md locally, but kept nearly committing it. Where should the personal version live?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>In CLAUDE.local.md, as an instruction to write incident summaries tersely for this engineer</div><div class="mc-k"><b>✓ Correct: A</b>In the engineer's ~/.claude/skills/ under a different name, such as /incident-summary-terse</div></div>
+  <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>In the root CLAUDE.md, as a line asking for terse incident summaries for this engineer</span></li><li><span class="mc-l">C</span><span>In .claude/skills/ next to the team skill, with a note in its description that it is personal</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> "just me" was right, but <code>CLAUDE.local.md</code> holds instructions, not skills, and it loads in every session in this repo. A line there would make <em>every</em> incident summary terse, including the team runs. A personal skill goes in <code>~/.claude/skills/</code>, under a new name.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q40</p>
+  <p class="mc-stem"><mark>All 9 engineers need</mark> the agent to read and comment on GitLab merge requests. A maintained community GitLab MCP server exists, and one engineer has started writing a custom server instead. <mark>Each engineer has a personal access token</mark>, and the <mark>repository must never contain a token</mark>. How should the team set this up?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>The community server added by each engineer to their own ~/.claude.json, with their own token</div><div class="mc-k"><b>✓ Correct: B</b>The community server in the project's .mcp.json, with the token read from ${GITLAB_TOKEN}</div></div>
+  <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>The custom server, once finished, in the project's .mcp.json with each token in an env var</span></li><li><span class="mc-l">D</span><span>The community server in the project's .mcp.json, with one shared service token in the file</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> "each engineer has a personal access token" pulled the server into the "just me" row. But all 9 engineers need the server, so it is team + this project: <code>.mcp.json</code>, with <code>${GITLAB_TOKEN}</code> so no token is committed.</div>
+</section>
+  <p>Every pick put the thing in a real, working place, just the wrong box. Q3 got "who" right and "where" wrong. Q19 got "who" right but chose a file that holds the wrong kind of thing. Q40 and R09 got "who" wrong because a token was involved. Section 2 covers that pull.</p>
+
+  <h2>1 · The map</h2>
+  <p>Rows are <em>who</em>, columns are <em>where</em>. Each box lists what lives there.</p>
+  <div class="map" role="table" aria-label="Who by where map of Claude Code configuration locations">
+    <div class="hd" role="columnheader"></div>
+    <div class="hd" role="columnheader">This project only</div>
+    <div class="hd" role="columnheader">All my projects</div>
+
+    <div class="who" role="rowheader">Whole team<br><small style="font-weight:400;color:var(--ink-soft)">committed to the repo</small></div>
+    <div class="cell team" role="cell">
+      Instructions: <code>CLAUDE.md</code> or <code>.claude/CLAUDE.md</code>
+      Skills: <code>.claude/skills/</code>
+      Commands: <code>.claude/commands/</code>
+      MCP servers: <code>.mcp.json</code> (project scope)
+      <small>Shared with every teammate through the repo.</small>
+    </div>
+    <div class="cell none" role="cell">No box for this in a repo. A team-wide setup that follows people into every project isn't something a repo can do. (Organisations have a managed policy file for that; the exam guide doesn't test it.)</div>
+
+    <div class="who" role="rowheader">Just me<br><small style="font-weight:400;color:var(--ink-soft)">never committed</small></div>
+    <div class="cell" role="cell">
+      Instructions: <code>CLAUDE.local.md</code> at the project root (you add it to <code>.gitignore</code>)
+      MCP servers: local scope, the default when you add a server (kept in <code>~/.claude.json</code> under this project)
+      <small>Only your sessions, only in this repo.</small>
+    </div>
+    <div class="cell" role="cell">
+      Instructions: <code>~/.claude/CLAUDE.md</code>
+      Skills: <code>~/.claude/skills/</code>
+      Commands: <code>~/.claude/commands/</code>
+      MCP servers: user scope, in <code>~/.claude.json</code>
+      <small>Only your sessions, in every repo you open.</small>
+    </div>
+  </div>
+  <p>A quick way to read the paths: <strong>a path starting with <code>~/</code> is yours alone</strong>, because it sits in your home folder, which no one else clones. <strong>A path inside the repo is the team's</strong> once it's committed. <code>CLAUDE.local.md</code> is the one in-repo file that stays yours, because the docs tell you to add it to <code>.gitignore</code> so it's never committed.</p>
+  <p>The exam guide talks about MCP in two scopes: project <code>.mcp.json</code> for shared team tooling, and user <code>~/.claude.json</code> for personal or experimental servers. The docs add local scope as the default. On the exam, read any <code>~/.claude.json</code> option as "just me".</p>
+
+  <h2>2 · Two things that pull you into the wrong box</h2>
+  <p><strong>Pull 1: "It needs a secret, so it must be personal."</strong> It doesn't follow. A token is personal, but the <em>server</em> can still be the team's. <code>.mcp.json</code> supports environment-variable expansion, so the shared file names the variable and each engineer's machine supplies the value:</p>
+<pre class="cfg">// .mcp.json, committed. Holds no token.
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "npx",
+      "args": ["-y", "gitlab-mcp-server"],
+      "env": { "GITLAB_TOKEN": <span class="hl">"${GITLAB_TOKEN}"</span> }
+    }
+  }
+}</pre>
+  <p class="footer" style="margin-top:-.8rem">Made-up server name, for illustration. The <code>${VAR}</code> syntax is from the Claude Code MCP docs.</p>
+  <p>Ask "who needs the <em>server</em>?", not "who owns the token?". If the whole team needs it, it goes in <code>.mcp.json</code>, with each token in a variable. That's Q40 (in full above). R09, also above, is the same idea from the other side: the shared file was already right, and only one machine was missing its variable.</p>
+
+  <p><strong>Pull 2: "It's my version of a team thing."</strong> A personal variant of a team skill goes in <code>~/.claude/skills/</code> <strong>under a different name</strong>. The name matters. When a personal skill and a project skill share a name, the docs say the personal one runs. Keep the name <code>/incident-summary</code> and the team version stops running in your sessions. Name it <code>/incident-summary-terse</code> and you have both.</p>
+  <p><code>CLAUDE.local.md</code> isn't a home for a skill variant. It's instructions, and it loads in every session you start in this repo. "Write incident summaries tersely" there would change every summary you get, including the runs that need the team's full style. That was Q19, above.</p>
+
+  <h2>3 · The exception, kept for last: things that shouldn't be stored at all</h2>
+  <p>Everything on the map loads again and again, at the start of sessions or whenever a skill is invoked. Some context is for <strong>one task</strong>: one log file, one investigation. That goes in no box. Type <code>@path/to/file</code> in your prompt, and Claude Code adds the file's content to this conversation. Nothing is saved for later sessions or for teammates. So add a zeroth question: <strong>is this needed again, or just now?</strong> Just now → <code>@</code> in the prompt.</p>
+  <p>The mock question where this cost you a point:</p>
+<section class="mc">
+  <p class="mc-h">Representative mock, 19 Oct, Q18</p>
+  <p class="mc-stem">To debug one routing outage, a developer added the line '@logs/outage-0412.log' to the repository's root CLAUDE.md and committed it. The log is 900 lines and <mark>matters only for that single investigation</mark>, and the developer also works in 3 other repositories. A week later <mark>every teammate's sessions still load it at startup</mark>. What should the developer have done?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Create a .claude/rules/outage.md file with a paths glob of logs/** that holds the import line</div><div class="mc-k"><b>✓ Correct: D</b>Reference @logs/outage-0412.log in the debugging session's prompt and leave CLAUDE.md alone</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Put the import in the developer's ~/.claude/CLAUDE.md, out of the teammates' sessions</span></li><li><span class="mc-l">B</span><span>Paste a prose summary of the log's key errors into the root CLAUDE.md under an Outage heading</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> C is a standing setup, just like the original line in CLAUDE.md: both load again and again. The log matters for one investigation, so it belongs in that session's prompt as <code>@logs/outage-0412.log</code>, and nowhere on the map.</div>
+</section>
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer both in chat before the quiz. Each one gives you everything you need.
+    <ol class="steps">
+      <li><strong>Your own miss: mock, 19 Oct, Q40.</strong> The original question:
+        <blockquote>All 9 engineers need the agent to read and comment on GitLab merge requests. A maintained community GitLab MCP server exists, and one engineer has started writing a custom server instead. Each engineer has a personal access token, and the repository must never contain a token. How should the team set this up?<br><br>
+        A) The custom server, once finished, in the project's .mcp.json with each token in an env var<br>
+        B) The community server in the project's .mcp.json, with the token read from ${GITLAB_TOKEN} <strong>✓ correct</strong><br>
+        C) The community server added by each engineer to their own ~/.claude.json, with their own token <strong>✗ your pick</strong><br>
+        D) The community server in the project's .mcp.json, with one shared service token in the file</blockquote>
+        <strong>Part 1:</strong> answer the two questions for the GitLab server. Who needs it? Where should it load? Which box does that give? (Answer shape: "Who: ___. Where: ___. Box: ___.")<br>
+        <strong>Part 2:</strong> which words in the stem made C feel right, and what in B takes away that reason? One sentence each.</li>
+      <li><strong>A new case: Priya's setup.</strong> Priya is on an 8-person team. The facts:
+        <ol>
+          <li>The team has a <code>/pr-review</code> skill in the repo's <code>.claude/skills/</code>.</li>
+          <li>Priya wants a stricter version of <code>/pr-review</code> for her own reviews. The rest of the team keeps the normal one.</li>
+          <li>She wants Claude to know her local database runs on port 5433. That's true only on her machine and only for this repo.</li>
+          <li>She's trying out a diagram MCP server for herself, in all her repos. The team hasn't discussed it.</li>
+          <li>The team agrees everyone needs the Linear MCP server. Each person has their own Linear API key.</li>
+        </ol>
+        <strong>Part 1:</strong> for facts 2 to 5, name where each one goes. (Answer shape: "2 → ___, 3 → ___, 4 → ___, 5 → ___.")<br>
+        <strong>Part 2:</strong> for fact 2, what goes wrong in Priya's own sessions if her stricter copy keeps the name <code>/pr-review</code>?</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Six new cases. For each, answer the two questions first (who needs it, where should it load), and only then read the options.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If an option with <code>~/</code> looks right just because a token or a personal preference is involved, bring it here and we'll place it on the map together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://code.claude.com/docs/en/memory">Claude Code docs: How Claude remembers your project</a> (fetched 2026-10-19). Its scope table lists user (<code>~/.claude/CLAUDE.md</code>, "Only you (all projects)"), project (<code>./CLAUDE.md</code>, "Team members via source control") and local (<code>./CLAUDE.local.md</code>, "Only you (current project)").<br>
+    <strong>Also cited:</strong> <a href="https://code.claude.com/docs/en/mcp">MCP docs</a> (local, project and user scopes; <code>${VAR}</code> and <code>${VAR:-default}</code> expansion in <code>.mcp.json</code>); <a href="https://code.claude.com/docs/en/skills">Skills docs</a> (personal <code>~/.claude/skills/</code> vs project <code>.claude/skills/</code>; same name in both → the personal one runs); <a href="https://code.claude.com/docs/en/common-workflows">Common workflows</a> (<code>@</code> file references add the file to the conversation). All fetched 2026-10-19.
+    <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 2.4, 3.1, 3.2.<br>
+    <strong>Miss history:</strong> learning records 0008 and 0022 (CLAUDE.local.md), 0023 (R09), 0027 (mock Q19, Q40, Q18).<br>
+    <strong>Previous:</strong> <a href="0018-one-message-or-one-at-a-time.html">Lesson 18 — One message, or one at a time?</a> · <strong>Reference:</strong> <a href="../reference/scope-map.html">Scope map cheat sheet</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A team of 6 wants Claude Code to use the Sentry MCP server in this repo. Every engineer needs it, each has their own Sentry auth token, and no token may ever be committed. How should it be set up?",
+    opts: [
+      "Each engineer adds it to their own ~/.claude.json with their own token",
+      "Project .mcp.json, with the token written in it as ${SENTRY_TOKEN}",
+      "Project .mcp.json, with one shared team token written into the file",
+      "A CLAUDE.md note telling each engineer how to add the server locally"
+    ],
+    ok: 1,
+    fb: "Who needs the server? The whole team. Where? This project. That's .mcp.json. The token is personal, but ${SENTRY_TOKEN} lets each machine supply its own, so nothing secret is committed. A is the Q40 pick: the token pulls the server into the 'just me' row. C commits a secret. D leaves the team to set up six separate copies by hand."
+  },
+  {
+    stem: "A developer wants Claude to use their own test account and their local port 4100 when working in this repo. Teammates must not get these notes, and the developer's other repos must not load them. Where do they go?",
+    opts: [
+      "~/.claude/CLAUDE.md, which no teammate's session ever loads",
+      "The project CLAUDE.md, under a heading with the developer's name",
+      "A personal skill in ~/.claude/skills/ that they invoke when needed",
+      "CLAUDE.local.md at the project root of this one repository"
+    ],
+    ok: 3,
+    fb: "Who: just me. Where: this project. That box is CLAUDE.local.md: you add it to .gitignore, and it loads only in this repo. A gets 'who' right and 'where' wrong: user-level CLAUDE.md loads in every repo. B is committed, so the team reads it. C is a skill, not standing instructions, and it would also be available in every repo."
+  },
+  {
+    stem: "An engineer copies the team's /release skill into ~/.claude/skills/release/ and tightens its checklist, keeping the name release. Per the Claude Code docs, what is the result?",
+    opts: [
+      "Their sessions now run their copy, and the team version is hidden",
+      "Every teammate's /release now runs this engineer's personal copy",
+      "Claude Code refuses to load either skill until one is renamed",
+      "Both load and Claude picks whichever description fits each request"
+    ],
+    ok: 0,
+    fb: "When a personal and a project skill share a name, the personal one runs, in your sessions only. Teammates are unaffected (B is wrong: ~/ is never shared), but in this engineer's sessions /release no longer runs the team version. That's why the guide says to give personal variants a different name, such as /release-strict. C and D describe behaviour the docs don't list."
+  },
+  {
+    stem: "Every engineer who clones the repo should get a /deploy-check command that runs the team's pre-deploy checklist, with no extra setup. Where should the command live?",
+    opts: [
+      "In each engineer's ~/.claude/commands/, copied over at onboarding",
+      "In the project CLAUDE.md, as a paragraph describing the check steps",
+      "In .claude/commands/ inside the repository, under git",
+      "In CLAUDE.local.md at the project root so each person can adjust it"
+    ],
+    ok: 2,
+    fb: "Who: the whole team. Where: this project. Committed .claude/commands/ is shared through version control, so cloning is enough. A is the right folder for personal commands, and copying by hand drifts. B is instructions, not a command. D is personal and kept out of git, so a fresh clone has nothing."
+  },
+  {
+    stem: "A developer is trying out a database-diagram MCP server for their own use, in all of their repos. The team hasn't agreed to adopt it. Where should the server be configured?",
+    opts: [
+      "Project .mcp.json in each repo, marked as experimental in its name",
+      "User scope in ~/.claude.json, the developer's own config file",
+      "Project .mcp.json in one repo, with its token read from ${DB_TOKEN}",
+      "CLAUDE.local.md in each repo, with the server's start command in it"
+    ],
+    ok: 1,
+    fb: "Who: just me. Where: all my projects. That's user scope in ~/.claude.json, which the guide describes as the place for personal or experimental servers. A and C commit an unagreed server to the team's config. D is instructions, not server configuration; nothing in it starts a server."
+  },
+  {
+    stem: "A developer needs Claude to compare today's failed build log, build-1019.log, against the CI config, once, to find why one job broke. What is the best way to give Claude the log?",
+    opts: [
+      "Add @build-1019.log to the project CLAUDE.md, and remove it later",
+      "Put @build-1019.log in ~/.claude/CLAUDE.md for this week only",
+      "Add a .claude/rules/ file that @-imports the log for logs/** paths",
+      "Type @build-1019.log in the prompt where you ask the question"
+    ],
+    ok: 3,
+    fb: "Zeroth question first: needed again, or just now? Just now. An @ reference in the prompt adds the file to this conversation only. A loads it into every teammate's sessions until someone remembers to remove it. B loads it in all of your repos. C is standing, committed configuration for a one-off task; that was mock Q18."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

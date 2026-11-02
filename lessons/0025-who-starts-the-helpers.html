@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 25 — Who starts the helpers, and who notices when it stops?</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/miss.css">
+<style>
+  table.cgrid code { overflow-wrap: anywhere; }
+  .tl { margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .82rem; }
+  .tl .row { display: grid; grid-template-columns: 7.5rem 1fr; align-items: center; gap: .5rem; margin: .3rem 0; }
+  .tl .track { position: relative; height: 1.5rem; border-left: 1px solid var(--rule); }
+  .tl .bar { position: absolute; top: .2rem; height: 1.1rem; border-radius: 3px; background: var(--code-bg); border: 1px solid var(--rule); font-size: .72rem; line-height: 1.1rem; padding-left: .3rem; white-space: nowrap; overflow: hidden; }
+  .tl .good .bar { background: var(--good-bg); }
+  .tl .cap { color: var(--ink-soft); margin: .2rem 0 .8rem; }
+  .nest { margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .86rem; line-height: 1.4; }
+  .nest .box { border: 1px solid var(--rule); border-radius: 6px; padding: .6rem .8rem; margin-top: .4rem; }
+  .nest .outer { background: var(--good-bg); }
+  .nest .inner { background: var(--paper); }
+  .nest .lbl { font-weight: 700; }
+  .nest small { display: block; color: var(--ink-soft); }
+  .nest ul { margin: .3rem 0 0 1.1rem; padding: 0; }
+  @media print { .tl .bar, .nest .box { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 25 · Domain 1 · Task statements 1.1, 1.3, 1.4, 1.7</p>
+  <h1>Who starts the helpers, and who notices when it stops?</h1>
+  <p class="subtitle">On the 21 October practice paper, two questions were lost on words, not on thinking: your instinct matched the correct answer, but one key word in the right option was new to you. This lesson teaches those words and a few close relatives.</p>
+
+  <p><strong>The plain question.</strong> When an agent hands work to helper agents, how does it start them? And when the agent stops working for any reason, whose code notices?</p>
+
+  <p><strong>An everyday example: a restaurant kitchen.</strong></p>
+  <ul class="steps">
+    <li><strong>The head chef hands out tickets.</strong> Each ticket tells one cook what to make. The cook never heard the customer, so the ticket has to say everything the cook needs.</li>
+    <li><strong>One ticket at a time is slow.</strong> If the chef hands out a ticket, waits for that dish, then hands out the next, three dishes take three times as long. Hand out all three tickets at once and three cooks work side by side.</li>
+    <li><strong>The manager stands outside the kitchen.</strong> The manager doesn't cook. The manager's job is to check every table got its food. If the chef faints, the power cuts out or the oven catches fire, the cause doesn't matter: the manager goes to the table with a note of what was ordered and what happened.</li>
+  </ul>
+  <p>An agent system has the same three parts. The head chef is the <strong>coordinator</strong> (the main agent). A ticket is a <strong>Task call</strong>, which starts a <strong>subagent</strong> (a helper agent). The manager is the <strong>wrapper</strong>: your own code outside the agent.</p>
+
+  <blockquote class="key">
+    A <strong>Task call</strong> is how a coordinator starts a subagent. Several Task calls in <strong>one</strong> response run at the same time.<br>
+    A <strong>wrapper</strong> is your own code around the agent loop (the code that keeps the agent calling Claude and its tools, explained in section 2). It checks how the loop ended, and for any bad ending it hands the case to a human.
+  </blockquote>
+
+  <p><strong>Where this cost you points.</strong> Both questions are shown in full, as you saw them, with your pick and the correct answer. Words you'll meet in them:</p>
+  <ul class="steps">
+    <li><strong>Tool names</strong> written like <code>set_payment_plan</code> or <code>escalate_to_human</code> are tools the agent in that scenario can call. A tool's <strong>client code</strong> is the code that runs when the agent calls it.</li>
+    <li>An <strong>MCP server</strong> is the program that provides tools to an agent.</li>
+    <li>An <strong>isError result</strong> is a tool reply that reports a failure as an ordinary result the model can read, instead of crashing. A <strong>retryable flag</strong> on it says whether trying again might work.</li>
+    <li>A <strong>system prompt</strong> is the standing instructions an agent gets at the start of every session.</li>
+    <li>A <strong>coordinator</strong> is the main agent that hands out work; a <strong>Task call</strong> and a subagent <strong>brief</strong> are explained in section 1.</li>
+  </ul>
+<section class="mc">
+  <p class="mc-h">D1/D4/D5 paper, 21 Oct, question 4</p>
+  <p class="mc-stem">About 0.8% of sessions end with the agent process gone: <mark>an unhandled exception in set_payment_plan's client code</mark>, or <mark>the hosting platform killing a session after 120 seconds</mark>. These customers see the chat go silent, and 60% of them call back within a day. <mark>Staff taking the calls cannot see the chat transcript</mark>. What should you build?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>An isError result with a retryable flag for set_payment_plan failures in place of an exception</div><div class="mc-k"><b>✓ Correct: B</b>A wrapper around the loop that opens a human case on any abnormal exit, with account ID, issue and last step</div></div>
+  <details open><summary>The other two options (A, C)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>An MCP server change that retries set_payment_plan 3 times before raising an exception</span></li><li><span class="mc-l">C</span><span>A system prompt rule telling the agent to call escalate_to_human whenever a tool returns an error</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> the stem names <em>two</em> causes. D is a good fix for the first one: a set_payment_plan failure comes back as a result the model can read, instead of crashing the process. But it does nothing about the second: the platform killing the session at 120 seconds. In our review chat after the paper, you said you skipped B because you didn't know the word <em>wrapper</em>. Section 2 explains it. In short: it's your own code around the agent loop. It checks how the loop ended and opens a human case for any bad ending, whatever caused it.</div>
+</section>
+<section class="mc">
+  <p class="mc-h">D1/D4/D5 paper, 21 Oct, question 9</p>
+  <p class="mc-stem">For the weekly briefing the coordinator searches 3 subtopics: prices, weather and trade policy. <mark>Each search is independent</mark> and takes about 3 minutes. Logs show the coordinator <mark>emits one Task call, waits for its result, then emits the next</mark>, and briefings take 10 minutes. How should the searches be launched?</p>
+  <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Run 3 coordinator processes, each owning one subtopic, and merge their briefings</div><div class="mc-k"><b>✓ Correct: D</b>Have the coordinator emit all 3 Task calls in a single response</div></div>
+  <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Combine the 3 subtopics into one search subagent brief with a longer time budget</span></li><li><span class="mc-l">B</span><span>Let the prices search subagent spawn the weather and trade policy searches itself</span></li></ul></details>
+  <div class="mc-why"><strong>Where it went wrong:</strong> your instinct was right: run the three searches at the same time. But you didn't know a <em>Task call</em> is how a coordinator starts a subagent, so D read like jargon and C was the only option that visibly ran things in parallel. Section 1 explains it. In short: put all three Task calls in one response and the three subagents run side by side, with one coordinator. C needs three coordinators and a merge step to get the same result.</div>
+</section>
+
+  <h2>1 · Starting subagents: the Task tool</h2>
+  <p>A coordinator can't start a subagent by wanting to. It has to call a tool, the same way it calls a search tool or a database tool. That tool is the <strong>Task tool</strong>. One use of it is a <strong>Task call</strong>: "start a subagent, and here is its brief." (Newer Claude Code docs also list it under the name <code>Agent</code>; it is the same tool.)</p>
+
+  <p><strong>Three facts about it that the exam tests:</strong></p>
+  <ol class="steps">
+    <li><strong>The coordinator must be allowed to use it.</strong> Every agent has an <code>allowedTools</code> list: the tools it may call. If <code>"Task"</code> isn't on the coordinator's list, it cannot start any subagent, whatever its prompt says. A question where "the coordinator never delegates" and the config lists <code>allowedTools: ["WebSearch", "Read"]</code> (a web search tool and a file-reading tool, but no Task) is pointing at this.</li>
+    <li><strong>The brief is all the subagent gets.</strong> A subagent does not see the coordinator's conversation. Anything it needs, such as earlier search results, must be written into the Task call's prompt. (That's the ticket in the kitchen example.)</li>
+    <li><strong>Several Task calls in one response run in parallel.</strong> This is question 9 of the paper, shown in full above.</li>
+  </ol>
+
+  <p>Here is the paper's question 9 timing. Each search takes about 3 minutes. The scale runs from 0 to 10 minutes.</p>
+  <div class="tl" role="img" aria-label="Timeline: three Task calls one per turn take about 9 minutes; three Task calls in one response take about 3 minutes">
+    <p class="cap"><strong>One Task call per turn</strong> (what the logs showed): each search waits for the one before it.</p>
+    <div class="row"><span>Prices</span><div class="track"><span class="bar" style="left:0;width:30%">3 min</span></div></div>
+    <div class="row"><span>Weather</span><div class="track"><span class="bar" style="left:30%;width:30%">3 min</span></div></div>
+    <div class="row"><span>Trade policy</span><div class="track"><span class="bar" style="left:60%;width:30%">3 min</span></div></div>
+    <p class="cap">About 9 minutes of searching.</p>
+    <p class="cap"><strong>All 3 Task calls in one response</strong> (answer D): three subagents run side by side.</p>
+    <div class="row good"><span>Prices</span><div class="track"><span class="bar" style="left:0;width:30%">3 min</span></div></div>
+    <div class="row good"><span>Weather</span><div class="track"><span class="bar" style="left:0;width:30%">3 min</span></div></div>
+    <div class="row good"><span>Trade policy</span><div class="track"><span class="bar" style="left:0;width:30%">3 min</span></div></div>
+    <p class="cap">About 3 minutes of searching, still with one coordinator.</p>
+  </div>
+  <p>Your pick, C, would also run the searches at the same time. But it gets there by running three whole coordinators and then merging three briefings. D gets the same speed with one coordinator and no merge step. When a question says the coordinator "emits one Task call, waits, then emits the next", the fix is to emit them together.</p>
+
+  <p><strong>AgentDefinition: the job description for one kind of subagent.</strong> The coordinator starts subagents; an <code>AgentDefinition</code> says what each <em>kind</em> of subagent is. It holds three things: a <strong>description</strong> (what this subagent is for), a <strong>system prompt</strong> (its standing instructions), and its <strong>tool restrictions</strong> (which tools it may use). So "the search subagent must only search, never write files" is set in the search subagent's AgentDefinition, not in a prompt line asking it to behave.</p>
+
+  <h2>2 · The wrapper: your code around the loop</h2>
+  <p>First, the loop itself. An <strong>agent loop</strong> is the code that keeps the agent working. It sends the conversation to Claude and reads the <code>stop_reason</code> on the reply (a field that says why Claude stopped writing):</p>
+  <ul class="steps">
+    <li><code>"tool_use"</code>: Claude wants a tool. Run it, add the result to the conversation, and send it back for the next step.</li>
+    <li><code>"end_turn"</code>: Claude has finished. Show the answer and stop.</li>
+  </ul>
+  <p>That loop only works while it is running. If a tool's code throws an error nobody catches, or the hosting platform kills the session, the loop is gone. The loop can't escalate, and neither can the model. Something <em>outside</em> the loop has to notice. That something is the wrapper.</p>
+
+  <div class="nest" role="img" aria-label="Nested boxes: the wrapper contains the agent loop, which calls tools">
+    <div class="box outer">
+      <span class="lbl">Wrapper</span> <small>Your code. It starts the loop, then checks how the loop ended.</small>
+      <div class="box inner">
+        <span class="lbl">Agent loop</span> <small>Send to Claude → read stop_reason → run tools → repeat until "end_turn".</small>
+        <div class="box inner"><span class="lbl">Tools</span> <small>set_payment_plan, search, and so on.</small></div>
+      </div>
+      <ul>
+        <li><strong>Normal ending</strong> ("end_turn"): nothing to do.</li>
+        <li><strong>Any bad ending</strong> (an uncaught error, the session killed, anything else): open a human case with the account ID, the issue and the last step reached.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>That's why B beats D in the paper's question 4. D makes one tool's failures safer. That's a real improvement, but it covers one of the two causes. The 120-second kill never touches set_payment_plan, so it still ends sessions with nobody told. The wrapper doesn't care which cause it was. It only asks "did the loop end normally?"</p>
+  <p><strong>The handoff note matters too.</strong> The staff taking the call can't see the chat transcript. So the case must carry the facts: who the customer is, what went wrong, and what was in progress. The exam guide calls this a <strong>structured handoff</strong>.</p>
+  <p><strong>Same thing, other names.</strong> The exam guide doesn't give this layer a name of its own. Questions may call it a <strong>wrapper</strong>, the <strong>orchestration layer</strong>, an <strong>outer loop</strong> or <strong>supervisor code</strong>. All four mean code outside the agent loop. The wrapper is not the loop; it is the code that runs the loop and watches it.</p>
+
+  <h2>3 · Coming back to a session: --resume and fork_session</h2>
+  <p>A <strong>session</strong> is one saved conversation with the agent, including the files it read and what it found. Two words for reusing one:</p>
+  <table class="cgrid">
+    <tr><th>Word</th><th>What it does</th><th>Use it when</th></tr>
+    <tr><td><code>--resume &lt;session-name&gt;</code></td><td>Continues one named earlier session, picking up where it left off.</td><td>You want to carry on the same piece of work. Most of what it found is still true. Everything you try next goes into that same conversation.</td></tr>
+    <tr><td><code>fork_session</code></td><td>Makes a separate copy (a branch) of a session. Each copy goes its own way; the original is untouched.</td><td>You want to try two different approaches starting from the same analysis, without one affecting the other.</td></tr>
+  </table>
+  <p><strong>One more rule: stale results.</strong> If files have changed since the session read them, its old tool results are out of date. If only a few files changed, resume and tell the agent exactly which files changed, so it re-reads just those. If most of what it read is out of date, start a new session and give it a short written summary of what's still true. That is more reliable than resuming with stale results.</p>
+
+  <h2>The words on one card</h2>
+  <table class="cgrid">
+    <tr><th>Word</th><th>Plain meaning</th></tr>
+    <tr><td>Task tool / Task call</td><td>The tool a coordinator calls to start a subagent; one call = one subagent with one brief.</td></tr>
+    <tr><td>Several Task calls in one response</td><td>Those subagents run at the same time.</td></tr>
+    <tr><td><code>allowedTools</code> includes <code>"Task"</code></td><td>Needed before a coordinator can start any subagent.</td></tr>
+    <tr><td><code>AgentDefinition</code></td><td>One kind of subagent: its description, system prompt and allowed tools.</td></tr>
+    <tr><td>Wrapper / orchestration layer / outer loop / supervisor code</td><td>Your code around the agent loop. It checks how the loop ended and hands any bad ending to a human.</td></tr>
+    <tr><td><code>--resume &lt;session-name&gt;</code></td><td>Carry on a named earlier session.</td></tr>
+    <tr><td><code>fork_session</code></td><td>Copy a session into independent branches to try different approaches.</td></tr>
+  </table>
+
+  <h2>Explain it back</h2>
+  <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
+  <ol class="steps">
+    <li>What is a Task call, and how do you make three subagents run at the same time?</li>
+    <li>In the paper's question 4 (shown in full above), why does the wrapper handle the 120-second kill when D doesn't?</li>
+    <li>When would you use fork_session instead of --resume?</li>
+  </ol>
+
+  <h2>Six new practice questions</h2>
+  <p>Before you read the options, put the stem into plain words: who starts what, and what happens if it stops. After you answer, a short explanation appears under the question.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If an option uses a word you don't recognise, bring it here: two of your misses on 21 October came from exactly that.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statements 1.1, 1.3, 1.4, 1.7, 2.2.<br>
+    <strong>Also cited:</strong> <a href="https://code.claude.com/docs/en/sub-agents">Claude Code subagents docs</a> (a subagent starts fresh, with no parent conversation; the tool list names <code>Agent</code>/<code>Task</code>) and <a href="https://code.claude.com/docs/en/sessions">sessions docs</a>, both as recorded in <code>notes/2026-09-docs-delta.md</code> (fetched 2026-09-05); <code>notes/domain-1-agentic-architecture.md</code>.<br>
+    <strong>The wording "wrapper / orchestration layer":</strong> from the paper's own answer note for question 4 and from the 21 October review in learning record 0035. The guide describes what this code does (1.1, 1.4) but doesn't name it.<br>
+    <strong>Miss history:</strong> learning record 0035 (questions 4 and 9 of the 21 October paper, both reviewed in chat as vocabulary gaps).<br>
+    <strong>Previous:</strong> <a href="0024-who-it-reaches-when-it-switches-on.html">Lesson 24 — Who it reaches, and when it switches on</a>
+  </p>
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A research coordinator's config lists allowedTools: [\"WebSearch\", \"Read\"]. Its prompt tells it to hand each source to a subagent, but the logs show it never starts one and runs every search itself. What is the fix?",
+    opts: [
+      "Add \"Task\" to the coordinator's allowedTools list",
+      "Repeat the delegation rule at the top of its prompt",
+      "Write a longer description in each AgentDefinition",
+      "Raise the coordinator's maximum number of turns"
+    ],
+    ok: 0,
+    fb: "A coordinator starts subagents with the Task tool, and it can only call tools on its allowedTools list. \"Task\" isn't there, so no prompt wording can make it delegate (B). C improves how subagents are described, but none can be started yet. D lets it take more steps, which it still spends doing the searches itself."
+  },
+  {
+    stem: "A coordinator must check 4 supplier websites. Each check is independent and takes about 2 minutes. How should it launch them to finish fastest with one coordinator?",
+    opts: [
+      "Emit one Task call per turn, in order of priority",
+      "Start one subagent that checks all 4 sites in turn",
+      "Emit all 4 Task calls together in a single response",
+      "Run 4 coordinators, one per site, and merge them"
+    ],
+    ok: 2,
+    fb: "Several Task calls in one response start subagents that run at the same time: about 2 minutes instead of about 8. A is the one-at-a-time pattern from the paper's question 9. B is still one after another, inside one subagent. D matches your pick on that paper question (several coordinators, then a merge): parallel, but with four coordinators and a merge step."
+  },
+  {
+    stem: "In a research system, the search subagent must only use web search tools and must never write files. Where should that limit be set?",
+    opts: [
+      "In the coordinator's prompt, as a rule in each brief",
+      "In a shared instructions file asking it not to write",
+      "In the Task call text, as a request to avoid writing",
+      "In the search subagent's AgentDefinition tool list"
+    ],
+    ok: 3,
+    fb: "An AgentDefinition sets a subagent type's description, system prompt and tool restrictions. A tool that isn't allowed can't be called. A, B and C are all requests in text, which the model can still fail to follow."
+  },
+  {
+    stem: "A support agent's sessions sometimes end with the process gone: a tool's client code throws an error nobody catches, or the server restarts mid-session. Customers get no reply, and the staff who follow up can't see the chat. What should you build?",
+    opts: [
+      "Return the tool's errors as isError results",
+      "Supervisor code that opens a human case on a bad exit",
+      "A system prompt rule to escalate whenever stuck",
+      "A health check that restarts the server sooner"
+    ],
+    ok: 1,
+    fb: "Supervisor code is another name for the wrapper: your code around the loop. It sees every bad ending, whatever caused it, and the case carries the facts staff need. A fixes the first cause only; a server restart still ends the session with nobody told. C can't work: once the process is gone the model can't act. D makes restarts shorter but still ends sessions with nobody told."
+  },
+  {
+    stem: "You ran a long named session that analysed a codebase. Now you want to try two different refactoring approaches from that same analysis, without one affecting the other. What should you use?",
+    opts: [
+      "--resume the session and try both plans in turn",
+      "fork_session, to branch twice from that analysis",
+      "Two new sessions, each re-reading the whole code",
+      "One session, with the second plan kept in plan_b.md"
+    ],
+    ok: 1,
+    fb: "fork_session makes independent branches from a shared starting point, which is exactly two approaches from one analysis. A puts both in one conversation, so the second plan sees the first. C throws the analysis away and redoes it twice. D is still one conversation."
+  },
+  {
+    stem: "Yesterday's named session analysed 40 files and its findings still hold. Since then a teammate rewrote 3 of those files. What is the best way to carry on?",
+    opts: [
+      "--resume it and tell the agent which 3 files changed",
+      "--resume it as it is, since most of its work holds",
+      "Start fresh and have the agent re-read all 40 files",
+      "fork_session it, so the old analysis stays untouched"
+    ],
+    ok: 0,
+    fb: "Most of the session is still valid, so resume it, and name the 3 changed files so the agent re-reads just those. B leaves it trusting stale results for 3 files. C redoes 37 files of good work. D makes a copy that is just as stale as the original."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+<script src="../assets/miss.js"></script>
+</body>
+</html>

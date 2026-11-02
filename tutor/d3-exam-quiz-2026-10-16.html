@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D3 exam-style quiz</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .bar { position: sticky; top: 0; background: var(--paper); border-bottom: 1px solid var(--rule); padding: .6rem 0; font-family: var(--sans); font-size: .9rem; display: flex; gap: 1rem; align-items: center; z-index: 2; }
+  .bar .sp { flex: 1; }
+  .bar .low { color: #b3261e; font-weight: 700; }
+  .q .sc { font-family: var(--sans); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 .3rem; }
+  .q .tsl { display: none; }
+  .graded .q .tsl { display: inline; color: var(--accent); }
+  .opt.picked { border-color: var(--accent); background: var(--code-bg); }
+  .opt.picked .lab { color: var(--accent); font-weight: 700; }
+  button.submit { font-family: var(--sans); font-size: 1rem; padding: .6rem 1.4rem; border: 1px solid var(--accent); background: var(--accent); color: var(--paper); border-radius: 6px; cursor: pointer; }
+  button.submit:disabled { opacity: .5; cursor: default; }
+  .result { display: none; font-family: var(--sans); margin: 1.5rem 0; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 6px; }
+  .result[data-show="1"] { display: block; }
+  .result table { border-collapse: collapse; width: 100%; font-size: .9rem; margin-top: .6rem; }
+  .result td, .result th { border-bottom: 1px solid var(--rule); padding: .3rem .4rem; text-align: left; }
+  .fb .cite { color: var(--ink-soft); font-size: .85rem; }
+  @media print { .bar { position: static; } button.submit { display: none; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <p class="eyebrow">CCA Foundations · Domain 3 · Exam conditions</p>
+  <h1>Claude Code Configuration &amp; Workflows</h1>
+  <p class="subtitle">12 questions, the D3 share (20%) of a 60-question paper. 24 minutes, the same 2 minutes per item as the real exam's 120.</p>
+  <p>The clock counts down and the quiz submits itself at 0:00. Unanswered items count as wrong. You can submit early once every item is answered. No feedback until you submit. After grading, print to PDF for the review.</p>
+
+  <div class="bar"><span id="answered">0 / 12 answered</span><span class="sp"></span><span id="clock">24:00</span></div>
+
+  <div class="quiz" id="quiz"></div>
+  <p><button class="submit" id="submit" disabled>Submit and grade</button></p>
+  <div class="result" id="result"></div>
+</main>
+
+<script>
+const QUIZ = [
+  {
+    "ts": "3.1",
+    "sc": "Code Generation with Claude Code",
+    "stem": "Your monorepo has a 1,400-line root CLAUDE.md holding the standards for every package. Engineers in packages/web report that Claude applies PCI logging rules from packages/payments to UI code, and sessions start with most of the context window already spent. The standards already exist as separate files in docs/standards/, and each package's maintainers know which ones their package needs. What is the best restructure?",
+    "opts": [
+      "Reorganize the root CLAUDE.md into one headed section per package and tell Claude to use the matching one",
+      "Give each package its own CLAUDE.md that @imports only the standards files its maintainers select",
+      "Move each package's standards into ~/.claude/CLAUDE.md for the engineers who work on that package",
+      "Turn every standards file into a skill and have the root CLAUDE.md say when each one should be invoked"
+    ],
+    "ok": 1,
+    "fb": "Per-package CLAUDE.md files with @import load only the standards each package needs, chosen by the people who know the package. <br><b>A</b> (probabilistic): Everything still loads every session, and Claude has to infer which section applies, which is what is already failing.<br><b>C</b> (wrong-problem): User-level files are personal and unversioned. New engineers get nothing, and the standards now follow each person into every repo they open.<br><b>D</b> (over-engineered): Standards that must always apply in a package become on-demand content that depends on Claude choosing to invoke it.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.1 (@import)</span>"
+  },
+  {
+    "ts": "3.1",
+    "sc": "Developer Productivity with Claude",
+    "stem": "Your infra repo's CLAUDE.md says, in bold, \"Never run terraform apply. Only run terraform plan.\" An audit of 300 sessions finds two where Claude ran terraform apply against a shared environment, both late in long sessions. The platform lead wants this to be impossible, not just unlikely. What should you change?",
+    "opts": [
+      "Move the rule to the first line of CLAUDE.md and repeat it at the end of the file as a final reminder",
+      "Add a PostToolUse hook that pages the on-call engineer whenever a terraform apply command has run",
+      "Put the rule in a .claude/rules/ file whose paths frontmatter matches only the terraform/ directory",
+      "Add a deny rule for terraform apply to the permissions block in the project's .claude/settings.json"
+    ],
+    "ok": 3,
+    "fb": "A permission deny rule is evaluated deterministically before the command runs. CLAUDE.md is guidance, delivered as context, and compliance is never guaranteed.<br><b>A</b> (probabilistic): Placement may lower the rate. It cannot make the failure impossible.<br><b>B</b> (symptom-fix): PostToolUse fires after the command ran. It detects the damage and does not prevent it.<br><b>C</b> (wrong-problem): A path-scoped rule is still a CLAUDE.md-style instruction, only loaded more selectively. It is still advisory.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.1 (guidance, not enforcement) · exam trap \"Security boundary written as a CLAUDE.md instruction\"</span>"
+  },
+  {
+    "ts": "3.1",
+    "sc": "Developer Productivity with Claude",
+    "stem": "A developer on a 9-person team wants Claude to know their personal staging sandbox URL and that they like verbose test output. Both apply only to this repository. Teammates must not see these notes, and the developer's other repositories must not pick them up either. Where should the notes go?",
+    "opts": [
+      "In the project's root CLAUDE.md under a section headed with this developer's username",
+      "In ~/.claude/CLAUDE.md, which is only ever loaded by this developer's own sessions",
+      "In a CLAUDE.local.md at the project root, which stays out of version control",
+      "In a personal skill in ~/.claude/skills/ that the developer invokes in each session"
+    ],
+    "ok": 2,
+    "fb": "Two axes: who (me vs team) and where (this project vs all). CLAUDE.local.md is me + this project, and it is gitignored.<br><b>A</b> (wrong-problem): The project CLAUDE.md is committed. Every teammate loads these notes.<br><b>B</b> (wrong-problem): True that only this developer loads it, but it loads in every repository they open. That breaks the second constraint.<br><b>D</b> (over-engineered): It works only if remembered each session. Always-on personal context is what CLAUDE.local.md is for.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.1 (Local: CLAUDE.local.md; two scope axes) · LR-0008</span>"
+  },
+  {
+    "ts": "3.2",
+    "sc": "Developer Productivity with Claude",
+    "stem": "Your team's /analyze-deps skill walks the dependency graph and reads dozens of manifests. It leaves about 30,000 tokens of intermediate output in the conversation. Developers usually keep working in the same session afterwards and notice Claude losing track of earlier instructions. They only need the final summary. What is the best change?",
+    "opts": [
+      "Add a line to SKILL.md telling Claude to keep its final report under 500 words",
+      "Restrict allowed-tools in the skill's frontmatter to the Read and Grep tools only",
+      "Set context: fork in the skill's frontmatter to run it in an isolated sub-agent",
+      "Tell developers to run /compact right after every invocation of the skill"
+    ],
+    "ok": 2,
+    "fb": "context: fork runs the skill in an isolated sub-agent context. The verbose exploration stays there and only the result returns to the main session.<br><b>A</b> (wrong-problem): The 30k tokens come from the exploration, not the final report. A short report still leaves all of it behind.<br><b>B</b> (wrong-problem): allowed-tools limits which tools run. Read and Grep output is exactly what fills the context.<br><b>D</b> (symptom-fix): A manual cleanup after the damage, relying on every developer remembering. Summarizing also loses detail.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.2 (context: fork)</span>"
+  },
+  {
+    "ts": "3.2",
+    "sc": "Developer Productivity with Claude",
+    "stem": "All 14 engineers should get a /release-notes skill from the repo. One senior engineer wants a version with a different changelog layout for their own use. The team's version must not change for anyone else. What setup meets both needs?",
+    "opts": [
+      "Commit the team skill to .claude/skills/ and keep the variant in ~/.claude/skills/ under a new name",
+      "Commit the team skill to .claude/skills/ and make it switch layout based on who is running it",
+      "Add both skills to ~/.claude/skills/ on every laptop through the team's onboarding setup script",
+      "Commit both skills to .claude/skills/ and note in CLAUDE.md which engineer should use which"
+    ],
+    "ok": 0,
+    "fb": "Project skills in .claude/skills/ are version-controlled and reach everyone. A personal variant in ~/.claude/skills/ with a different name leaves the team skill untouched.<br><b>B</b> (over-engineered): One person's preference becomes branching logic inside the shared skill. Every change to it now touches the team version.<br><b>C</b> (wrong-problem): User-level copies are not versioned. Updates drift per laptop, and a script copying files is not team distribution.<br><b>D</b> (wrong-problem): The personal variant is now in everyone's skill list, and CLAUDE.md is relied on to keep people apart.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.2 (personal variants with different names)</span>"
+  },
+  {
+    "ts": "3.3",
+    "sc": "Code Generation with Claude Code",
+    "stem": "Your TypeScript repo keeps tests next to the code they cover, as *.test.ts files across about 60 directories. The 300 lines of testing conventions sit in the root CLAUDE.md. They load in every session, including infra-only work, and adding them to new directories keeps getting missed. What is the best place for them?",
+    "opts": [
+      "A CLAUDE.md in each directory that holds tests, every one carrying the same testing conventions",
+      "A .claude/rules/ file with paths frontmatter set to **/*.test.ts, loaded when tests are edited",
+      "The root CLAUDE.md under a Testing heading that tells Claude to apply it only to test files",
+      "A testing skill, plus a hook that invokes it whenever Claude opens any file ending in .test.ts"
+    ],
+    "ok": 1,
+    "fb": "A path-scoped rule with a glob follows test files wherever they live and loads only when a matching file is in play.<br><b>A</b> (symptom-fix): Directory files are bound to directories. Sixty copies drift, and every new test directory needs another one, which is the gap already being hit.<br><b>C</b> (probabilistic): It still loads every session, and Claude must infer when the section applies.<br><b>D</b> (over-engineered): Custom wiring rebuilds what the native paths frontmatter already does.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.3 (glob rules vs directory CLAUDE.md) · LR-0010</span>"
+  },
+  {
+    "ts": "3.4",
+    "sc": "Code Generation with Claude Code",
+    "stem": "Your team will replace Moment.js with date-fns. The decision is final and a function-by-function mapping table is already written. A quick search shows about 120 files import Moment, some through shared wrappers that other modules also depend on. How should you run this with Claude Code?",
+    "opts": [
+      "Direct execution file by file, since the target library and the mapping are already agreed",
+      "Plan mode for the whole job, approving each file's edit inside plan mode as it is proposed",
+      "Direct execution with a Stop hook that runs the full test suite after every file is changed",
+      "Plan mode to map call sites and order the wrappers, then direct execution of the approved plan"
+    ],
+    "ok": 3,
+    "fb": "A migration across 100+ files with shared wrappers is plan-mode scope even when the target is decided: the order of changes is the open question. Then execute the approved plan directly.<br><b>A</b> (wrong-problem): Deciding the library is not the same as knowing the sequence. Editing a wrapper before its dependents breaks modules mid-migration.<br><b>B</b> (wrong-problem): Plan mode does not edit files. Implementation happens after you leave it.<br><b>C</b> (symptom-fix): Tests catch the breakage after each change. They do not prevent the rework that a bad ordering causes.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.4 (hybrid: plan, then direct)</span>"
+  },
+  {
+    "ts": "3.4",
+    "sc": "Developer Productivity with Claude",
+    "stem": "You need to change how session tokens are validated in a 400-file legacy service. Last time, Claude spent the first hour tracing the auth flow with dozens of searches and file reads. By the time it started editing, it had forgotten constraints you gave it at the start. What should you do differently this time?",
+    "opts": [
+      "Delegate the discovery phase to the Explore subagent and keep only its summary in the session",
+      "Start a fresh session for the edits and paste in the full search output from the earlier session",
+      "Run discovery in plan mode, because plan mode keeps tool output out of the main context window",
+      "Ask Claude to use narrower search patterns and keep only the lines it decides look relevant"
+    ],
+    "ok": 0,
+    "fb": "The Explore subagent isolates verbose discovery and returns a summary, keeping the main context for the implementation phase.<br><b>B</b> (symptom-fix): Pasting the full output back in recreates the same context load in the new session.<br><b>C</b> (wrong-problem): Plan mode blocks edits. Its search and read output still lands in the main context.<br><b>D</b> (probabilistic): Relies on Claude judging relevance before it understands the flow, and the reads still accumulate.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.4 (Explore subagent)</span>"
+  },
+  {
+    "ts": "3.5",
+    "sc": "Code Generation with Claude Code",
+    "stem": "You asked Claude for a function that normalizes customer names to \"Last, First M.\" form. After three rounds of prose corrections it still varies. Particles like \"van der\" are dropped in some runs, suffixes like \"Jr.\" move around in others, and each fix seems to undo a different case. What should your next message contain?",
+    "opts": [
+      "A longer prose rule set that spells out exactly how particles, suffixes and initials are handled",
+      "One name format at a time, confirming each one works before you move on to the next format",
+      "Two or three concrete input and output pairs that cover the particle and the suffix cases",
+      "A request for Claude to list the name formats it expects and to support the common ones"
+    ],
+    "ok": 2,
+    "fb": "When prose is read inconsistently, concrete input/output examples specify the transformation exactly, and sending the cases together stops one fix from undoing another.<br><b>A</b> (probabilistic): More prose is the thing that has already failed three times.<br><b>B</b> (wrong-problem): One case per round is how fix-one-break-another happens. Claude never sees the cases it must keep working.<br><b>D</b> (wrong-problem): Hands the specification to Claude when the gap is your intent, not its knowledge.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.5 (2–3 concrete examples) · LR-0017</span>"
+  },
+  {
+    "ts": "3.5",
+    "sc": "Code Generation with Claude Code",
+    "stem": "Reviewing Claude's rewrite of a CSV importer, you find three problems. Dates are parsed in UTC instead of the account's timezone. The dedup key is built from the parsed date, and so late-evening rows collide with the next day's rows. Rows with a null email are also dropped by the dedup step. How should you hand these back?",
+    "opts": [
+      "Fix the timezone bug first and raise the dedup problems after that change is verified",
+      "Describe all three in one message, explaining how the date bug feeds the dedup key",
+      "Open three separate sessions, one per problem, and then merge the three diffs together",
+      "Ask for a fresh rewrite of the importer, noting that dates and nulls need extra care"
+    ],
+    "ok": 1,
+    "fb": "The problems interact: the timezone bug changes the dedup key, and the null rule lives in the same dedup step. Interacting problems go in one detailed message. Sequential fixing is for independent ones.<br><b>A</b> (wrong-problem): Sounds disciplined, but fixing dates alone changes dedup behaviour, and the next round then patches code without seeing the full picture.<br><b>C</b> (over-engineered): Three sessions editing the same step produce conflicting diffs with no shared view of the interaction.<br><b>D</b> (probabilistic): Vague feedback with no specific failures. It invites new bugs rather than fixing the known ones.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.5 (batch vs sequential) · LR-0017</span>"
+  },
+  {
+    "ts": "3.6",
+    "sc": "Claude Code for Continuous Integration",
+    "stem": "Your CI job runs a Claude Code review and a script posts each finding as an inline PR comment. The script parses the text output with a regex and fails on about one run in eight when the wording or layout shifts. What is the most reliable fix?",
+    "opts": [
+      "Add a CLAUDE.md section requiring every finding to be written as file:line: message",
+      "Pass the text output to a second Claude call that converts it to JSON for the script",
+      "Use --output-format stream-json and parse the findings out of the final text message",
+      "Run with -p, --output-format json and a --json-schema with file, line and message"
+    ],
+    "ok": 3,
+    "fb": "--output-format json with --json-schema makes the output machine-parseable and schema-constrained. -p runs it non-interactively.<br><b>A</b> (probabilistic): A format instruction lowers the failure rate. It does not make the output parseable every time.<br><b>B</b> (over-engineered): A second model call to repair the first one's format, adding cost and a new failure point.<br><b>C</b> (wrong-problem): stream-json structures the events, but the findings inside the final message are still free text for the regex.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.6 (--output-format json + --json-schema)</span>"
+  },
+  {
+    "ts": "3.6",
+    "sc": "Claude Code for Continuous Integration",
+    "stem": "Your CI review job runs on every push to an open PR. Developers complain that each push re-posts comments on issues raised before, including ones they already fixed, and they have started ignoring the bot. Each run currently starts with only the PR diff. What change best fixes this?",
+    "opts": [
+      "Have the posting script skip any finding whose text exactly matches an existing comment",
+      "Supply the prior findings and ask Claude to report only new or still-unaddressed issues",
+      "Limit each run to reviewing the diff from the newest commit rather than the whole PR",
+      "Report only high-severity findings on later pushes and keep full reviews for the first"
+    ],
+    "ok": 1,
+    "fb": "Give the review its own history: prior findings in context, with an instruction to report only what is new or still open.<br><b>A</b> (symptom-fix): Wording varies between runs. Exact matching misses most duplicates, and fixed issues are still re-flagged.<br><b>C</b> (wrong-problem): Loses issues that span commits, and still cannot tell whether an earlier finding was fixed.<br><b>D</b> (wrong-problem): Hides real lower-severity findings without solving the repetition.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.6 (avoiding duplicate comments on re-review)</span>"
+  }
+];
+</script>
+<script>
+(function () {
+  const LAB = "ABCD", LIMIT = 24 * 60, root = document.getElementById("quiz"), picks = new Array(QUIZ.length).fill(null);
+  const t0 = Date.now(); let stop = null, done = false;
+  const fmt = s => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  const clockEl = document.getElementById("clock");
+  const clock = setInterval(() => {
+    const used = Math.floor(((stop || Date.now()) - t0) / 1000), left = Math.max(0, LIMIT - used);
+    clockEl.textContent = fmt(left);
+    clockEl.classList.toggle("low", left <= 120);
+    if (left === 0 && !done) grade(true);
+  }, 1000);
+  QUIZ.forEach((q, qi) => {
+    const div = document.createElement("div");
+    div.className = "q";
+    div.innerHTML = `<p class="sc">${q.sc}<span class="tsl"> · Task ${q.ts}</span></p><p class="stem"><span class="qn">Q${qi + 1}</span>${q.stem}</p>` +
+      `<div class="opts">` + q.opts.map((o, oi) => `<button class="opt" data-q="${qi}" data-o="${oi}"><span class="lab">${LAB[oi]}</span><span>${o}</span><span class="mk"></span></button>`).join("") + `</div>` +
+      `<div class="fb" id="fb-${qi}"></div>`;
+    root.appendChild(div);
+  });
+  root.addEventListener("click", e => {
+    const btn = e.target.closest(".opt");
+    if (!btn || btn.disabled) return;
+    const qi = +btn.dataset.q;
+    picks[qi] = +btn.dataset.o;
+    btn.closest(".q").querySelectorAll(".opt").forEach(b => b.classList.toggle("picked", b === btn));
+    const n = picks.filter(p => p !== null).length;
+    document.getElementById("answered").textContent = n + " / " + QUIZ.length + " answered";
+    document.getElementById("submit").disabled = n !== QUIZ.length;
+  });
+  function grade(timeUp) {
+    done = true; stop = Date.now(); clearInterval(clock);
+    const used = Math.min(LIMIT, Math.floor((stop - t0) / 1000));
+    document.body.classList.add("graded");
+    const byTs = {}; let score = 0;
+    QUIZ.forEach((q, qi) => {
+      const oi = picks[qi], ok = oi === q.ok; if (ok) score++;
+      (byTs[q.ts] = byTs[q.ts] || [0, 0])[1]++; if (ok) byTs[q.ts][0]++;
+      document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach((b, bi) => {
+        b.disabled = true; b.classList.remove("picked");
+        if (bi === q.ok) { b.classList.add("correct"); b.querySelector(".mk").textContent = "✓"; }
+        if (bi === oi && !ok) { b.classList.add("wrong"); b.querySelector(".mk").textContent = "✗"; }
+      });
+      const fb = document.getElementById("fb-" + qi);
+      const head = ok ? "<b>Correct.</b> " : oi === null ? "<b>Not answered.</b> Answer " + LAB[q.ok] + ". " : "<b>Not quite.</b> You picked " + LAB[oi] + ", answer " + LAB[q.ok] + ". ";
+      fb.innerHTML = head + q.fb;
+      fb.setAttribute("data-show", "1");
+    });
+    document.getElementById("submit").disabled = true;
+    const r = document.getElementById("result");
+    r.innerHTML = `<strong>Score: ${score} / ${QUIZ.length} (${Math.round(100 * score / QUIZ.length)}%)</strong> · time used ${fmt(used)} of ${fmt(LIMIT)}${timeUp ? " · <b>time expired</b>" : ""}` +
+      `<table><tr><th>Task</th><th>Correct</th></tr>` +
+      Object.keys(byTs).sort().map(t => `<tr><td>${t}</td><td>${byTs[t][0]} / ${byTs[t][1]}</td></tr>`).join("") + `</table>` +
+      `<p>Answers: ${picks.map((p, i) => (i + 1) + (p === null ? "–" : LAB[p])).join(" ")}</p>`;
+    r.setAttribute("data-show", "1");
+    r.scrollIntoView({ behavior: "smooth" });
+  }
+  document.getElementById("submit").addEventListener("click", () => grade(false));
+})();
+</script>
+</body>
+</html>

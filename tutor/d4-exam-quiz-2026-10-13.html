@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D4 exam-style quiz</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .bar { position: sticky; top: 0; background: var(--paper); border-bottom: 1px solid var(--rule); padding: .6rem 0; font-family: var(--sans); font-size: .9rem; display: flex; gap: 1rem; align-items: center; z-index: 2; }
+  .bar .sp { flex: 1; }
+  .q .sc { font-family: var(--sans); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 .3rem; }
+  .q .tsl { display: none; }
+  .graded .q .tsl { display: inline; color: var(--accent); }
+  .opt.picked { border-color: var(--accent); background: var(--code-bg); }
+  .opt.picked .lab { color: var(--accent); font-weight: 700; }
+  button.submit { font-family: var(--sans); font-size: 1rem; padding: .6rem 1.4rem; border: 1px solid var(--accent); background: var(--accent); color: var(--paper); border-radius: 6px; cursor: pointer; }
+  button.submit:disabled { opacity: .5; cursor: default; }
+  .result { display: none; font-family: var(--sans); margin: 1.5rem 0; padding: 1rem 1.2rem; border: 1px solid var(--rule); border-radius: 6px; }
+  .result[data-show="1"] { display: block; }
+  .result table { border-collapse: collapse; width: 100%; font-size: .9rem; margin-top: .6rem; }
+  .result td, .result th { border-bottom: 1px solid var(--rule); padding: .3rem .4rem; text-align: left; }
+  .fb .cite { color: var(--ink-soft); font-size: .85rem; }
+  @media print { .bar { position: static; } button.submit { display: none; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <p class="eyebrow">CCA Foundations · Domain 4 · Exam conditions</p>
+  <h1>Prompt Engineering &amp; Structured Output</h1>
+  <p class="subtitle">12 questions, the D4 share (20%) of a 60-question paper. About 24 minutes at real-exam pace.</p>
+  <p>No feedback until you submit. You can change answers before submitting. After grading, print to PDF for the review.</p>
+
+  <div class="bar"><span id="answered">0 / 12 answered</span><span class="sp"></span><span id="clock">00:00</span></div>
+
+  <div class="quiz" id="quiz"></div>
+  <p><button class="submit" id="submit" disabled>Submit and grade</button></p>
+  <div class="result" id="result"></div>
+</main>
+
+<script>
+const QUIZ = [
+  {
+    "ts": "4.3",
+    "sc": "Structured Data Extraction",
+    "stem": "Your contract-extraction tool schema marks termination_notice_days as a required integer. An audit of 400 supplier contracts finds that 18% contain no termination clause at all. Every one of those extractions still has a value, almost always 30 or 90. Legal relies on this field for renewal alerts. What is the most effective fix?",
+    "opts": [
+      "Add a prompt instruction telling the model never to guess values absent from the text",
+      "Make the field nullable and not required so a missing clause is returned as null",
+      "Add a validator that rejects any extraction whose notice period is exactly 30 or 90",
+      "Force the extraction tool with tool_choice so the model cannot skip the schema fields"
+    ],
+    "ok": 1,
+    "fb": "A required field with no source value forces fabrication. Nullable/optional lets the model represent absence honestly. <br><b>A</b> (probabilistic): The required field still demands a value; an instruction competes with the schema and loses some of the time.<br><b>C</b> (symptom-fix): Real contracts do say 30 or 90 days; this rejects true values and leaves fabrication for other numbers.<br><b>D</b> (wrong-problem): The tool is already being called; forcing it makes the required-field pressure worse, not better.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.3</span>"
+  },
+  {
+    "ts": "4.1",
+    "sc": "Claude Code for CI",
+    "stem": "Your PR review bot posts about 40 comments per pull request and developers dismiss 70% of them. Most dismissed comments concern naming style and comment wording, and real bugs are now being ignored alongside them. The current prompt says \"Only report issues you are highly confident about.\" What change most improves precision?",
+    "opts": [
+      "Raise the bar by telling the model to report only findings it rates 9 of 10 or higher",
+      "Cap output at the five highest-severity findings per pull request to cut the noise",
+      "Replace the confidence line with explicit categories to report and categories to skip",
+      "Add a second instance that keeps only findings a senior engineer would care about"
+    ],
+    "ok": 2,
+    "fb": "Confidence-based filtering does not improve precision; specific categorical criteria (bugs, security yes; style, local patterns no) do. <br><b>A</b> (probabilistic): Self-rated confidence is uncalibrated; a stricter number is still the same vague filter that already failed.<br><b>B</b> (symptom-fix): Hides volume without defining what matters; style comments can still rank in the top five.<br><b>D</b> (over-engineered): A second pass with an equally vague criterion adds cost without adding a definition of relevance.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.1</span>"
+  },
+  {
+    "ts": "4.5",
+    "sc": "Structured Data Extraction",
+    "stem": "A nightly Message Batches job extracts data from 10,000 documents. The results show 140 errored requests. Of those, 120 failed because the document exceeded the context limit and 20 failed with transient server errors. What is the best next step?",
+    "opts": [
+      "Resubmit only the 140 failures by custom_id, chunking the 120 oversized documents first",
+      "Resubmit the full batch of 10,000 with a higher max_tokens value to clear length errors",
+      "Rerun the 140 failures unchanged through the synchronous API, since batching caused them",
+      "Resubmit the 140 failures unchanged in a new batch and retry up to three more times"
+    ],
+    "ok": 0,
+    "fb": "Correlate failures by custom_id, resubmit only those, and modify the ones whose failure is structural (chunk oversized docs). <br><b>B</b> (wrong-problem): max_tokens caps output, not input; it cannot fix context overflow and re-pays for 9,860 successes.<br><b>C</b> (blame-shifting): Oversized inputs fail the same way synchronously; the batch API did not cause the length errors.<br><b>D</b> (symptom-fix): The 20 transient errors would clear, but the 120 oversized documents fail identically every time.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.5</span>"
+  },
+  {
+    "ts": "4.2",
+    "sc": "Structured Data Extraction",
+    "stem": "Your product-spec extractor must output dimensions in centimetres. The prompt already has 600 words of unit-conversion rules. Sources include phrases like \"2 ft-ish\", \"roughly a hand wide\" and \"60x40\", and about 15% of outputs are still inconsistent or null. What is the most effective improvement?",
+    "opts": [
+      "Add three examples of informal measurements showing input, normalized output and why",
+      "Expand the unit rules to cover each informal phrasing found in the failing sample set",
+      "Add a regex post-processor that converts any remaining informal units to centimetres",
+      "Set temperature to 0 so the model applies the existing rules identically every time"
+    ],
+    "ok": 0,
+    "fb": "When detailed instructions still yield inconsistency, few-shot examples (with reasoning) are the most effective fix and generalize to unseen phrasings. <br><b>B</b> (symptom-fix): Rules already failed to produce consistency; enumerating phrasings never covers the next novel one.<br><b>C</b> (over-engineered): Regex cannot interpret \"a hand wide\"; it moves an interpretation problem into brittle code.<br><b>D</b> (probabilistic): Determinism makes the same wrong reading repeat; it does not teach the model the ambiguous cases.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.2</span>"
+  },
+  {
+    "ts": "4.4",
+    "sc": "Structured Data Extraction",
+    "stem": "Your invoice pipeline retries failed validations up to 3 times, appending the validator errors each time. Date-format errors are fixed on the first retry in 94% of cases. However, 7% of invoices fail all three retries on a missing po_number. Investigation shows those vendors print the PO number only on a separate purchase order that is not sent to the model. What should you change?",
+    "opts": [
+      "Raise the retry limit to five and show the validator error more prominently each time",
+      "Add few-shot examples showing where PO numbers usually appear on vendor invoice layouts",
+      "Make po_number optional so these invoices pass validation with a null value recorded",
+      "Stop retrying absent fields; supply the linked purchase order or route it to review"
+    ],
+    "ok": 3,
+    "fb": "Retry-with-feedback is ineffective when the information is absent from the source; supply the external document or route it out of the loop. <br><b>A</b> (symptom-fix): Retries fix format and structure errors; no number of retries finds data that is not in the input.<br><b>B</b> (wrong-problem): The model is not misreading the invoice; the PO number is simply not on it.<br><b>C</b> (error-suppression): Makes the failure quiet; downstream still needs the PO number and now silently lacks it.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.4</span>"
+  },
+  {
+    "ts": "4.3",
+    "sc": "Structured Data Extraction",
+    "stem": "Your pipeline receives invoices, receipts and purchase orders, and defines one extraction tool per document type. The type is unknown until the document is read. With tool_choice set to \"auto\", 6% of responses come back as a prose summary instead of a tool call, which breaks the parser. What is the most reliable fix?",
+    "opts": [
+      "Add a classifier call first, then force the matching extraction tool on a second request",
+      "Merge the three tools into one tool whose schema covers every field of all three types",
+      "Add a system prompt rule telling the model it must always respond by calling a tool",
+      "Set tool_choice to \"any\" so a tool call is required but the model picks which one"
+    ],
+    "ok": 3,
+    "fb": "\"any\" guarantees a tool call while letting the model choose among multiple extraction schemas when the type is unknown. <br><b>A</b> (over-engineered): Works, but doubles calls and latency to get what one tool_choice setting already guarantees.<br><b>B</b> (over-engineered): A mega-schema blurs type-specific fields and invites values placed in the wrong slots.<br><b>C</b> (probabilistic): An instruction lowers the prose rate but cannot guarantee a tool call; auto still permits text.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.3</span>"
+  },
+  {
+    "ts": "4.6",
+    "sc": "Claude Code for CI",
+    "stem": "A refactor PR touches 38 files and is reviewed in a single pass. The review contradicts itself, calling a helper unused in one comment while flagging its changed callers in another. It also misses that a field renamed in the API layer was never updated in 2 consumers. What is the most effective change?",
+    "opts": [
+      "Use a model with a larger context window so all 38 files fit with plenty of room left",
+      "Ask the reviewer to re-read its findings and delete any that contradict one another",
+      "Run per-file passes for local issues, then a separate pass on cross-file data flow",
+      "Enable extended thinking so the single pass can reason more deeply across the files"
+    ],
+    "ok": 2,
+    "fb": "Large reviews split into focused per-file local passes plus an integration pass avoid dilution and contradictory findings. <br><b>A</b> (wrong-problem): The files already fit; the failure is attention dilution across too much material, not capacity.<br><b>B</b> (symptom-fix): Self-review removes visible contradictions but cannot find the missed cross-file rename.<br><b>D</b> (probabilistic): More reasoning in one diluted pass may help a little but does not structurally separate the concerns.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.6</span>"
+  },
+  {
+    "ts": "4.1",
+    "sc": "Claude Code for CI",
+    "stem": "Your review bot has 5 finding categories. Security and logic findings were accepted 90% of the time, but performance findings are dismissed 85% of the time. Developers now skim the whole review, and security acceptance has fallen to 60%. Rewriting the performance criteria will take about 3 weeks. What should you do now?",
+    "opts": [
+      "Keep every category but label performance findings low priority so readers can skip them",
+      "Disable the performance category now and refine its criteria offline before re-enabling",
+      "Add a footer to each review noting that performance findings are still experimental",
+      "Tell the model to flag only severe performance regressions until the rewrite is done"
+    ],
+    "ok": 1,
+    "fb": "A high false-positive category undermines trust in accurate ones; temporarily disable it while its criteria are fixed. <br><b>A</b> (symptom-fix): The noisy findings still appear on every PR; trust keeps eroding while the label is ignored.<br><b>C</b> (wrong-problem): Explains the noise instead of removing it; developers keep skimming past real security findings.<br><b>D</b> (probabilistic): \"Severe\" is the same vague confidence-style filter that produced the noise in the first place.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.1</span>"
+  },
+  {
+    "ts": "4.4",
+    "sc": "Structured Data Extraction",
+    "stem": "Your invoice extractor uses tool use with a strict JSON schema and has produced zero syntax errors in 3 months. Finance reports that in 3% of invoices the extracted line items do not add up to the extracted total. They cannot tell whether the source invoice is wrong or the extraction misread it. What design best addresses this?",
+    "opts": [
+      "Tighten the JSON schema with numeric minimums and pattern constraints on each amount",
+      "Extract calculated_total and stated_total and set conflict_detected when they differ",
+      "Instruct the model to adjust line items so they always sum exactly to the stated total",
+      "Run every invoice through extraction twice and accept a result only when both agree"
+    ],
+    "ok": 1,
+    "fb": "Self-correcting validation extracts both values and flags conflicts, separating source inconsistency from extraction error. <br><b>A</b> (wrong-problem): Schemas catch syntax and shape, not semantic errors like totals that do not reconcile.<br><b>C</b> (error-suppression): Fabricates numbers to hide the discrepancy and destroys the evidence of a bad source invoice.<br><b>D</b> (probabilistic): A consistent misread agrees with itself, and a genuinely wrong invoice passes twice.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.4</span>"
+  },
+  {
+    "ts": "4.2",
+    "sc": "Claude Code for CI",
+    "stem": "Your review bot flags empty catch blocks. Some are intentional, such as best-effort cleanup marked with a comment. The team keeps adding acceptable patterns to an exception list, now at 23 entries. The bot ignores those 23 but still flags each new intentional variant it has not seen. Which approach generalizes best?",
+    "opts": [
+      "Move the exception list into a separate file that is loaded into the prompt at runtime",
+      "Add a pre-filter that strips any commented catch block before the code reaches the model",
+      "Replace the list with paired examples of acceptable vs genuine cases, each with a reason",
+      "Tell the model to use judgment and skip any empty catch block it thinks is intentional"
+    ],
+    "ok": 2,
+    "fb": "Few-shot examples contrasting acceptable patterns and real issues, with reasoning, let the model generalize to novel variants. <br><b>A</b> (wrong-problem): Changes where the list lives, not the fact that matching a list cannot generalize.<br><b>B</b> (over-engineered): Also hides genuine bugs that happen to carry a comment; trades false positives for misses.<br><b>D</b> (probabilistic): Vague judgment with no demonstrated boundary is what produced inconsistent flags originally.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.2</span>"
+  },
+  {
+    "ts": "4.5",
+    "sc": "Structured Data Extraction",
+    "stem": "Contracts arrive continuously throughout the day. Compliance requires extraction results within 30 hours of a contract arriving. You use the Message Batches API, which can take up to 24 hours, and currently submit one batch at midnight. Which change guarantees the SLA?",
+    "opts": [
+      "Keep the midnight batch and send contracts arriving after 6pm to the synchronous API",
+      "Submit a batch every 8 hours so that no contract waits for more than one batch window",
+      "Keep the midnight batch but mark time-sensitive contracts for priority batch handling",
+      "Submit every 4 hours so the longest wait plus 24 hours of processing stays within 30"
+    ],
+    "ok": 3,
+    "fb": "Worst case = submission interval + 24h. 4 + 24 = 28 ≤ 30 guarantees it; 8 + 24 = 32 does not. <br><b>A</b> (wrong-problem): A contract arriving at 00:01 waits 24 hours, then up to 24 more: 48 hours.<br><b>B</b> (symptom-fix): Worst case is 8 + 24 = 32 hours, which still breaches the 30-hour SLA.<br><b>C</b> (nonexistent-feature): The Batches API offers no per-request priority; processing time is up to 24 hours regardless.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.5</span>"
+  },
+  {
+    "ts": "4.3",
+    "sc": "Structured Data Extraction",
+    "stem": "Your schema classifies customer feedback with a category enum of billing, shipping, product_quality and account. A review of 2,000 items finds 11% misfiled, mostly into product_quality. They concern topics like accessibility and app crashes, and a few are genuinely ambiguous. What schema change best fixes this?",
+    "opts": [
+      "Add an \"other\" value with a detail string, plus \"unclear\" for ambiguous items",
+      "Expand the enum with each new topic found in the misfiled sample so all get a category",
+      "Drop the enum and make category a free-text string so the model can describe any topic",
+      "Add a confidence field and send items scoring under 0.7 to a human for reclassifying"
+    ],
+    "ok": 0,
+    "fb": "An \"other\" + detail pattern keeps the enum extensible and an \"unclear\" value lets ambiguity be represented instead of guessed. <br><b>B</b> (symptom-fix): Covers today's topics; the next unanticipated topic is forced into a wrong bucket again.<br><b>C</b> (over-engineered): Loses the fixed categories downstream analytics need and makes aggregation unreliable.<br><b>D</b> (wrong-problem): The model is forced into a wrong label confidently; the enum has no honest slot to choose.<br><span class=\"cite\">Notes: notes/domain-4-prompt-engineering.md §4.3</span>"
+  }
+];
+</script>
+<script>
+(function () {
+  const LAB = "ABCD", root = document.getElementById("quiz"), picks = new Array(QUIZ.length).fill(null);
+  const t0 = Date.now(); let stop = null;
+  const clock = setInterval(() => {
+    const s = Math.floor(((stop || Date.now()) - t0) / 1000);
+    document.getElementById("clock").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  }, 1000);
+  QUIZ.forEach((q, qi) => {
+    const div = document.createElement("div");
+    div.className = "q";
+    div.innerHTML = `<p class="sc">${q.sc}<span class="tsl"> · Task ${q.ts}</span></p><p class="stem"><span class="qn">Q${qi + 1}</span>${q.stem}</p>` +
+      `<div class="opts">` + q.opts.map((o, oi) => `<button class="opt" data-q="${qi}" data-o="${oi}"><span class="lab">${LAB[oi]}</span><span>${o}</span><span class="mk"></span></button>`).join("") + `</div>` +
+      `<div class="fb" id="fb-${qi}"></div>`;
+    root.appendChild(div);
+  });
+  root.addEventListener("click", e => {
+    const btn = e.target.closest(".opt");
+    if (!btn || btn.disabled) return;
+    const qi = +btn.dataset.q;
+    picks[qi] = +btn.dataset.o;
+    btn.closest(".q").querySelectorAll(".opt").forEach(b => b.classList.toggle("picked", b === btn));
+    const n = picks.filter(p => p !== null).length;
+    document.getElementById("answered").textContent = n + " / " + QUIZ.length + " answered";
+    document.getElementById("submit").disabled = n !== QUIZ.length;
+  });
+  document.getElementById("submit").addEventListener("click", () => {
+    stop = Date.now(); clearInterval(clock);
+    document.body.classList.add("graded");
+    const byTs = {}; let score = 0;
+    QUIZ.forEach((q, qi) => {
+      const oi = picks[qi], ok = oi === q.ok; if (ok) score++;
+      (byTs[q.ts] = byTs[q.ts] || [0, 0])[1]++; if (ok) byTs[q.ts][0]++;
+      document.querySelectorAll(`.opt[data-q="${qi}"]`).forEach((b, bi) => {
+        b.disabled = true; b.classList.remove("picked");
+        if (bi === q.ok) { b.classList.add("correct"); b.querySelector(".mk").textContent = "✓"; }
+        if (bi === oi && !ok) { b.classList.add("wrong"); b.querySelector(".mk").textContent = "✗"; }
+      });
+      const fb = document.getElementById("fb-" + qi);
+      fb.innerHTML = (ok ? "<b>Correct.</b> " : "<b>Not quite.</b> You picked " + LAB[oi] + ", answer " + LAB[q.ok] + ". ") + q.fb;
+      fb.setAttribute("data-show", "1");
+    });
+    document.getElementById("submit").disabled = true;
+    const r = document.getElementById("result");
+    r.innerHTML = `<strong>Score: ${score} / ${QUIZ.length} (${Math.round(100 * score / QUIZ.length)}%)</strong> · time ${document.getElementById("clock").textContent}` +
+      `<table><tr><th>Task</th><th>Correct</th></tr>` +
+      Object.keys(byTs).sort().map(t => `<tr><td>${t}</td><td>${byTs[t][0]} / ${byTs[t][1]}</td></tr>`).join("") + `</table>` +
+      `<p>Answers: ${picks.map((p, i) => (i + 1) + LAB[p]).join(" ")}</p>`;
+    r.setAttribute("data-show", "1");
+    r.scrollIntoView({ behavior: "smooth" });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 16 — When a retry can help</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 16 · Domain 4 · Task statement 4.4</p>
+  <h1>When a retry can help</h1>
+  <p class="subtitle">Sort each failure before you fix it. One stem can hold two failures that need two different fixes.</p>
+
+  <blockquote class="key">
+    The one question for every failed field: <strong>is the right answer already in what the model was given?</strong><br>
+    Yes → retry, and tell it exactly what was wrong.<br>
+    No → a retry cannot help. Use lesson 15's question: can the system go and get it?
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> You ask a colleague to copy details from a customer's letter onto a form. Two boxes come back wrong.</p>
+  <ul class="steps">
+    <li><strong>The date box says "3 Oct".</strong> The form wants 2026-10-03. The date <em>is</em> in the letter; it was just written the wrong way. Hand the form back with "dates must be YYYY-MM-DD" and it comes back right.</li>
+    <li><strong>The account number box is empty.</strong> The account number isn't in the letter. It's on the bank statement in your drawer. Handing the form back ten times, however clearly you explain, gets you the same empty box. Give your colleague the statement.</li>
+  </ul>
+  <p>Same form, two failures, two different fixes. Writing "N/A" in both boxes would hide a date you could have had and an account number the business needs.</p>
+
+  <p><strong>Where this has cost you points:</strong></p>
+  <table class="cgrid">
+    <tr><th>Where</th><th>What failed</th><th>What you picked</th><th>What the right answer did</th></tr>
+    <tr><td>D4 quiz, 13 Oct, Q5</td><td>po_number missing; it's on a purchase order that wasn't sent</td><td>Make po_number optional</td><td>Stop retrying; supply the purchase order</td></tr>
+    <tr><td>Lesson 10, 16 Oct, Q7</td><td>(1) dates written "3 Oct"<br>(2) contract_value only in a pricing schedule that wasn't sent</td><td>Make <em>both</em> fields nullable</td><td>Retry the dates; send the pricing schedule</td></tr>
+  </table>
+  <p>On Q7, the date was right there in the document. Only a retry was needed, and "nullable" threw it away.</p>
+
+  <h2>1 · Two kinds of failure</h2>
+  <table class="cgrid">
+    <tr><th></th><th>The answer is in the document</th><th>The answer is not in the document</th></tr>
+    <tr><td>Looks like</td><td>Wrong format ("3 Oct", "1,204.50" as text); a value in the wrong field; line items that don't add up to what the model wrote</td><td>A field that's empty every time, because its source is a different document, system or page that was never sent</td></tr>
+    <tr><td>Does a retry help?</td><td><strong>Yes.</strong> The model can read it again and correct itself.</td><td><strong>No.</strong> The input is the same, so the gap is the same.</td></tr>
+    <tr><td>Fix</td><td>Retry with the specific error</td><td>Send the missing source (lesson 15). Leave it empty only if it exists nowhere.</td></tr>
+  </table>
+  <p>One thing you never need to retry: <strong>broken JSON</strong>. The guide says extraction through a tool with a JSON schema eliminates schema syntax errors. The errors left over are about <em>meaning</em> (wrong format inside a field, values that don't add up, a value in the wrong field), and those are the ones a retry fixes.</p>
+
+  <h2>2 · What a good retry contains</h2>
+  <p>A retry that only says "try again" or "be more careful" gives the model nothing new. The guide lists three things a correction request needs: the original document, the extraction that failed, and the specific validation errors.</p>
+<pre class="code"><span class="dim">// follow-up request after validation fails</span>
+Here is the invoice again:          <span class="hl">[original document]</span>
+Your previous extraction was:       <span class="hl">[the failed JSON]</span>
+It failed validation:
+  - invoice_date "3 Oct" must be YYYY-MM-DD   <span class="hl">[specific error]</span>
+  - line_items sum to 5,040 but total is 5,400
+Return a corrected extraction.</pre>
+  <p>Each piece does a job. The document lets the model look again. The failed output shows it what it did. The error tells it exactly what to change.</p>
+
+  <h2>3 · Why a retry can't find what isn't there</h2>
+  <p>Every retry sends the model the same document. If contract_value isn't in that document, a clearer error message doesn't add it. The model can only leave the field empty again or guess a number, and a guess is worse than empty because it looks real. That is why the guide names this as the limit of retry: information that "exists only in an external document not provided".</p>
+  <p>So when a field fails <em>every time</em>, and the stem tells you where the value really lives, stop retrying. Then ask lesson 15's question: can the system go and get it? Usually yes: send that document.</p>
+
+  <h2>4 · The exceptions, kept for last</h2>
+  <table class="cgrid">
+    <tr><th>Situation</th><th>Right answer</th></tr>
+    <tr><td>The value doesn't exist anywhere (this lease has no break clause)</td><td>Make the field nullable. Nothing to fetch, and nothing should be invented. You got this right on D4 Q1.</td></tr>
+    <tr><td>The document contradicts itself: it states a total of 5,400, but its line items add to 5,040</td><td>Don't retry until the numbers agree. Extract both, <code>stated_total</code> and <code>calculated_total</code>, and set <code>conflict_detected</code> so a person can check. Forcing them to match would hide a real problem in the source.</td></tr>
+  </table>
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer in chat before the quiz. Each one has its own scenario.
+    <ol class="steps">
+      <li><strong>Shipping manifests.</strong> Validation fails on two fields. <code>weight</code> comes back as "12 kg" but must be a number. <code>customs_code</code> is empty on every manifest, because the code is on a customs declaration that the pipeline doesn't send. What do you do about each field, and why can't one fix cover both?</li>
+      <li><strong>A weak retry.</strong> A developer's retry message says only: "Your extraction was wrong. Please be more careful and try again." Name two things missing from it, and what each would let the model do.</li>
+      <li><strong>Nullable: right or wrong?</strong> In which of these is "make the field nullable" the right answer? (a) A <code>middle_name</code> field, where many people have no middle name. (b) A <code>tax_id</code> field, where the tax ID is on the supplier's registration form, which isn't sent. Say why for each.</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Five new cases. For each failure, ask the one question first: is the answer already in what the model was given?</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If "make it nullable" looks right on any question, bring it here and we'll run the one question on it together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statement 4.4.<br>
+    <strong>Miss history:</strong> D4 Q5 in learning record 0019; lesson 10 Q7 in 0021.<br>
+    <strong>Previous:</strong> <a href="0015-annotate-only-what-you-cant-close.html">Lesson 15 — Go get it, or say it's missing</a> · <strong>Related:</strong> <a href="0010-tool-choice-and-sequencing.html">Lesson 10</a>
+  </p>
+
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "A receipt extractor's total comes back as the text \"1,204.50\", but the schema needs a number, and validation rejects it. The total is clearly printed on the receipt. Best next step?",
+    opts: [
+      "Make total nullable and save receipts that fail the number check",
+      "Send the receipt to a person whenever its total fails validation",
+      "Retry with the receipt, the failed output, and the exact error",
+      "Retry with a note asking the model to be more careful this time"
+    ],
+    ok: 2,
+    fb: "The answer is on the receipt; only the format is wrong. That is what a retry fixes, and it works best with all three pieces: document, failed output, specific error. A throws away a value you can have. B sends a fixable error to a person. D gives the model nothing specific to correct against."
+  },
+  {
+    stem: "Onboarding forms fail on two fields. salary comes back as \"$85k\" but must be a whole number. bank_bsb is empty every time, because it's only on a payroll form the pipeline never sends. What change?",
+    opts: [
+      "Retry salary with its error; send the payroll form along too",
+      "Retry both fields with their errors until every form passes",
+      "Make both fields nullable and save each form as it stands",
+      "Make salary nullable; retry bank_bsb with its error message"
+    ],
+    ok: 0,
+    fb: "Two failures, two fixes. The salary is on the form in the wrong format, so retry. bank_bsb isn't in anything the model was given, so send the payroll form. B retries something that can't succeed. C is the lesson 10 Q7 pick: it throws away a fixable salary and hides a needed BSB. D splits the fields but swaps the fixes: it drops a salary a retry could fix and retries a field no retry can fill."
+  },
+  {
+    stem: "A lease extractor requires break_clause_date. Validation fails on 40% of leases, and a manual check shows that every one of those leases has no break clause at all. Best change?",
+    opts: [
+      "Retry until break_clause_date comes back for each failing lease",
+      "Send each lease that has no break date to the legal team to check",
+      "Retry with the full lease and a reminder to read it more closely",
+      "Make break_clause_date nullable for leases that do not have one"
+    ],
+    ok: 3,
+    fb: "Here the value exists nowhere: those leases have no break clause. There's nothing to fetch, so empty is the honest answer. This is the exception, like D4 Q1. A can only produce an invented date. B sends correct records to people. C retries a field whose value does not exist, so closer reading can only invent one."
+  },
+  {
+    stem: "An invoice states a total of 5,400, but its line items add up to 5,040. Retries keep returning 5,400 as the total. Which design does the exam guide recommend?",
+    opts: [
+      "Retry and tell the model the total must equal the line-item sum",
+      "Extract stated_total and calculated_total; flag any mismatch",
+      "Extract calculated_total only; use it as the invoice total",
+      "Make total nullable on any invoice where the numbers disagree"
+    ],
+    ok: 1,
+    fb: "The document contradicts itself, so there isn't one right number to retry towards. Extract both values and set a conflict flag so a person can check (guide 4.4, line 470). A pressures the model into hiding a real discrepancy. C keeps only the computed figure and silently drops what the invoice states. D throws both numbers away."
+  },
+  {
+    stem: "A claims extractor always leaves policy_number empty. The claim form never shows it; it's on the policy schedule in another system, which isn't sent. Three retries with the error added changed nothing. What fixes it?",
+    opts: [
+      "Write a more detailed error message for the next retry attempt",
+      "Make policy_number nullable and let the claims go through",
+      "Fetch the policy schedule and send it along with the claim form",
+      "Send a sharper, higher-resolution scan of the claim form instead"
+    ],
+    ok: 2,
+    fb: "The value isn't in anything the model was given, so no retry can find it, however detailed the message (A), and a better scan of the claim form (D) can't show a number the form never had. It does exist, though, on the policy schedule, so B would hide a value the business needs. Send the schedule."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

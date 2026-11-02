@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 18 — One message, or one at a time?</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 18 · Domain 3 · Task statement 3.5</p>
+  <h1>One message, or one at a time?</h1>
+  <p class="subtitle">When Claude's work comes back with several problems, how you hand them back decides whether the next round fixes them or trades one for another.</p>
+
+  <blockquote class="key">
+    The one question for every list of problems: <strong>does fixing one of them change another?</strong><br>
+    Yes → put them in <strong>one message</strong>, and say how they connect.<br>
+    No → fix them <strong>one at a time</strong>, checking each before the next.
+  </blockquote>
+
+  <p><strong>An everyday example.</strong> A plumber has just fitted your new kitchen. You find three problems:</p>
+  <ul class="steps">
+    <li><strong>The tap drips</strong> and <strong>the sink drains slowly.</strong> Both are in the same pipework under the sink. If you call about the drip on Monday and the drain on Thursday, the plumber opens up the same pipes twice. The Monday fix may even move the pipe that causes Thursday's problem. Tell them about both on the same call, and mention they're both under the sink.</li>
+    <li><strong>A cupboard door sticks.</strong> It has nothing to do with the pipes. Fixing it can't change the tap, and fixing the tap can't change the door. Raise it on its own, whenever suits.</li>
+  </ul>
+  <p>Same kitchen, three problems, two different ways to report them. The question isn't "how many problems?" It's "are they tangled together?"</p>
+
+  <p><strong>Where this has cost you points:</strong></p>
+  <table class="cgrid">
+    <tr><th>Where</th><th>The problems</th><th>What you picked</th><th>What the right answer did</th></tr>
+    <tr><td>Exam-style drill, 8 Oct</td><td>Dates in six formats. Every round fixed some formats and broke others.</td><td>Fix one failing document per round</td><td>Send all the failing cases at once, each with its input and expected output</td></tr>
+    <tr><td>D3 quiz, 16 Oct, Q10</td><td>(1) Dates parsed in UTC. (2) The dedup key is built from that date. (3) The same dedup step drops null emails.</td><td>Three separate sessions, one per problem, then merge</td><td>One message that explains how the date bug feeds the dedup key</td></tr>
+    <tr><td>Real exam, attempt 1</td><td colspan="3">Objective 8: <strong>25%</strong>, your lowest D3 score.</td></tr>
+  </table>
+  <p>Both picks split up problems that were tangled together. Splitting <em>feels</em> careful. Here it was the cause of the failure.</p>
+
+  <h2>1 · How to tell they're tangled</h2>
+  <p>Three signs in a stem tell you fixing one will change another:</p>
+  <table class="cgrid">
+    <tr><th>Sign</th><th>Example from your misses</th></tr>
+    <tr><td><strong>One problem's output is another's input</strong></td><td>The dedup key is built from the parsed date. A wrong date makes a wrong key.</td></tr>
+    <tr><td><strong>They live in the same step</strong></td><td>The null-email drop and the key collision both happen in the dedup step. Any fix to one edits the code the other lives in.</td></tr>
+    <tr><td><strong>Fixing one broke another</strong></td><td>Six date formats, five rounds, each round broke a format that had worked. When that happens, the problems are tangled.</td></tr>
+  </table>
+  <p>The opposite signs mean they're independent: different files or features, no data passing between them, and no history of one fix breaking another. A misspelt button label and a slow image upload are a fair example.</p>
+  <p>Things that are <strong>not</strong> signs either way: the same reviewer found them, they were found on the same day, they're all "high severity", they're in the same repo. Exam distractors use these to make a split or a bundle sound reasonable.</p>
+
+  <h2>2 · Why tangled problems go in one message</h2>
+  <p>Claude can only plan around the problems it's told about. Give it the date bug alone, and it chooses a date fix without knowing the dedup key depends on the date. When you raise the dedup key next round, that first fix may need reworking, and each rework can disturb something that already worked. That's how you get fix-one-break-another.</p>
+  <p>One message lets Claude design <em>one</em> change that satisfies every problem at once. The guide says it directly: address "multiple interacting issues in a single detailed message when fixes interact".</p>
+  <p>A good message names each problem with a concrete case (lesson 13's input and expected output), then says how the problems connect:</p>
+<pre class="code"><span class="dim">// one message, three tangled problems</span>
+Three problems in the importer. They interact, so please fix them together.
+
+1. Dates are parsed in UTC. They must use the account's timezone.
+   Input:  "2026-10-04T02:00:00Z", account in America/New_York
+   Expect: 2026-10-03 (10 pm local)   Got: 2026-10-04
+2. The dedup key is built from the parsed date, <span class="hl">so bug 1 makes late-evening</span>
+   <span class="hl">rows collide with the next day's rows.</span>
+3. The same dedup step drops every row with a null email. Keep those rows.
+
+Fixing 1 will change how 2 behaves, and 2 and 3 are in the same function.</pre>
+  <p>The highlighted line is what the split approaches never send: how the problems connect.</p>
+
+  <h2>3 · Why independent problems go one at a time</h2>
+  <p>When the problems really are separate, the reasoning flips. One fix at a time keeps each change small and easy to check. If something breaks, you know which fix did it. The guide calls this "sequential iteration for independent issues". It fits the Claude Code best-practices advice to correct Claude early, because "the best results come from tight feedback loops".</p>
+  <p>So "one at a time" isn't wrong. It's wrong <em>for tangled problems</em>. That's what makes it such a good distractor: it's the right answer to a different stem.</p>
+
+  <h2>4 · Traps and one exception, kept for last</h2>
+  <table class="cgrid">
+    <tr><th>Option you'll see</th><th>Why it fails on tangled problems</th></tr>
+    <tr><td>"Fix the root bug first, then raise the others once it's verified"</td><td>Sounds disciplined. But the root fix is chosen before Claude knows what depends on it, so the next round may have to rework it. It's still the split approach, just in order.</td></tr>
+    <tr><td>"Separate parallel sessions, one per problem, then merge"</td><td>Each session edits the same step without seeing the others. You get conflicting diffs and no view of how the problems connect. Your D3 Q10 pick.</td></tr>
+    <tr><td>"Bundle everything into one message, always"</td><td>Wrong the other way round. For independent problems, bundling throws away the small, checkable steps.</td></tr>
+  </table>
+  <p><strong>The exception: corrections are piling up.</strong> If you've already corrected Claude more than twice on the same issue, the best-practices guide says the context is "cluttered with failed approaches". Run <code>/clear</code> and start fresh with a more specific prompt that includes what you learned. For tangled problems, that fresh prompt is the one-message hand-back from section 2.</p>
+
+  <h2>Explain it back</h2>
+  <div class="ask">
+    Answer both in chat before the quiz. Each one gives you everything you need.
+    <ol class="steps">
+      <li><strong>A shopping cart.</strong> Claude rewrote a shopping cart, and you found three problems:
+        <ol>
+          <li>The discount is taken off <em>after</em> tax is added, when it should come off <em>before</em>.</li>
+          <li>The "you saved $X" line on the receipt is worked out from the total <em>after</em> tax.</li>
+          <li>The cart icon is the wrong colour.</li>
+        </ol>
+        <strong>Part 1:</strong> which problems go together in one message, and which go on their own? (Answer shape: "Problems __ and __ together; problem __ on its own.")<br>
+        <strong>Part 2:</strong> which of the three signs told you? A: one problem's output is another's input. B: they happen in the same step. C: fixing one has already broken another. Say why in one sentence.<br>
+        <em>Hint:</em> try a $100 item, $10 off, 10% tax. Does fixing problem 1 change what problem 2 shows? Could it ever change the icon?</li>
+      <li><strong>Your own miss: D3 quiz, 16 Oct, Q10.</strong> The original question:
+        <blockquote>Reviewing Claude's rewrite of a CSV importer, you find three problems. Dates are parsed in UTC instead of the account's timezone. The dedup key is built from the parsed date, and so late-evening rows collide with the next day's rows. Rows with a null email are also dropped by the dedup step. How should you hand these back?<br><br>
+        A) Fix the timezone bug first and raise the dedup problems after that change is verified<br>
+        B) Describe all three in one message, explaining how the date bug feeds the dedup key <strong>✓ correct</strong><br>
+        C) Open three separate sessions, one per problem, and then merge the three diffs together <strong>✗ your pick</strong><br>
+        D) Ask for a fresh rewrite of the importer, noting that dates and nulls need extra care</blockquote>
+        A worked case: a New York customer buys at 10 pm on 3 October. In UTC that is 2 am on 4 October, so the importer records <strong>4 October</strong>. The same customer buys again on the afternoon of 4 October, also recorded as <strong>4 October</strong>. The dedup check (same email + same date = duplicate) keeps one and throws the other away.<br>
+        <strong>The ask:</strong> with your pick, one session is told only "late-evening rows collide with next-day rows". It doesn't know about the timezone bug. What would it probably change to stop the collision, and why does that clash with the timezone session's change when you merge?</li>
+    </ol>
+  </div>
+
+  <h2>Retrieval check</h2>
+  <p>Six new cases. For each, ask the one question first: does fixing one of these problems change another?</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>Stuck on anything?</strong> Ask in chat. I'm your teacher for this course. If "fix the root one first" looks right on any question, bring it here and we'll check it against the three signs together.
+  </div>
+
+  <p class="footer">
+    <strong>Primary source:</strong> <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Official exam guide</a>, task statement 3.5.<br>
+    <strong>Also cited:</strong> <a href="https://code.claude.com/docs/en/best-practices#course-correct-early-and-often">Claude Code best practices</a> (fetched 2026-10-17): "Course-correct early and often" (tight feedback loops; <code>/clear</code> after more than two corrections on the same issue) and "Avoid common failure patterns" ("Correcting over and over").<br>
+    <strong>Miss history:</strong> 8 Oct drill in learning record 0017; D3 Q10 in 0022.<br>
+    <strong>Previous:</strong> <a href="0013-io-examples.html">Lesson 13 — Show, don't re-describe</a> · <strong>Reference:</strong> <a href="../reference/iterative-refinement.html">Iterative refinement cheat sheet</a>
+  </p>
+
+</main>
+<script>
+const QUIZ = [
+  {
+    stem: "Claude's refactor of a reporting app leaves three problems: a typo in a tooltip on the settings page, a CSV export that omits its header row, and a slow login query. They are in separate modules and pass no data between them. How should you hand them back?",
+    opts: [
+      "Describe all three together in one detailed message for Claude to fix",
+      "Hand them back one at a time, checking each fix before raising the next",
+      "Add all three as rules in CLAUDE.md so the next refactor avoids them",
+      "Ask for a fresh refactor of the app, noting that it needs extra care"
+    ],
+    ok: 1,
+    fb: "Nothing connects these: separate modules, no shared data, and no fix can change another. That's the case for one at a time, where each change stays small and checkable. A is the right move for tangled problems, not for these. C turns three one-off bugs into standing rules and fixes none of them. D is vague feedback that invites new bugs."
+  },
+  {
+    stem: "A prompt that formats phone numbers must handle four country formats. Each time you report one failing format, the fix breaks a format that worked before. You are four rounds in. What next?",
+    opts: [
+      "Report the next failing format on its own and review only that change",
+      "Add a capitalised line telling Claude never to break working formats",
+      "Send every format in one message, each with input and expected output",
+      "Ask Claude to rewrite the prompt from scratch with more focus on phones"
+    ],
+    ok: 2,
+    fb: "Fix-one-break-another is the third sign: four rounds of it show the formats are tangled. Send them all at once, each as a concrete input and expected output (lesson 13), so one change can satisfy all four. A is your 8 Oct pick and is how the loop started. B is a probabilistic instruction with no concrete target. D still gives no examples."
+  },
+  {
+    stem: "A Claude-written payroll script has three problems. Hours are rounded to whole numbers too early. Overtime is calculated from those rounded hours, so it is underpaid. And the payslip footer shows last year's date. How should you hand these back?",
+    opts: [
+      "Send the rounding and overtime bugs together, then the footer later",
+      "Send all three in one message, as they were found in the same review",
+      "Fix the rounding bug first, then raise overtime once that is verified",
+      "Send rounding and the footer together, then overtime once both are fixed"
+    ],
+    ok: 0,
+    fb: "Mixed case. Overtime takes the rounded hours as its input (the first sign), so those two go together. The footer touches neither, so it goes on its own. B bundles because of who found them, which isn't a sign either way. C is the 'fix the root first' trap: the rounding fix is chosen without overtime in view, so the next round may have to rework it. D pairs the wrong two: rounding and the footer share nothing, while overtime depends on rounding."
+  },
+  {
+    stem: "Claude's change to an order service introduced two bugs. Which fact about them is the strongest reason to describe both in a single message?",
+    opts: [
+      "Both bugs were found by the same reviewer during the same afternoon",
+      "Both bugs are in the same repository and were logged the same day",
+      "Both bugs throw the same error type and show up in the same log file",
+      "The second bug reads the value that the first bug calculates wrongly"
+    ],
+    ok: 3,
+    fb: "When one bug's output is the other's input, fixing the first changes how the second behaves. That's the first sign. Who found them (A), where and when they were logged (B), and sharing an error type or log file (C) say nothing about whether one fix changes the other. They're the details distractors use to make a bundle sound reasonable."
+  },
+  {
+    stem: "Search has three bugs. The query parser lowercases every term. That breaks an exact-match filter on case-sensitive product IDs. And ranking, which scores whatever the filter returns, now ranks the wrong products. To save time, your lead proposes three parallel sessions, one per bug. Best response?",
+    opts: [
+      "Agree, and merge the three diffs together once every session is done",
+      "Agree, but have each session read the other two diffs before merging",
+      "Use one session and one message explaining how the three bugs connect",
+      "Use three sessions one after another, one bug each, by severity order"
+    ],
+    ok: 2,
+    fb: "Each bug feeds the next: parser into filter into ranking. Parallel sessions (A) each fix their piece without seeing the others. That's your D3 Q10 pick, and it ends in conflicting diffs. B shares the diffs only after each session has already chosen its fix. D is still a split, just one at a time. One message, with the chain spelled out, lets Claude design one consistent change."
+  },
+  {
+    stem: "You've corrected Claude three times in one session on two bugs that interact. Each attempt has brought new problems, and the context is now full of failed approaches. Per the Claude Code best-practices guide, what should you do?",
+    opts: [
+      "Correct it a fourth time, this time listing every attempt that failed",
+      "Clear the session and restart with one specific prompt for both bugs",
+      "Run /compact so the failed attempts are summarised, then keep going",
+      "Switch to plan mode in the same session and ask for a new approach"
+    ],
+    ok: 1,
+    fb: "The best-practices guide says that after more than two corrections on the same issue the context is cluttered with failed approaches: /clear and start fresh with a better prompt that includes what you learned. Here that prompt is the one-message hand-back for both bugs. A adds more failed history. C is fine for an ordinary long session, but here it keeps a summary of the clutter. D stays in the same cluttered session."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

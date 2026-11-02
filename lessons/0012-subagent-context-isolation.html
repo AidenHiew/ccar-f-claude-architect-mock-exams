@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 12 — Subagent context isolation</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .explain { border-left: 3px solid var(--rule); padding: .1rem 0 .1rem 1.1rem; margin: 1.2rem 0; }
+  .explain p { margin: .35rem 0; }
+  .explain b { font-family: var(--sans); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  figure.diagram { margin: 1.6rem 0 2rem; }
+  figure.diagram svg { width: 100%; height: auto; display: block; }
+  figure.diagram figcaption { font-family: var(--sans); font-size: .82rem; color: var(--ink-soft); margin-top: .5rem; }
+  .io { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: 1.2rem 0 1.6rem; font-family: var(--sans); font-size: .9rem; line-height: 1.45; }
+  .io div { border: 1px solid var(--rule); border-radius: 6px; padding: .8rem 1rem; background: #fffffb; }
+  .io h3 { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 .4rem; }
+  .io .in h3 { color: var(--good); }
+  .io .out h3 { color: var(--bad); }
+  .io ul { margin: 0; padding-left: 1.1rem; }
+  @media (max-width: 560px) { .io { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 12 · Context management (5.4 · 1.3 · 5.1)</p>
+  <h1>Subagent context isolation</h1>
+  <p class="subtitle">The subagent's window is sealed. Only two things cross it: the task message going in, and the summary coming out.</p>
+
+  <p>On the real exam, objective 15 scored <strong>0%</strong> on the score report, and objective 13 scored 50%. Three of the guide's techniques help keep a long exploration inside the context window: subagents and scratchpad files (task statement 5.4), and reading only what a search points to (2.5). This lesson covers subagents, and it follows the first video of Anthropic's <a href="https://anthropic.skilljar.com/introduction-to-subagents">Introduction to subagents</a> course: <a href="https://www.youtube.com/watch?v=jKErNxuxPXg">What are subagents?</a> (2:48).</p>
+
+  <blockquote class="key">
+    A subagent knows only <strong>what you hand it</strong>, and you get back only <strong>what it chooses to report</strong>. Everything else is thrown away. The exam questions on this topic are really about those two hand-offs.
+  </blockquote>
+
+  <h2>1 · The problem: everything stays in one window</h2>
+  <p>In a normal Claude Code session, every tool call and every tool result is stored in the main context window (<a href="https://www.youtube.com/watch?v=jKErNxuxPXg">video</a>). The video's example: you only want to know <em>which service handles refunds</em>. To find out, Claude reads 15 files, runs several searches and traces several function calls. All of that stays in your window, even though you needed a single fact.</p>
+  <p>That isn't only a cost problem. The exam guide names the symptom of a full window: in long sessions the model begins to answer inconsistently and to lean on generic <em>"typical patterns"</em> instead of the specific classes it found earlier (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide, task 5.4</a>). If a stem describes that symptom, the question is about context management, not about the model's ability.</p>
+
+  <h2>2 · The mechanism: one sealed window, two crossings</h2>
+  <figure class="diagram">
+    <svg viewBox="0 0 640 260" role="img" aria-label="Main context window sends a task message into a separate subagent window; the subagent's reads and searches stay inside it; only a summary returns; the subagent window is then discarded.">
+      <rect x="10" y="20" width="230" height="220" rx="8" fill="#fffffb" stroke="var(--rule)" stroke-width="1.5"/>
+      <text x="125" y="44" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="var(--ink)">Main context window</text>
+      <text x="28" y="74" font-family="system-ui, sans-serif" font-size="12" fill="var(--ink-soft)">your conversation</text>
+      <text x="28" y="94" font-family="system-ui, sans-serif" font-size="12" fill="var(--ink-soft)">files already read</text>
+      <text x="28" y="114" font-family="system-ui, sans-serif" font-size="12" fill="var(--ink-soft)">skills already invoked</text>
+      <rect x="24" y="186" width="202" height="36" rx="5" fill="var(--good-bg)" stroke="var(--good)" stroke-width="1"/>
+      <text x="125" y="209" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="var(--good)">+ one summary arrives here</text>
+
+      <rect x="400" y="20" width="230" height="220" rx="8" fill="#fffffb" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text x="515" y="44" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="var(--ink)">Subagent window</text>
+      <text x="418" y="74" font-family="system-ui, sans-serif" font-size="12" fill="var(--ink-soft)">its own system prompt</text>
+      <text x="418" y="94" font-family="system-ui, sans-serif" font-size="12" fill="var(--ink-soft)">+ the task message</text>
+      <text x="418" y="124" font-family="ui-monospace, monospace" font-size="11.5" fill="var(--ink)">Grep · Read ×15 · trace…</text>
+      <text x="418" y="142" font-family="system-ui, sans-serif" font-size="11.5" fill="var(--ink-soft)">all of this stays here</text>
+      <text x="515" y="222" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="var(--bad)">discarded when done</text>
+
+      <line x1="240" y1="90" x2="394" y2="90" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="317" y="80" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="var(--ink)">task message</text>
+      <text x="317" y="108" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="var(--ink-soft)">the only way in</text>
+
+      <line x1="400" y1="204" x2="232" y2="204" stroke="var(--good)" stroke-width="1.5" marker-end="url(#arrg)"/>
+      <text x="317" y="194" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="var(--good)">summary</text>
+      <text x="317" y="222" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="var(--ink-soft)">the only way out</text>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker>
+        <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--good)"/></marker>
+      </defs>
+    </svg>
+    <figcaption>Drawn from the <a href="https://www.youtube.com/watch?v=jKErNxuxPXg">video</a> and the docs section <a href="https://code.claude.com/docs/en/sub-agents#what-loads-at-startup">"What loads at startup"</a>.</figcaption>
+  </figure>
+
+  <p>The video says the subagent gets <strong>two inputs</strong>: a custom system prompt from its configuration file, and a task description that the parent agent writes for it. It works on its own. Its file reads, edits and tool calls never show up in the main conversation. Then <em>"the entire sub-agent conversation then gets completely discarded"</em> (<a href="https://www.youtube.com/watch?v=jKErNxuxPXg">video</a>).</p>
+  <p>The docs list exactly what a fresh (non-fork) subagent starts with (<a href="https://code.claude.com/docs/en/sub-agents#what-loads-at-startup">docs</a>):</p>
+
+  <div class="io">
+    <div class="in">
+      <h3>Gets at startup</h3>
+      <ul>
+        <li>Its own system prompt (not Claude Code's)</li>
+        <li>The task message the parent writes</li>
+        <li>Your CLAUDE.md files (Explore and Plan skip these)</li>
+        <li>A git status snapshot (Explore and Plan skip it)</li>
+        <li>Skills named in its <code>skills</code> field</li>
+      </ul>
+    </div>
+    <div class="out">
+      <h3>Does not get</h3>
+      <ul>
+        <li>Your conversation history</li>
+        <li>Files the parent has already read</li>
+        <li>Skills already invoked in the session</li>
+        <li>Anything the parent worked out but didn't write into the task message</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>One exception: a <strong>fork</strong> inherits the parent conversation instead of starting fresh (<a href="https://code.claude.com/docs/en/sub-agents#fork-the-current-conversation">docs</a>). Unless a stem says fork, assume a fresh subagent.</p>
+
+  <h2>3 · Two consequences the exam tests</h2>
+  <p><strong>The way in: the task message must carry everything.</strong> The guide's point is that a subagent only knows what its prompt tells it: nothing carries over automatically from the parent, and no memory is shared between invocations (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide, task 1.3</a>). If a coordinator found something important in turn 30 and the task message says "write tests for the thing we found", the subagent has nothing to go on. The fix is to put the findings themselves into the task message. Telling the subagent to "remember" or to "check with the coordinator" doesn't work.</p>
+  <p><strong>The way out: the summary is all you keep.</strong> The video names the cost: <em>"the main window loses visibility into how the sub-agent reaches its conclusions"</em>. If the summary says "refunds are handled by the payments service" and you later need the exact handler, the file path and line went away with the subagent's window. So ask for the summary's shape in the task message: paths, line references, sources, dates. Task 5.1 of the guide asks for the same thing: subagents should attach metadata (dates, source locations, methodological context) to their structured outputs.</p>
+
+  <div class="trap">
+    <b>Trap:</b> an option that "passes the full transcript back" or "lets the subagent see the whole conversation" sounds thorough, but it defeats the purpose of using a subagent. The verbose material is exactly what you were keeping out. The right fix is almost always to make one of the two crossings carry more <em>structured</em> information, not to open the window.
+  </div>
+
+  <h2>4 · The three built-in subagents</h2>
+  <table class="cgrid">
+    <tr><th>Built-in</th><th>Tools</th><th>Used for</th></tr>
+    <tr><td><strong>Explore</strong></td><td>Read-only; Write and Edit denied</td><td>Fast search of a codebase. Claude sets a thoroughness level: <em>quick</em>, <em>medium</em> or <em>very thorough</em>.</td></tr>
+    <tr><td><strong>Plan</strong></td><td>Read-only; Write and Edit denied</td><td>Research during plan mode, before Claude presents a plan.</td></tr>
+    <tr><td><strong>General-purpose</strong></td><td>Exploration <em>and</em> action</td><td>Multi-step tasks that need both searching and changing things.</td></tr>
+  </table>
+  <p class="footer" style="margin-top:-.8rem">Sources: <a href="https://www.youtube.com/watch?v=jKErNxuxPXg">video</a>; <a href="https://code.claude.com/docs/en/sub-agents#built-in-subagents">docs, Built-in subagents</a>. Every built-in inherits the parent's permission rules.</p>
+
+  <h2>5 · When <em>not</em> to use one</h2>
+  <p>The docs list when the main conversation is the better choice (<a href="https://code.claude.com/docs/en/sub-agents#choose-between-subagents-and-main-conversation">docs</a>):</p>
+  <table class="cgrid">
+    <tr><th>Stay in the main conversation when…</th><th>Use a subagent when…</th></tr>
+    <tr><td>the task needs frequent back-and-forth or iterative refinement</td><td>the task produces verbose output you won't need again</td></tr>
+    <tr><td>several phases share a lot of context (plan → build → test)</td><td>you want to enforce tool restrictions or permissions</td></tr>
+    <tr><td>it's a quick, targeted change, or latency matters (a fresh subagent has to gather context from scratch)</td><td>the work is self-contained and can come back as a summary</td></tr>
+  </table>
+  <p>A subagent adds a hand-off and you lose sight of how it worked. Use one only when keeping its output out of your window is worth that.</p>
+
+  <h2>6 · The three context strategies</h2>
+  <p>These three techniques from the guide work together. This lesson covered the first. The next lesson goes deeper on the second.</p>
+  <table class="cgrid">
+    <tr><th>Strategy</th><th>What it protects against</th></tr>
+    <tr><td><strong>Subagent isolation</strong></td><td>Verbose exploration output filling the main window. <em>This lesson.</em></td></tr>
+    <tr><td><strong>Scratchpad files</strong></td><td>Losing findings when a context is discarded or compacted. A file survives both, and later questions can refer back to it (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide, 5.4</a>).</td></tr>
+    <tr><td><strong>Targeted reading</strong></td><td>Reading everything upfront. Grep first to find entry points, then Read to follow the trail (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">guide, 2.5</a>).</td></tr>
+  </table>
+
+  <h2>Explain it back (answer in chat)</h2>
+  <div class="explain">
+    <p><b>1</b> Without looking: what are the two inputs every subagent gets, and what are three things it does <em>not</em> get?</p>
+    <p><b>2</b> A coordinator spent 40 turns finding that refunds run through <code>billing-svc/refund.ts</code>, then delegates "write tests for the refund flow we found." What goes wrong, and what should the task message contain instead?</p>
+    <p><b>3</b> The video says the main window "loses visibility". Give one concrete way to design the task message so the summary still carries what you'll need later.</p>
+  </div>
+
+  <hr class="rule">
+
+  <h2>Retrieve it: five fresh cases</h2>
+  <p>For each one, first ask which crossing is involved: the way in or the way out.</p>
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher, so ask me anything.</strong> Unsure whether a scenario wants a subagent, a scratchpad or just a Grep? Bring it to me and we'll work through it.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Primary source:</strong> watch <a href="https://www.youtube.com/watch?v=jKErNxuxPXg">What are subagents?</a> (2:48, lesson 1 of <a href="https://anthropic.skilljar.com/introduction-to-subagents">Introduction to subagents</a>). Then read the docs sections <a href="https://code.claude.com/docs/en/sub-agents#what-loads-at-startup">What loads at startup</a> and <a href="https://code.claude.com/docs/en/sub-agents#choose-between-subagents-and-main-conversation">Choose between subagents and main conversation</a>. Both sources were fetched 2026-10-06.</p>
+    <p><strong>Exam evidence:</strong> objective 15 (0%) and objective 13 (50%) in learning record 0015. Guide tasks 1.3, 5.1, 5.4 and 2.5. Related: Lesson 4 (context economy), Lesson 6 (where a boundary belongs).</p>
+    <p><strong>Previous:</strong> <a href="0011-what-is-a-schema.html">Lesson 11 — What a schema is</a> · <strong>Next:</strong> <a href="0013-io-examples.html">Lesson 13 — Show, don't re-describe</a></p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "Over 40 turns, a coordinator learned that refunds run through billing-svc. It now spawns a fresh subagent to write tests for the refund path. What does that subagent know about billing-svc when it starts?",
+    opts: [
+      "All of it, since it inherits the coordinator's whole history",
+      "Only what the coordinator wrote into its task message",
+      "The files the coordinator read, but none of its conclusions",
+      "Nothing until it calls a shared memory tool to look it up"
+    ],
+    ok: 1,
+    fb: "A fresh subagent starts with its own system prompt, the task message, CLAUDE.md and a git snapshot. It does not get the conversation history or the files already read (docs, What loads at startup). Unless billing-svc is in CLAUDE.md, the task message is the only way that finding reaches it. A describes a fork, not a fresh subagent."
+  },
+  {
+    stem: "You need to find which of 200 log files contain a timeout error, then fix one handler together with the user, step by step. Best split?",
+    opts: [
+      "Do both in the main thread so nothing is lost between them",
+      "Delegate the log search; keep the fix in the main thread",
+      "Delegate the fix; search the logs in the main thread",
+      "Delegate both, each to its own subagent in parallel"
+    ],
+    ok: 1,
+    fb: "The log search produces a lot of output you won't need again, which is the textbook case for a subagent. The fix needs back-and-forth with the user, which the docs say belongs in the main conversation. C gets both backwards. A fills the window with 200 files' worth of search output."
+  },
+  {
+    stem: "An Explore subagent traced the refund flow and returned: \"Refunds are handled by the payments service.\" To edit the exact handler, the main agent now has to search again. What should have been different?",
+    opts: [
+      "The subagent should return its full transcript to the main",
+      "The main agent should read every file itself from the start",
+      "The task should ask for file paths and lines in the summary",
+      "The subagent should stay alive in the background for later"
+    ],
+    ok: 2,
+    fb: "The summary is the only thing that comes out, so the task message has to specify what it must contain: paths, line references, sources. That's the 5.1 skill of requiring metadata in structured outputs. A and B bring back exactly the verbose output the subagent existed to keep out."
+  },
+  {
+    stem: "Three hours into exploring a legacy codebase, the agent starts describing \"typical repository patterns\" instead of the specific classes it found in hour one. Best fix from here on?",
+    opts: [
+      "Keep key findings in a scratchpad file and consult it later",
+      "Raise max_tokens so the agent can write longer answers",
+      "Re-read every file from hour one into the current context",
+      "Add a system prompt line telling it to avoid generic patterns"
+    ],
+    ok: 0,
+    fb: "This is the guide's own description of context degradation (5.4). A scratchpad file stores findings outside the context window, where they survive compaction and can be looked up again. B controls output length, not memory. C refills the same window that's already failing. D only instructs the model and fixes nothing about what's in context."
+  },
+  {
+    stem: "You want a subagent that finds every caller of chargeCard() and cannot modify any file. Which option fits with no custom setup?",
+    opts: [
+      "General-purpose, told in its task message not to edit files",
+      "A fork of the main thread, so it starts with all context",
+      "General-purpose, with edit tools removed once it returns",
+      "Explore, which is read-only with Write and Edit denied"
+    ],
+    ok: 3,
+    fb: "Explore is the built-in read-only search agent (docs, Built-in subagents). A is an instruction, not a restriction. B inherits the parent's context, not a read-only tool set. C removes the tools after the edits could already have happened."
+  }
+];
+</script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

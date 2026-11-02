@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — The Batch API decision</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page">
+
+  <p class="eyebrow">CCA Foundations · Lesson 1 · Task statement 4.5</p>
+  <h1>The Batch API decision</h1>
+  <p class="subtitle">One question decides every Batch-vs-synchronous exam item — and it's the one you skipped twice.</p>
+
+  <p>On the exam, Batch API questions look like cost questions. They aren't. They're <em class="term">latency</em> questions wearing a cost disguise. Both times this beat you — diagnostic Q23 and today's mock — you took the 50% savings bait and reached for machinery to keep the speed. This lesson installs the single decision that makes these questions automatic.</p>
+
+  <blockquote class="key">
+    <strong>The whole lesson in one line:</strong> Is a human or a caller <em>waiting</em> on this result? <strong>Yes → synchronous.</strong> <strong>No → Batch.</strong> There is no third option that gives you batch pricing without the wait.
+  </blockquote>
+
+  <h2>What the Batch API actually trades</h2>
+  <p>It trades <strong>immediacy for cost</strong>. You hand Anthropic a pile of requests, it processes them asynchronously, and you collect results later. Here are the numbers — verified against the official docs, not memory:</p>
+
+  <div class="facts">
+    <div class="fact"><div class="n">50% cheaper</div><div class="l">input &amp; output, vs the standard API <cite>[1]</cite></div></div>
+    <div class="fact"><div class="n">&lt; 1 h typical · 24 h cap</div><div class="l">most finish within an hour; a batch <strong>expires</strong> if not done in 24 h — and no SLA: "processing may be slowed based on demand" <cite>[1]</cite></div></div>
+    <div class="fact"><div class="n">custom_id</div><div class="l">results come back in <strong>any order</strong> — you match each to its request by <code>custom_id</code> <cite>[1]</cite></div></div>
+    <div class="fact"><div class="n">100,000 · 256 MB</div><div class="l">max requests or size per batch, whichever comes first; results kept 29 days <cite>[1]</cite></div></div>
+  </div>
+
+  <p>Read the fact that matters most slowly: <strong>there is no latency guarantee.</strong> "Usually under an hour" is a description, not a promise — the ceiling is 24 hours, and demand can push you there. So the moment a result is on someone's critical path, batch is disqualified. Not "risky." Disqualified.</p>
+
+  <h2>Why "Batch it, with a fallback" is always wrong</h2>
+  <p>Your answer both times was some form of <em>"move it to Batch and add a timeout that falls back to synchronous."</em> It feels clever — savings plus a safety net. It is the <span class="tag">over-engineered</span> distractor, and here is the tell:</p>
+
+  <div class="trap">
+    <b>The machinery doesn't remove the wait — it just moves it.</b> A blocking check that falls back to sync after a batch runs long has now made the developer wait <em>longer</em> (batch delay, then a full sync call) to save nothing on the calls that matter. You've added a polling-and-timeout system to arrive at "just call it synchronously." The designed answer was already there: if the caller waits, keep it synchronous.
+  </div>
+
+  <p>This is your recurring pattern in one instance (see learning record 0003): when two options both seem to work, the elaborate one is bait. The exam rewards <strong>matching each workload to the right API</strong> — nightly report → Batch, blocking check → sync — not building a hybrid.</p>
+
+  <hr class="rule">
+
+  <h2>Retrieve it — don't just read it</h2>
+  <p>Recall builds retention that re-reading can't. Answer before you're sure; feedback is immediate.</p>
+
+  <div class="quiz" id="quiz"></div>
+
+  <div class="ask">
+    <strong>I'm your teacher — ask me anything.</strong> Unsure why the fallback still counts as blocking? Want a harder scenario, or the difference between <code>tool_choice</code> and Batch tool use? Just ask in the chat. Follow-up questions are how the storage sticks.
+  </div>
+
+  <div class="footer">
+    <hr class="rule">
+    <p><strong>Primary source (read this next, ~8 min):</strong> <a href="https://platform.claude.com/docs/en/build-with-claude/batch-processing">Anthropic — Batch processing</a>. The "How it works", limits, and "results may not match input order" sections back every fact above.</p>
+    <p><strong>Reference card:</strong> <a href="../reference/batch-api.html">Batch API quick reference</a> — the compressed facts, for final-fortnight drilling.</p>
+    <p><strong>Related:</strong> task statement 4.5 in <a href="../notes/domain-4-prompt-engineering.md">domain-4 notes</a> · your miss history in learning record 0001.</p>
+  </div>
+
+</main>
+
+<script>
+const QUIZ = [
+  {
+    stem: "A pre-merge lint agent runs while a developer sits watching the CI check turn green. Your lead wants the 50% Batch saving on it. Your recommendation?",
+    opts: [
+      "Keep this workflow on the synchronous API — the developer is waiting",
+      "Move it to Batch and poll every few seconds to shorten the wait",
+      "Move it to Batch with a fallback to a sync call after a timeout",
+      "Move it to Batch only during off-peak hours when demand is low"
+    ],
+    ok: 0,
+    fb: "Batch has no latency guarantee (24 h ceiling), so any waited-on check stays synchronous. Polling doesn't create an SLA; a timeout-fallback just makes the wait longer to save nothing; off-peak scheduling still can't promise a time."
+  },
+  {
+    stem: "A job generates a weekly dependency-audit report that a human reads on Monday morning. It is latency-tolerant. Which API, and why?",
+    opts: [
+      "Synchronous, because reports should always return their result promptly",
+      "Batch, because nothing is waiting and it captures the full 50% saving",
+      "Synchronous, so the results are guaranteed to arrive in request order",
+      "Batch, because batching is what makes tool use inside the job possible"
+    ],
+    ok: 1,
+    fb: "No one waits on a Monday report, so Batch captures the 50% saving at no cost to anyone. Ordering isn't a reason to pick sync — Batch results come back unordered and you match them with custom_id anyway."
+  },
+  {
+    stem: "You submitted 5,000 requests as one batch. The results download arrives — but request #2's result comes before request #1's. How do you correctly pair each result to its request?",
+    opts: [
+      "Match each returned result to its request using its custom_id",
+      "Rely on the array order, which the batch preserves on return",
+      "Re-submit the batch because out-of-order results signal an error",
+      "Sort both lists by timestamp and then align them position by position"
+    ],
+    ok: 0,
+    fb: "Batch results can return in any order — the docs say so explicitly. custom_id is the only reliable key. Array order is NOT preserved, out-of-order is normal (not an error), and timestamps don't uniquely align requests."
+  },
+  {
+    stem: "How long can a batch take before requests that haven't been sent to the model are dropped as expired?",
+    opts: [
+      "Up to 24 hours, after which unprocessed requests expire",
+      "Up to 1 hour, the typical completion time, then it stops",
+      "There is a strict latency SLA of a few minutes per batch",
+      "Indefinitely, since batches never expire once accepted"
+    ],
+    ok: 0,
+    fb: "Most finish under an hour, but the hard cap is 24 hours — a batch expires past that and you aren't billed for the unsent requests. 'Usually under an hour' is a description, never a guarantee; there is no minutes-level SLA."
+  }
+];
+
+const LAB = ["A","B","C","D"];
+const root = document.getElementById("quiz");
+QUIZ.forEach((q, qi) => {
+  const div = document.createElement("div");
+  div.className = "q";
+  div.innerHTML = `<p class="stem"><span class="qn">Q${qi+1}</span>${q.stem}</p>` +
+    `<div class="opts">` + q.opts.map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}"><span class="lab">${LAB[oi]}</span><span>${o}</span><span class="mk"></span></button>`).join("") + `</div>` +
+    `<div class="fb" id="fb-${qi}"></div>`;
+  root.appendChild(div);
+});
+
+root.addEventListener("click", e => {
+  const btn = e.target.closest(".opt");
+  if (!btn) return;
+  const qi = +btn.dataset.q, oi = +btn.dataset.o, q = QUIZ[qi];
+  const wrap = btn.closest(".q");
+  if (wrap.dataset.done) return;
+  wrap.dataset.done = "1";
+  wrap.querySelectorAll(".opt").forEach((b, bi) => {
+    b.disabled = true;
+    if (bi === q.ok) { b.classList.add("correct"); b.querySelector(".mk").textContent = "✓"; }
+    if (bi === oi && oi !== q.ok) { b.classList.add("wrong"); b.querySelector(".mk").textContent = "✗"; }
+  });
+  const fb = document.getElementById("fb-"+qi);
+  fb.innerHTML = (oi === q.ok ? "<b>Correct.</b> " : "<b>Not quite.</b> ") + q.fb;
+  fb.setAttribute("data-show", "1");
+});
+</script>
+</body>
+</html>

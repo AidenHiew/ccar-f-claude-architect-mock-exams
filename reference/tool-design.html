@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — Tool design and tool_choice</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .ref dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1.2rem 0; align-items: baseline; }
+  .ref dt { font-family: var(--mono); font-size: .82rem; color: var(--accent); font-weight: 600; }
+  .ref dd { margin: 0; font-size: 1rem; }
+</style>
+</head>
+<body>
+<main class="page ref">
+  <p class="eyebrow">CCA Foundations · Quick reference · 2.1 + 2.3</p>
+  <h1>Tool design and tool_choice</h1>
+  <p class="subtitle">The model sees name + description + schema, in one prompt with your system prompt. Nothing else.</p>
+
+  <h2>Description checklist (2.1)</h2>
+  <dl>
+    <dt>does</dt><dd>What it does and what it returns</dd>
+    <dt>input</dt><dd>Format of each parameter, with an example; unambiguous names (<code>user_id</code>, not <code>user</code>)</dd>
+    <dt>when</dt><dd>When to use it, and when <strong>not</strong> to</dd>
+    <dt>sibling</dt><dd>"Use X instead when…" for every similar tool</dd>
+    <dt>limits</dt><dd>What it does not return; edge cases</dd>
+  </dl>
+
+  <h2>Misrouting: diagnose by where errors cluster</h2>
+  <dl>
+    <dt>spread evenly</dt><dd>Thin descriptions → <strong>expand</strong> (checklist)</dd>
+    <dt>between 2 tools</dt><dd>Overlap → <strong>rename + rewrite</strong> to distinct purposes; prefix by service (<code>jira_search</code>)</dd>
+    <dt>wrong output shape</dt><dd>Generic tool, several jobs → <strong>split</strong> into purpose-specific tools with I/O contracts</dd>
+    <dt>on one phrase</dt><dd>Descriptions already good → <strong>system prompt keyword line</strong>; reword it</dd>
+  </dl>
+  <p><strong>Consolidate</strong> (one tool, <code>action</code> param) when only the verb changes on one resource. <strong>Split</strong> when the jobs need different outputs. On the exam, the guide's split pattern wins.</p>
+
+  <h2>Tool distribution (2.3)</h2>
+  <dl>
+    <dt>scope</dt><dd>4–5 role tools per agent, not 18</dd>
+    <dt>cross-role</dt><dd>Narrow tool for the frequent case (<code>verify_fact</code>); complex cases via coordinator</dd>
+    <dt>constrain</dt><dd>Generic → validated (<code>fetch_url</code> → <code>load_document</code>)</dd>
+  </dl>
+
+  <h2>tool_choice (set per request)</h2>
+  <dl>
+    <dt>auto</dt><dd>Tool or text. Default with tools</dd>
+    <dt>any</dt><dd>Must call a tool; model picks which. No text before the call (prefill)</dd>
+    <dt>tool</dt><dd>Must call that tool. No text before the call (prefill)</dd>
+    <dt>none</dt><dd>No tool calls. Default without tools</dd>
+  </dl>
+
+  <h2>Sequencing</h2>
+  <p><strong>Request 1:</strong> force the prerequisite. <strong>Requests 2+:</strong> <code>auto</code>, so the model can call dependent tools on real data. Forcing every turn means the dependent tools are never called. <code>any</code> every turn does not control order.</p>
+
+  <h2>Current-docs delta (not on exam v0.2)</h2>
+  <p>Opus 5.5 · Sonnet 5.5 · Fable 5.1 · Mythos 5.1: <code>any</code>/<code>tool</code> → 400. Use <code>auto</code> + strict tool use, or structured outputs.</p>
+
+  <p class="footer">Sources: <a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/define-tools">Claude docs — Define tools</a> (fetched 2026-10-09) · <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">Writing effective tools for agents</a> · exam guide §2.1, §2.3. Lessons: <a href="../lessons/0009-how-claude-picks-a-tool.html">9</a> · <a href="../lessons/0010-tool-choice-and-sequencing.html">10</a>.</p>
+</main>
+</body>
+</html>
