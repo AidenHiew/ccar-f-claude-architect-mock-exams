@@ -4,6 +4,19 @@ A free study kit for anyone preparing for the **Claude Certified Architect – F
 
 > **Unofficial.** This repo is not made by, endorsed by or affiliated with Anthropic. It contains **no real exam questions**: every question here was written for practice. The exam's confidentiality agreement covers its questions and options, and nothing here comes from them.
 
+## Before you start: two warnings
+
+**1. These papers are hard, like the real exam.** They were written to feel as hard as the real one, by someone who has sat it twice.
+- The right answer is often not obvious.
+- Many incorrect answers are almost correct. They can work, but a better answer is in the list.
+- Sometimes two answers are almost the same, and one word makes one of them right.
+
+This is on purpose. The real exam checks that you know how each tool or idea really works. A low score the first time is normal. After each paper, read every explanation, even for the questions you got right.
+
+**2. Practise all 6 scenarios before the exam.** The exam guide lists 6 scenarios (work settings, such as a customer support agent). Each exam picks 4 of the 6 at random, with about 15 questions on each. So any scenario you skip has a 2 in 3 chance of being on your exam.
+
+The person who built this kit practised the same 4 scenarios again and again, and never the other 2: CI/CD and Multi-Agent Research. On exam day, 15 CI/CD questions came up and caught them out. That mistake is the main reason this kit is shared. Don't repeat it: `mock-full1.html` and `mock-full2.html` together cover all 6 scenarios.
+
 ## Step 1 (required): confirm which exam guide you're preparing for
 
 The official exam guide is the blueprint: its domains, task statements and scenarios define what the exam can test. Anthropic updates it, and everything in this kit (the papers, the builder's coverage rules, the notes) was built against **guide Version 1.0, effective July 2026**.
