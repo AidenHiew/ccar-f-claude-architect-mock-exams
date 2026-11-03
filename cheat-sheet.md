@@ -29,9 +29,14 @@ Drill these until instant. These are the memorizable facts; judgment patterns li
 
 ## MCP
 - Failure signal: **`isError` flag**
-- Error categories: transient / validation / business / permission + `isRetryable`
+- Error types: transient / validation / business / permission. Return `errorCategory` (transient/validation/permission) + `isRetryable` + a description; no `isRetryable` → wasted retries
+- Transient → retry (a subagent recovers locally) · Validation → fix input, retry · Business → no retry, `retriable: false` (guide's spelling here) + customer-friendly explanation · Permission → no retry, escalate
+- Valid empty result ("no matches") ≠ failure; a failed search returned as empty success hides the error
 - Project servers: **`.mcp.json`** (committed) · Personal: **`~/.claude.json`**
 - Secrets: `${ENV_VAR}` expansion in `.mcp.json`
+- Mix-ups: `~/.claude.json`, not `~/.claude.md`; no `local.mcp.json` (local scope lives in `~/.claude.json`, filed under the project)
+- Check a server works: restart, then `/mcp`
+- Teammate missing a shared server's tools → set their own env var + restart; don't copy the server into `~/.claude.json` with the token
 - All servers' tools available **simultaneously**, discovered at connection time
 - **Resources** = content catalogs (reduce exploratory calls) · **Tools** = actions
 - Healthy tool count per agent: **~4–5**, not 18
@@ -53,7 +58,10 @@ Drill these until instant. These are the memorizable facts; judgment patterns li
 | `--resume <name>` | Resume a named session |
 | `fork_session` | Branch from shared baseline to explore alternatives |
 | `-p` / `--print` | Non-interactive (CI) mode — fixes hanging pipelines |
-| `--output-format json` + `--json-schema` | Structured, machine-parseable CI output |
+| `--output-format json` + `--json-schema` | Structured, machine-parseable CI output; schema result lands in `structured_output` |
+| `--output-format text` / `json` / `stream-json` | Readable (default) / one parseable result at the end / live progress AND a parseable final result |
+
+**CLAUDE.md mix-ups:** not `~/.claude.md`, not `.claude.md`, not "local .claude.md" (it's `CLAUDE.local.md`). Personal notes for one repo → `CLAUDE.local.md`; in `~/.claude/CLAUDE.md` they load in every repo. Files add together; nothing overrides.
 
 **Fakes that appear as distractors:** `CLAUDE_HEADLESS=true`, `--batch` flag, `.claude/config.json` with a commands array — none exist.
 
@@ -61,6 +69,8 @@ Drill these until instant. These are the memorizable facts; judgment patterns li
 - **Grep** = search file CONTENTS · **Glob** = find files by PATH pattern
 - **Edit** = unique-text-match modification; non-unique anchor → fall back to **Read + Write**
 - Explore incrementally: Grep entry points → Read to trace — don't bulk-read
+- Glob matches the whole path, never contents. No naming pattern → Grep. Question excludes a folder → a too-broad Glob is wrong. Every caller of a function → Grep its name
+- Renamed through a wrapper: Grep original name → Read wrapper, list every exported name for it → Grep each name (Grep only the original name misses wrapper callers)
 
 ## Structured output
 - tool_use + JSON schema → kills **syntax** errors, NOT **semantic** errors

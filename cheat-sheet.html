@@ -181,10 +181,11 @@
 <table class="cs three">
 <tr><th>Topic</th><th>Ask</th><th>Then</th></tr>
 <tr><td>Wrong tool picked (2.1)<span class="m1">ATTEMPT 1 · 0%</span></td><td>What did the model read just before it picked?</td><td>Fix the tool's description: use-case examples, input formats, and how it differs from the similar tool. Don't add a router.</td></tr>
-<tr><td>Tool errors (2.2)<span class="m1">ATTEMPT 1 · 50%</span></td><td>Can the agent tell what went wrong and whether to retry?</td><td>Return <code>isError</code> plus structure: the error category, <code>isRetryable</code>, and a plain description. For a business-rule refusal, <code>isRetryable: false</code> and a customer-friendly explanation. "Operation failed" is the wrong option.</td></tr>
+<tr><td>Tool errors (2.2)<span class="m1">ATTEMPT 1 · 50%</span></td><td>Can the agent tell what went wrong and whether to retry?</td><td>Return <code>isError</code> plus structure: an error category, <code>isRetryable</code>, and a plain description. "Operation failed" is the wrong option. The four error types are in Part 4, MCP.</td></tr>
 <tr><td>Order of tools (2.3)<span class="m1">ATTEMPT 1 · 0%</span></td><td>Does the API force this step, or am I only asking nicely? Is the force still on afterwards?</td><td><code>tool_choice</code> forced or <code>any</code> for the first call, then back to <code>auto</code>. Give each agent only the tools it needs (about 4–5).</td></tr>
-<tr><td>Server config (2.4)</td><td>Who gets it, and in which projects?</td><td>Same name in two places → the closest wins: local, then project <code>.mcp.json</code>, then user.</td></tr>
-<tr><td>Glob or Grep (2.5)<span class="m1">ATTEMPT 1 · 50%</span></td><td>What do I already know about it?</td><td>You know the file name or path pattern → Glob. You know text inside the file → Grep.</td></tr>
+<tr><td>Server config (2.4)</td><td>Who gets it, and in which projects?</td><td>Same name in two places → the closest wins: local, then project <code>.mcp.json</code>, then user. A teammate is missing a shared server's tools → they set their own environment variable for the <code>${VAR}</code> and restart. Copying the server into <code>~/.claude.json</code> with the token written in is the wrong option.</td></tr>
+<tr><td>Glob or Grep (2.5)<span class="m1">ATTEMPT 1 · 50%</span></td><td>What do I already know about it?</td><td>You know the file name or path pattern → Glob. You know text inside the file → Grep. Every caller of a function → Grep its name, since callers can have any file name.</td></tr>
+<tr><td>A function renamed through a wrapper (2.5)</td><td>Which names does it go by now?</td><td>Grep the original name, Read the wrapper and list every name it exports for it, then Grep each of those names. Grepping only the original name misses callers that use the wrapper's name.</td></tr>
 <tr><td>A piece of information is missing from the input or a result</td><td>Can the system still fetch it (another tool call, another source)?</td><td>Yes → fetch it. Only mark it "missing" in the output when it truly can't be fetched.</td></tr>
 </table>
 
@@ -195,7 +196,7 @@
 <tr><td>A setting already exists (3.x)</td><td>Does Claude Code already have a switch for this?</td><td>Use it. Rebuilding it from a skill plus a hook, or a "please behave" line, loses.</td></tr>
 <tr><td>Plan or just do it (3.4)</td><td>Is it a big, multi-file change with several possible designs?</td><td>Yes → plan mode. A small, clear change → do it directly.</td></tr>
 <tr><td>Refinement (3.5)<span class="m1">ATTEMPT 1 · 25%</span></td><td>What's missing: cases, right outputs, or knowledge?</td><td>Listed cases or a speed target → tests first. Known outputs and descriptions keep failing → input/output examples. New area → interview (Claude questions you before it writes anything). Several bugs that interact → describe them all in one message and say how they connect. Independent problems → one at a time.</td></tr>
-<tr><td>CI (3.6)</td><td>Is the pipeline hanging, or does it need parseable output?</td><td><code>-p</code> (non-interactive), plus <code>--output-format json</code> and <code>--json-schema</code>.</td></tr>
+<tr><td>CI (3.6)</td><td>Is the pipeline hanging, or does it need parseable output?</td><td>Hangs → <code>-p</code> (non-interactive). Findings posted as inline PR comments → <code>-p --output-format json --json-schema</code>. Needs live progress in the log <em>and</em> a parseable result → <code>--output-format stream-json</code>.</td></tr>
 </table>
 
 <h3>Domain 4 · Prompts and structured output</h3>
@@ -296,8 +297,21 @@
 <div>
 <h3>MCP</h3>
 <ul class="tight">
-  <li>A failure is signalled with the <code>isError</code> flag. Error kinds: transient, validation, business, permission, plus <code>isRetryable</code>.</li>
+  <li>A failure is signalled with the <code>isError</code> flag, plus <code>errorCategory</code> (transient, validation or permission), <code>isRetryable</code> and a description. Without <code>isRetryable</code>, retries get wasted on errors that will never succeed.</li>
+  <li>A business-rule refusal gets <code>retriable: false</code> (the guide's spelling for this case) and a customer-friendly explanation.</li>
+  <li>A subagent retries transient errors itself and passes up only what it can't fix, with partial results and what it tried.</li>
+</ul>
+<table class="cs">
+<tr><td><strong>Transient</strong> (timeout, service unavailable)</td><td>Retry. A subagent recovers locally.</td></tr>
+<tr><td><strong>Validation</strong> (invalid input)</td><td>Fix the input, then try again.</td></tr>
+<tr><td><strong>Business</strong> (policy, e.g. a refund over the limit)</td><td>No retry. Explain to the customer, or escalate.</td></tr>
+<tr><td><strong>Permission</strong> (not allowed)</td><td>No retry. Escalate or ask for access.</td></tr>
+</table>
+<ul class="tight">
+  <li>"No results found" is a valid result, not a failure. A failed search reported as an empty success hides the failure.</li>
   <li>Project servers go in <code>.mcp.json</code> (committed). Personal ones go in <code>~/.claude.json</code>. Secrets use <code>${ENV_VAR}</code>.</li>
+  <li>Mix-ups: the file is <code>~/.claude.json</code>, not <code>~/.claude.md</code>. There is no <code>local.mcp.json</code>: local scope also lives in <code>~/.claude.json</code>, filed under the project.</li>
+  <li>Check a server works: restart, then look in <code>/mcp</code> for it and its tools.</li>
   <li>All servers' tools are available at once, discovered when they connect.</li>
   <li><strong>Resources</strong> are content catalogues, which cut exploratory calls. <strong>Tools</strong> are actions.</li>
 </ul>
@@ -315,13 +329,17 @@
 <tr><td><code>/memory</code></td><td>Shows which memory files loaded</td></tr>
 <tr><td><code>/compact</code></td><td>Compresses a long session</td></tr>
 <tr><td><code>--resume &lt;name&gt;</code>, <code>fork_session</code></td><td>Continue a named session; branch to explore</td></tr>
-<tr><td><code>-p</code>, <code>--output-format json</code>, <code>--json-schema</code></td><td>CI: non-interactive, machine-readable</td></tr>
+<tr><td><code>-p</code> (<code>--print</code>)</td><td>CI: runs the prompt, prints the result, exits. Without it the job hangs waiting for input.</td></tr>
+<tr><td><code>--output-format</code></td><td><code>text</code> (default, readable), <code>json</code> (one parseable result at the end), <code>stream-json</code> (live progress and a parseable final result)</td></tr>
+<tr><td><code>--json-schema '&lt;schema&gt;'</code></td><td>With <code>json</code>: the result follows your shape (e.g. file, line, severity) and lands in <code>structured_output</code></td></tr>
 </table>
+<p class="note">CLAUDE.md mix-ups: not <code>~/.claude.md</code> (the folder is <code>~/.claude/</code>, the file inside is <code>CLAUDE.md</code>), not <code>.claude.md</code>, and not "local .claude.md" (it's <code>CLAUDE.local.md</code>). Personal notes for one repo go in <code>CLAUDE.local.md</code>; in <code>~/.claude/CLAUDE.md</code> they load in every other repo too. Files spread across many folders → one rules file with a <code>paths:</code> glob, not a CLAUDE.md in each folder.</p>
 <p class="note"><span class="fake">Fakes used as wrong options:</span> <code>CLAUDE_HEADLESS=true</code>, a <code>--batch</code> flag, and <code>.claude/config.json</code> with a commands array. None of these exist.</p>
 
 <h3>Built-in tools</h3>
 <ul class="tight">
-  <li><strong>Grep</strong> searches file contents. <strong>Glob</strong> finds files by path pattern.</li>
+  <li><strong>Grep</strong> searches file contents. <strong>Glob</strong> finds files by path pattern. Glob matches the whole path, not only the name (<code>src/api/**/*.ts</code>), and never looks inside a file.</li>
+  <li>Traps: the question says the files share no naming pattern → Glob is wrong, Grep the contents. The question excludes a folder (e.g. generated files) → a Glob that's too broad is wrong.</li>
   <li><strong>Edit</strong> needs a unique text match. If the anchor isn't unique, use Read then Write.</li>
   <li>Explore step by step: Grep for entry points, then Read to trace. Don't bulk-read.</li>
 </ul>
