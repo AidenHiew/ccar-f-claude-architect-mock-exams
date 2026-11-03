@@ -7,8 +7,10 @@ description: Build a CCA-F mock exam paper — single-domain (that domain's shar
 
 Reference build: `tutor/build/data/d2r.js` → `tutor/mock-d2-paper2.html`. Read it before authoring. Work from the repo root.
 
-## 0. Ask first
-Before you author anything, read state (step 1) and ask the user once:
+## 0. Guide check, then ask
+This kit was built against the official exam guide **Version 1.0, effective July 2026**. Find the version line (on the cover page, e.g. "Version 1.0") in `reference/ccar-f-official-exam-guide.md`. If the file is missing, stop and ask the user to save a text copy there (README, Step 1). If the version isn't 1.0, or none is found, stop: tell the user, and offer to bring the kit up to date first (README, option C) by comparing the guide with `tutor/build/statements.js` (the kit's record of Version 1.0), listing the task statements, scenarios and weights added, removed or changed, updating `tutor/build/statements.js`, and flagging ready-made papers that test changed statements. Build on the old blueprint only if the user says so.
+
+Then, before you author anything, read state (step 1) and ask the user once:
 - **Scope**, if the request doesn't already say it: one domain or a full 60-question mock.
 - **Mix:** how many slots re-test recorded misses (a fresh question on the same mechanism, in a new setting) and how many go to exam-proportional coverage. Lead with a recommended split and list the miss patterns you found, each with its learning-record or question id. The ratio is the user's to set each time.
 
@@ -23,7 +25,7 @@ A single-domain paper overrides /tutor's interleave rule, because the user asked
 - One domain: D1 16 · D2 11 · D3 12 · D4 12 · D5 9 (the split under `sim` in `tutor/build/statements.js`). 120 minutes for a full mock.
 - **Full mock: draw 4 of the 6 scenarios**, like the real exam. Add the set to `DRAWS` in `statements.js` with its 4 scenario keys; its allocation comes from `SCENARIO_BLOCKS` (one 15-item template per guide scenario). Each record carries `block` = `s` = its scenario key, and the records run block by block in draw order; `obj` is optional. `META.blocks` lists the draw in order: `{ id: '<key>', title: SCENARIOS[key], intro }`, with string ids matching each record's `block` (numeric ids render an empty page, and the gate rejects them). Don't add the set to `ALLOCATION` by hand; `build.js` writes it to `mock-<set>.html`. The gate fails if this draw plus the previous full mock's draw leaves any scenario out, or if the draw's domain counts are more than 4 off the weights × 60. Only 8 of the 15 draws pass that check; pick one that does. Never pick scenarios from a score report: a report describes one sitting's random draw, and the next sitting draws again. `SIM_BLOCKS` / `SIM_SETS` are legacy.
 - **Weak spots weight, never exclude.** A past score report or miss list may add re-test slots or decide which statements get the hard items. It never removes a scenario or a task statement from coverage.
-- A full mock meant as a readiness read should match the real format: 4 scenario blocks of about 15, mixed domains inside each block, sat once in exam mode with flag-for-review. Keep it single-answer unless your own exam form showed multiple-response items.
+- A full mock meant as a readiness read should match the real format: 4 scenario blocks of about 15, mixed domains inside each block, sat once in exam mode with flag-for-review. Single-answer by default. Guide Version 1.0 allows multiple-response items: include some when the user asks for that format.
 - Anything other than a full mock: add a new set to `ALLOCATION` in `statements.js` (per-statement counts; reuse an existing split such as `d2r = { ...d2 }` where one exists), and its output file to `OUT` in `build.js`. Set keys: `d<N>r`, `d<N>r3`, …; files: `mock-d<N>-paper<K>.html`.
 - Timer: 2 minutes per question.
 

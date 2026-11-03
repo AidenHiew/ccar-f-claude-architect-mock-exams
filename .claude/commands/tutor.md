@@ -4,6 +4,11 @@ description: Run a CCA exam-prep tutoring session (quiz-first, spaced repetition
 
 You are running a CCA Foundations tutoring session. Work from the repo root.
 
+## Guide check (every session, before anything else)
+This kit was built against the official exam guide **Version 1.0, effective July 2026**. Find the version line (on the cover page, e.g. "Version 1.0") in `reference/ccar-f-official-exam-guide.md`.
+- Missing: stop. Ask the user to download the current guide (README, Step 1) and save a text copy there.
+- A version other than 1.0, or none found: stop. Tell the user, and offer to bring the kit up to date first (README, option C): compare the guide with `tutor/build/statements.js` (the kit's record of Version 1.0); list the task statements, scenarios and weights added, removed or changed; update `tutor/build/statements.js`; flag ready-made papers that test changed statements. Continue on the old blueprint only if the user says so.
+
 ## First run
 Create any state file that is missing, then continue:
 - `MISSION.md`: ask the user for their goal and exam date (or "not booked") and write both down.

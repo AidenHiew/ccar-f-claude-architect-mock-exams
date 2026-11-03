@@ -1,60 +1,74 @@
-# CCA-F exam prep kit
+# CCAR-F mock exams and study kit
 
-Study materials for the **Claude Certified Architect – Foundations** exam (CCAR-F), from one candidate who failed the first sitting (627) and passed the retake (791, pass mark 720).
+A free study kit for anyone preparing for the **Claude Certified Architect – Foundations** exam (CCAR-F). You can sit ready-made practice papers that look like the real exam screen, generate new mocks with Claude Code, and keep the whole kit in step with the latest official exam guide.
 
 > **Unofficial.** This repo is not made by, endorsed by or affiliated with Anthropic. It contains **no real exam questions**: every question here was written for practice. The exam's confidentiality agreement covers its questions and options, and nothing here comes from them.
 
-## Start here
+## Step 1 (required): confirm which exam guide you're preparing for
 
-Read **[docs/lessons-for-future-candidates.md](docs/lessons-for-future-candidates.md)** first. It's short: what the exam looks like, what caught this candidate out, and how to practise so it doesn't catch you.
+The official exam guide is the blueprint: its domains, task statements and scenarios define what the exam can test. Anthropic updates it, and everything in this kit (the papers, the builder's coverage rules, the notes) was built against **guide Version 1.0, effective July 2026**.
 
-Then get the **official exam guide** from Anthropic. It lists the 5 domains, the 30 task statements and the 6 scenarios, and it is the real blueprint. It isn't in this repo: download it from [Anthropic's exam page](https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification) ("Download the exam guide"). Everything here assumes you have it, and links to "the guide" in the lessons go to that page.
+1. Download the current guide from [Anthropic's exam page](https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification) ("Download the exam guide") and note its version and date.
+2. If you'll use Claude Code (options B and C below), save a text copy at `reference/ccar-f-official-exam-guide.md` (for example `pdftotext -layout guide.pdf reference/ccar-f-official-exam-guide.md`). `/tutor` and `mock-exam` check it before doing anything else. The repo's `.gitignore` keeps that copy out of git: the guide is Anthropic's, so don't publish it.
+3. **If your version isn't 1.0**, treat the ready-made papers as a starting point, not full coverage. Use option C first.
 
-## How the kit works: two halves
+## Step 2: pick how you'll practise
 
-The kit runs inside [Claude Code](https://code.claude.com/docs/en/overview). Open this folder in Claude Code and use the commands below.
+### A. Sit a ready-made paper (no install)
 
-### 1. Lessons: understand the ideas (`/teach`)
-
-`/teach` is a skill that turns a topic, plus the mistakes you've made, into a long HTML lesson you work through in a browser. It is **not** included here. Install it from its author's repo: **[mattpocock/skills](https://github.com/mattpocock/skills)** (Matt Pocock, MIT). Installing it from there keeps you on the current version.
-
-`lessons/` holds the lessons one candidate built with it. You can read them without installing anything; they show what `/teach` produces. They were written for that candidate's own misses and speak to them ("your pick", "your three misses"). The "Miss history" lines and labels like "D1 Q8", "learning record 0018" or "Weak Rows Paper 6" point to that candidate's private records and practice papers, which aren't in this repo. Lessons 3–8 are left out, so the numbering has a gap. The same kind of private label appears elsewhere: in the answer rationales of the mock papers ("LR-0033", "learning record 0016", "Paper 4 Q9"), in the cheat sheet's source lines, and in `tutor/build/` comments ("wr1"–"wr7", "sim4", "spec §6"). They name that candidate's records, unshipped papers and design notes. You can ignore them.
-
-### 2. Mocks and review: practise like the exam (`/tutor` and the `mock-exam` skill)
-
-- **`/tutor`** (`.claude/commands/tutor.md`) runs short quiz sessions with spaced repetition. It tracks every task statement in `tutor/mastery.md`. The grid ships blank, so your first `/tutor` run is a 30-question diagnostic (`tutor/diagnostic.md`). Its answers are in `tutor/diagnostic-key.md`: don't open that until you've finished.
-- **`mock-exam`** (`.claude/skills/mock-exam/SKILL.md`) builds a new exam-style paper through `tutor/build/` and grades the PDF you print from it.
-- **Ready-made papers** are in `tutor/`. Open any `mock-*.html` in a browser; no install is needed. The two to start with are `mock-full1.html` and `mock-full2.html`: 60 questions and 120 minutes each, in 4 scenario blocks like the real exam. Together the two papers cover all 6 scenarios and all 30 task statements. In exam mode they look like the real exam screen: one question at a time, a question grid, flag for review, and cross-out for options.
-
-`/tutor` and `mock-exam` started as one person's study setup, so expect to adapt them. `/tutor` creates its state on the first run: `MISSION.md` (your goal and exam date) and `learning-records/` (one note per mistake pattern). `tutor/mastery.md` and `tutor/question-bank.md` ship empty for them to fill. Both also expect a text copy of the official guide at `reference/ccar-f-official-exam-guide.md`: convert the PDF (for example `pdftotext -layout`) and save it there. The repo's `.gitignore` keeps that copy out of git: the guide is Anthropic's, so don't publish it.
-
-### The ready-made papers
+Open any `tutor/mock-*.html` file in a browser. Choose exam mode for a timed sitting: one question at a time, a question grid, flag for review, and cross-out for options, like the real exam screen. Submit to see your score, each answer's rationale and the task statement it tests. Print the graded page to PDF to keep a record.
 
 | File | Questions | What it is |
 |---|---|---|
-| `mock-full1.html`, `mock-full2.html` | 60 each | Full mocks, 4 scenario blocks each; together they cover all 6 scenarios. Start here. |
-| `mock-final-sim.html`, `mock-final-sim2.html`, `mock-final-sim3.html` | 60 each | Older full mocks ("Representative Mock"). All three use the same 4 scenarios, so don't rely on them for coverage. |
-| `mock-gauntlet.html` | 60 | A drill weighted to one candidate's weak areas |
+| `mock-full1.html`, `mock-full2.html` | 60 each | **Start here.** Full mocks, 120 minutes, 4 scenario blocks each, like the real exam. Together they cover all 6 scenarios and all 30 task statements. |
+| `mock-final-sim.html`, `mock-final-sim2.html`, `mock-final-sim3.html` | 60 each | More full mocks. All three use the same 4 scenarios, so pair them with full1 and full2 for coverage. |
+| `mock-gauntlet.html` | 60 | A hard drill weighted to one candidate's weak areas; its mix isn't exam-proportional |
 | `mock-d1.html`, `mock-d2.html`, `mock-d2-paper2.html` | 16, 11, 11 | Single-domain papers (Domain 1, Domain 2) |
 | `mock-d23.html`, `mock-d23-paper2.html` … `mock-d23-paper5.html` | 30, 30, 30, 30, 23 | Domains 2 and 3 together |
 | `mock-d145.html` | 30 | Domains 1, 4 and 5 together |
 | `mock-fresh-1.html` | 15 | A short mixed paper |
-| `mock-exam.html`, `d3-exam-quiz-*.html`, `d4-exam-quiz-*.html` | | Early quizzes, kept as they were |
+| `mock-exam.html`, `d3-exam-quiz-*.html`, `d4-exam-quiz-*.html` | | Early quizzes |
 
-Some papers were built for one candidate's weak spots, so their mix isn't exam-proportional. Every paper passes `node tutor/build/check.js <set>` (answer-letter balance, no length or wording tells).
+The papers share some questions: full1 and full2 were partly assembled from the older papers. Every question is single-answer. Guide Version 1.0 says items may also be multiple-response; to practise that format, ask `mock-exam` for some.
 
-## What else is here
+### B. Generate new mocks and get them graded (Claude Code)
 
-| Path | What it is |
-|---|---|
-| `cheat-sheet.md`, `cheat-sheet.html` | Facts worth knowing cold |
-| `notes/` | Notes for each domain, organised by task statement |
-| `reference/*.html` | One-page explainers (batch API, escalation, tool design, …) |
-| `exercises.md`, `practice-questions.md` | Hands-on builds and an early question set |
-| `tutor/question-bank.md` | Empty question log in the format `/tutor` and `mock-exam` append to |
-| `tutor/build/` | The paper builder: `node tutor/build/build.js <set>` writes a paper; `node tutor/build/check.js <set>` runs the quality gates (answer-letter balance, no length or wording tells); `node tutor/build/check.test.js` tests the gates |
+Open this folder in [Claude Code](https://code.claude.com/docs/en/overview).
 
-The builder needs only Node.js, with no dependencies.
+- **`mock-exam`** (`.claude/skills/mock-exam/SKILL.md`): ask for "a full mock" or "a Domain 3 paper". It writes the questions, builds the paper through `tutor/build/`, runs quality gates (answer-letter balance, no length or wording tells, scenario rotation so every two full mocks cover all 6 scenarios) and a blind audit, then grades the PDF you print back.
+- **`/tutor`** (`.claude/commands/tutor.md`): short quiz sessions with spaced repetition, tracked per task statement in `tutor/mastery.md`. The first run is a 30-question diagnostic (`tutor/diagnostic.md`); don't open `tutor/diagnostic-key.md` until you've finished it.
+
+Both create your own state on first run (`MISSION.md` for your goal and exam date, `learning-records/` for mistake patterns) and use your misses to weight, never to narrow, what they test next.
+
+### C. Bring the kit up to a newer guide (Claude Code)
+
+This repo can't ship the guide itself, so the kit's record of Version 1.0 is `tutor/build/statements.js`: the 30 task statements (short labels), the 6 scenarios and the domain weights. If your guide's version differs from 1.0, ask Claude Code: "compare my exam guide with tutor/build/statements.js and update the kit". `/tutor` and `mock-exam` also stop and offer this when they see a different version. The update should:
+1. list task statements, scenarios and domain weights that were added, removed or changed;
+2. update the builder's coverage tables in `tutor/build/statements.js` so new mocks follow the new blueprint;
+3. flag ready-made papers whose questions test removed or changed statements;
+4. generate new mocks with option B.
+
+## Learn the ideas
+
+- **[docs/lessons-for-future-candidates.md](docs/lessons-for-future-candidates.md)**: a short read on what the exam looks like and how to practise so it doesn't catch you out. Read it before your first full mock.
+- `notes/`: notes for each domain, organised by task statement.
+- `cheat-sheet.md`, `cheat-sheet.html`: facts worth knowing cold.
+- `reference/*.html`: one-page explainers (batch API, escalation, tool design, …).
+- `exercises.md`, `practice-questions.md`: hands-on builds and an early question set.
+- **Lessons with `/teach`:** `/teach` turns a topic, plus your own mistakes, into a long HTML lesson you work through in a browser. It is **not** included here. Install it from **[mattpocock/skills](https://github.com/mattpocock/skills)** (Matt Pocock, MIT) to get the current version. `lessons/` holds sample lessons built with it. They were written for one candidate's misses, so they speak to them ("your pick"), and lessons 3–8 are left out.
+
+Some files carry labels from the private repo this kit came from ("LR-0033", "Weak Rows Paper 6", "wr7", "sim4"). They name records and papers that aren't published. You can ignore them.
+
+## The builder
+
+`tutor/build/` needs only Node.js, with no dependencies.
+- `node tutor/build/build.js <set>` writes a paper.
+- `node tutor/build/check.js <set>` runs the quality gates.
+- `node tutor/build/check.test.js` tests the gates.
+
+## Where this came from
+
+One candidate built this kit for their own exam: they failed the first sitting (627) and passed the retake (791; the pass mark is 720). The main lesson from the fail: practise every scenario in the guide, not only the ones on your last score report. The scenario-rotation rule in the builder enforces that.
 
 ## Credits
 
