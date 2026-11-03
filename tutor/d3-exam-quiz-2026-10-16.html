@@ -77,7 +77,7 @@ const QUIZ = [
       "In a personal skill in ~/.claude/skills/ that the developer invokes in each session"
     ],
     "ok": 2,
-    "fb": "Two axes: who (me vs team) and where (this project vs all). CLAUDE.local.md is me + this project, and it is gitignored.<br><b>A</b> (wrong-problem): The project CLAUDE.md is committed. Every teammate loads these notes.<br><b>B</b> (wrong-problem): True that only this developer loads it, but it loads in every repository they open. That breaks the second constraint.<br><b>D</b> (over-engineered): It works only if remembered each session. Always-on personal context is what CLAUDE.local.md is for.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.1 (Local: CLAUDE.local.md; two scope axes) · LR-0008</span>"
+    "fb": "Two axes: who (me vs team) and where (this project vs all). CLAUDE.local.md is me + this project, and it is gitignored.<br><b>A</b> (wrong-problem): The project CLAUDE.md is committed. Every teammate loads these notes.<br><b>B</b> (wrong-problem): True that only this developer loads it, but it loads in every repository they open. That breaks the second constraint.<br><b>D</b> (over-engineered): It works only if remembered each session. Always-on personal context is what CLAUDE.local.md is for.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.1 (Local: CLAUDE.local.md; two scope axes)</span>"
   },
   {
     "ts": "3.2",
@@ -116,7 +116,7 @@ const QUIZ = [
       "A testing skill, plus a hook that invokes it whenever Claude opens any file ending in .test.ts"
     ],
     "ok": 1,
-    "fb": "A path-scoped rule with a glob follows test files wherever they live and loads only when a matching file is in play.<br><b>A</b> (symptom-fix): Directory files are bound to directories. Sixty copies drift, and every new test directory needs another one, which is the gap already being hit.<br><b>C</b> (probabilistic): It still loads every session, and Claude must infer when the section applies.<br><b>D</b> (over-engineered): Custom wiring rebuilds what the native paths frontmatter already does.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.3 (glob rules vs directory CLAUDE.md) · LR-0010</span>"
+    "fb": "A path-scoped rule with a glob follows test files wherever they live and loads only when a matching file is in play.<br><b>A</b> (symptom-fix): Directory files are bound to directories. Sixty copies drift, and every new test directory needs another one, which is the gap already being hit.<br><b>C</b> (probabilistic): It still loads every session, and Claude must infer when the section applies.<br><b>D</b> (over-engineered): Custom wiring rebuilds what the native paths frontmatter already does.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.3 (glob rules vs directory CLAUDE.md)</span>"
   },
   {
     "ts": "3.4",
@@ -155,7 +155,7 @@ const QUIZ = [
       "A request for Claude to list the name formats it expects and to support the common ones"
     ],
     "ok": 2,
-    "fb": "When prose is read inconsistently, concrete input/output examples specify the transformation exactly, and sending the cases together stops one fix from undoing another.<br><b>A</b> (probabilistic): More prose is the thing that has already failed three times.<br><b>B</b> (wrong-problem): One case per round is how fix-one-break-another happens. Claude never sees the cases it must keep working.<br><b>D</b> (wrong-problem): Hands the specification to Claude when the gap is your intent, not its knowledge.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.5 (2–3 concrete examples) · LR-0017</span>"
+    "fb": "When prose is read inconsistently, concrete input/output examples specify the transformation exactly, and sending the cases together stops one fix from undoing another.<br><b>A</b> (probabilistic): More prose is the thing that has already failed three times.<br><b>B</b> (wrong-problem): One case per round is how fix-one-break-another happens. Claude never sees the cases it must keep working.<br><b>D</b> (wrong-problem): Hands the specification to Claude when the gap is your intent, not its knowledge.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.5 (2–3 concrete examples)</span>"
   },
   {
     "ts": "3.5",
@@ -168,7 +168,7 @@ const QUIZ = [
       "Ask for a fresh rewrite of the importer, noting that dates and nulls need extra care"
     ],
     "ok": 1,
-    "fb": "The problems interact: the timezone bug changes the dedup key, and the null rule lives in the same dedup step. Interacting problems go in one detailed message. Sequential fixing is for independent ones.<br><b>A</b> (wrong-problem): Sounds disciplined, but fixing dates alone changes dedup behaviour, and the next round then patches code without seeing the full picture.<br><b>C</b> (over-engineered): Three sessions editing the same step produce conflicting diffs with no shared view of the interaction.<br><b>D</b> (probabilistic): Vague feedback with no specific failures. It invites new bugs rather than fixing the known ones.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.5 (batch vs sequential) · LR-0017</span>"
+    "fb": "The problems interact: the timezone bug changes the dedup key, and the null rule lives in the same dedup step. Interacting problems go in one detailed message. Sequential fixing is for independent ones.<br><b>A</b> (wrong-problem): Sounds disciplined, but fixing dates alone changes dedup behaviour, and the next round then patches code without seeing the full picture.<br><b>C</b> (over-engineered): Three sessions editing the same step produce conflicting diffs with no shared view of the interaction.<br><b>D</b> (probabilistic): Vague feedback with no specific failures. It invites new bugs rather than fixing the known ones.<br><span class=\"cite\">Notes: notes/domain-3-claude-code-config.md §3.5 (batch vs sequential)</span>"
   },
   {
     "ts": "3.6",

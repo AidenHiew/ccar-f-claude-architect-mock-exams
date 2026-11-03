@@ -687,7 +687,7 @@ const Q = [
         "text": "20 people's sessions follow it as written. Emphasis doesn't explain the 2."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1 (/memory to verify loaded files); LR-0033 (Q16)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1 (/memory to verify loaded files)"
   },
   // B22 · cc 3.2 · adapted from sim3/N20
   {
@@ -842,7 +842,7 @@ const Q = [
         "text": "The interview surfaces cases nobody has thought of; the payroll team has already listed all 11."
       }
     },
-    "cite": "Exam guide §3.5; notes/domain-3 §3.5; lesson 29; LR-0045 T15"
+    "cite": "Exam guide §3.5; notes/domain-3 §3.5; lesson 29"
   },
   // B27 · cc 4.2 · adapted from wr6/T02
   {
@@ -1121,7 +1121,7 @@ const Q = [
         "text": "Structures the output but doesn't tell Claude what exists."
       }
     },
-    "cite": "Exam guide §3.6; notes/domain-3 §3.6; LR-0033 (Q30)"
+    "cite": "Exam guide §3.6; notes/domain-3 §3.6"
   },
   // B36 · ci 3.6 · adapted from d23/F29
   {
@@ -1338,7 +1338,7 @@ const Q = [
         "text": "A self-assigned number filters without explaining anything, and nobody would know which kinds of finding it hides."
       }
     },
-    "cite": "Exam guide §4.4; notes/domain-4 §4.4; LR-0040 M54"
+    "cite": "Exam guide §4.4; notes/domain-4 §4.4"
   },
   // B43 · ci 4.5 · adapted from fresh1/F15
   {
@@ -1617,7 +1617,7 @@ const Q = [
         "text": "Leaves the broad tool in place and relies on the model following a rule it already breaks."
       }
     },
-    "cite": "Exam guide §2.3; notes/domain-2 §2.3; LR-0031 (F06)"
+    "cite": "Exam guide §2.3; notes/domain-2 §2.3"
   },
   // B52 · de 4.1 · adapted from sim3/N49
   {
@@ -1679,7 +1679,7 @@ const Q = [
         "text": "Keeps the line unsplit; the items are still missing from line_items."
       }
     },
-    "cite": "Exam guide §4.2; notes/domain-4 §4.2; LR-0048 T07"
+    "cite": "Exam guide §4.2; notes/domain-4 §4.2"
   },
   // B54 · de 4.3 · adapted from sim3/N52
   {
@@ -1772,7 +1772,7 @@ const Q = [
         "text": "The failures are already known from the sum check; a self-assigned number adds no information about what to correct."
       }
     },
-    "cite": "Exam guide §4.4; notes/domain-4 §4.4; LR-0040 M54"
+    "cite": "Exam guide §4.4; notes/domain-4 §4.4"
   },
   // B57 · de 4.5 · adapted from wr1/W27
   {
@@ -1803,7 +1803,7 @@ const Q = [
         "text": "18 + 24 = 42 hours: a certificate arriving just after a submission waits 18 hours before processing starts."
       }
     },
-    "cite": "Exam guide §4.5; notes/domain-4 §4.5; LR-0040 M57"
+    "cite": "Exam guide §4.5; notes/domain-4 §4.5"
   },
   // B58 · de 5.5 · adapted from wr3/T26
   {
@@ -1834,7 +1834,7 @@ const Q = [
         "text": "Measures an error rate but doesn't fix the routing, and a hand-checked set already exists."
       }
     },
-    "cite": "Exam guide §5.5; notes/domain-5 §5.5; LR-0042 decision table, V08"
+    "cite": "Exam guide §5.5; notes/domain-5 §5.5"
   },
   // B59 · de 5.5 · adapted from wr2/V11
   {

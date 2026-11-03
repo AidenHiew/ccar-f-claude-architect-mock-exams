@@ -50,7 +50,7 @@
 
   <p class="eyebrow">CCA Foundations · Lesson 27 · Domains 4 and 5 · Task statements 4.1, 4.2, 5.5 (the exam is split into 5 domains, its main topic areas)</p>
   <h1>Write down the line, or show the hard cases?</h1>
-  <p class="subtitle">On 23 October you sat three papers: Weak Rows Paper 1, Weak Rows Paper 2 and Representative Mock 3. On all three you lost a question of the same kind: the model flags too much, and the stem lists what really counts. Each time you picked examples, and the answer was to write the list into the prompt. This page shows those three questions in full, plus four more from the same day where a fix from a neighbouring topic was picked. You don't need to remember any of them.</p>
+  <p class="subtitle">On 23 October you sat three papers: weak-topics paper 1, weak-topics paper 2 and Representative Mock 3. On all three you lost a question of the same kind: the model flags too much, and the stem lists what really counts. Each time you picked examples, and the answer was to write the list into the prompt. This page shows those three questions in full, plus four more from the same day where a fix from a neighbouring topic was picked. You don't need to remember any of them.</p>
   <p>Three topic numbers from the exam guide come up on this page: <strong>4.1</strong> is writing clear criteria into the prompt, <strong>4.2</strong> is giving the model examples, and <strong>5.5</strong> is deciding which results a person checks. The page itself is in four parts, numbered 1 to 4.</p>
 
   <p><strong>The plain question.</strong> A model flags far too many things. Do you write down what to flag and what to skip, or do you show it examples?</p>
@@ -113,14 +113,14 @@ cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that 
   <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The problem was <em>too many</em> flags: 3 routine notes for every real one. The 3 examples in your pick are all serious defects. They show the model what a real flag looks like, but nothing in them says "weathered cable ties: skip". The routine notes keep coming.</li><li>"Focus on serious issues" failed because it is <em>vague</em>: the model still has to guess what "serious" means. That doesn't show that writing things down fails.</li><li>D writes the line down: flag roof leaks (and the other named problems), skip routine notes such as weathered cable ties. So D fixes both problems in the stem: the routine notes now have a rule that says skip, and the leaks that were missed are now named.</li></ul></div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 1, 23 Oct, question 18</p>
+  <p class="mc-h">Weak-topics paper 1, 23 Oct, question 18</p>
   <p class="mc-stem">The pipeline flags a policy schedule for an account assistant when <mark>&quot;something looks unusual&quot;</mark>. Of 600 flags last month, 41 were real problems, and assistants now skim past flags. <mark>The real problems were of 3 kinds</mark>: a premium above the quoted amount, a policy period that differs from the certificate, and a named insured that differs from the client record. What change cuts the false flags?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add 5 examples of normal schedules for the model to compare each one against</div><div class="mc-k"><b>✓ Correct: B</b>Flag only on the 3 named conditions, with the differences to ignore listed</div></div>
   <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Have the model score each schedule 1–10 for oddness and flag only 8 or above</span></li><li><span class="mc-l">D</span><span>Send flags to the assistants in daily batches of 50, sorted oldest first</span></li></ul></details>
   <div class="mc-why"><strong>Where it went wrong:</strong> the stem hands you the list: the 3 kinds of real problem. When the stem names what counts, write it down as the rule (B). Your pick, 5 normal schedules, shows the model what "normal" looks like, but every real schedule differs from those 5 in many small ways. The model still has to decide which differences matter, which is the same guess that produced 559 false flags (600 flags, of which 41 were real). A doesn't help either: a 1–10 "oddness" score comes from the same vague sense of "unusual".</div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 13</p>
+  <p class="mc-h">Weak-topics paper 2, 23 Oct, question 13</p>
   <p class="mc-stem">The document-analysis subagent flags any figure in a paper that &quot;looks inconsistent with our survey data&quot;. Of 420 flags last quarter, <mark>290 turned out to be tonnes against kilograms, a different survey year or rounding</mark>. A prompt line saying <mark>&quot;only flag discrepancies you are highly confident about&quot;</mark> cut the flags by 5%. What change cuts the false flags?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Add 4 papers that agree with the survey data for the subagent to compare against</div><div class="mc-k"><b>✓ Correct: B</b>Flag only same species, area and year gaps over 10%, after converting units</div></div>
   <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Have the subagent score each discrepancy 0–100 and pass on scores over 80</span></li><li><span class="mc-l">D</span><span>Let the synthesis subagent drop the flagged figures it judges unimportant</span></li></ul></details>
@@ -138,7 +138,7 @@ cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that 
   <p>One more thing from the exam guide, so this doesn't swing too far: criteria can carry examples. When a review sorts problems into levels such as high, medium and low (severity levels), the guide says to define each level <em>and</em> give a code example for each: for instance, "High: data can be lost. Example: deleting rows with no backup." The examples there explain the criteria; they don't replace them.</p>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 3</p>
+  <p class="mc-h">Weak-topics paper 2, 23 Oct, question 3</p>
   <p class="mc-stem">The review flags &quot;possible N+1 query&quot; on 45% of pull requests, and developers dismiss 70% of those flags. Most dismissed flags are loops over records already loaded with includes earlier in the method, or loops over 2 or 3 fixed items. <mark>A list of 9 skip rules for N+1 flags was added last month</mark>; dismissals fell only to 64%, and <mark>each week reviewers find another harmless shape the rules miss</mark>. What should you add?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A pause on N+1 flags until the skip list covers every harmless loop shape</div><div class="mc-k"><b>✓ Correct: A</b>4 code cases, each a harmless loop or a real N+1, with why it is which</div></div>
   <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A tenth skip rule for loops that run over a fixed list of fewer than 4 items</span></li><li><span class="mc-l">C</span><span>A 0–1 score on each N+1 flag, posting only flags that score above 0.8</span></li></ul></details>
@@ -148,7 +148,7 @@ cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that 
   <div class="check"><strong>The check:</strong> did the stem say rules were tried <em>and</em> new cases keep slipping past them? Then 2–4 examples near the line, with reasons. If no rules were tried and the stem names what counts, write the rules.</div>
 
   <h2>Part 4 · First name what is broken, then pick the fix</h2>
-  <p>On Weak Rows Paper 2 you knew each fix but often picked the one from a neighbouring topic. The fixes are all real; each one fixes a different broken thing. So before reading the options, say in a few words what is broken. Then use this table.</p>
+  <p>On weak-topics paper 2 you knew each fix but often picked the one from a neighbouring topic. The fixes are all real; each one fixes a different broken thing. So before reading the options, say in a few words what is broken. Then use this table.</p>
   <table class="cgrid">
     <tr><th>What is broken (from the stem)</th><th>Topic</th><th>The fix</th></tr>
     <tr><td>The model has no clear rule for what counts. The stem names the real problems, or the causes of the false flags. Often a vague line was tried and changed little.</td><td>4.1 criteria</td><td>Criteria: name what to flag and what to skip.</td></tr>
@@ -158,24 +158,24 @@ cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that 
     <tr><td>Nothing is broken: the scores are calibrated, but there are only so many checks.</td><td>5.5 review</td><td>Spend the checks on the lowest calibrated scores first.</td></tr>
     <tr><td>You need to know how accurate the model is (for example before reviewing less).</td><td>5.5 review</td><td>A random sample, stratified by document type and field, including high scores.</td></tr>
   </table>
-  <p>The three 5.5 questions from Weak Rows Paper 2 are below. In each, read the highlighted phrases and say what is broken before you look at the two answers.</p>
+  <p>The three 5.5 questions from weak-topics paper 2 are below. In each, read the highlighted phrases and say what is broken before you look at the two answers.</p>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 8</p>
+  <p class="mc-h">Weak-topics paper 2, 23 Oct, question 8</p>
   <p class="mc-stem">Officers can check about 250 of the 3,000 documents processed each week. The model gives each extracted field a score from 0 to 1, and any document with a field under 0.9 goes to review: 1,400 a week. <mark>Spot checks find many wrong fields at 0.95 and many right ones at 0.7</mark>. <mark>Officers hand-checked every field on 1,800 documents last season</mark>. What should the team do?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>Put 5 low-scoring documents from the 1,800 in the prompt as examples</div><div class="mc-k"><b>✓ Correct: C</b>Set each field's cutoff from its error rate by score on the 1,800</div></div>
   <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Write a rubric telling the model when a field should get a low score</span></li><li><span class="mc-l">B</span><span>Lower the cutoff from 0.9 to 0.6 until the queue fits 250 a week</span></li></ul></details>
   <div class="mc-why"><strong>Where it went wrong:</strong> what is broken here is the <em>scores</em>: a 0.95 is often wrong and a 0.7 often right, so a cutoff of 0.9 means nothing yet. And the stem gives you an answer key: 1,800 documents a person already checked field by field. Calibrating (C) means: for each field, look at how often the model was wrong at each score on those 1,800, and set the cutoff at the score below which that field is wrong too often to trust. Then a score means a measured error rate. Your pick puts 5 of those documents in the prompt as examples. That might change how the model reads documents, but it never ties a score to an error rate, so the review cutoff is still a guess. B also just guesses: it picks the number that makes the queue fit 250, and the scores stay unreliable.</div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 17</p>
+  <p class="mc-h">Weak-topics paper 2, 23 Oct, question 17</p>
   <p class="mc-stem">A paper gives a cod stock biomass of <mark>41,000 tonnes in its abstract and 14,000 tonnes in its results table</mark>. The subagent extracted 41,000 with a score of 0.97, above the 0.9 threshold calibrated on hand-checked figures, so it went straight into a quota briefing. In a review of 200 figures that skipped review, <mark>6 of the 7 errors came from documents that gave 2 different values for the same figure</mark>. What should change?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>Re-calibrate the 0.9 threshold on a new labelled set that includes such papers</div><div class="mc-k"><b>✓ Correct: D</b>Send a figure to a scientist when its source gives 2 values, whatever its score</div></div>
   <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Have the subagent take the results-table value whenever a paper gives 2 values</span></li><li><span class="mc-l">C</span><span>Write criteria telling the subagent when to lower its own score for a figure</span></li></ul></details>
   <div class="mc-why"><strong>Where it went wrong:</strong> what is broken here is the <em>source document</em>: the paper says 41,000 in one place and 14,000 in another. The model read 41,000 correctly, so its high score was honest. It is like copying a phone number perfectly from a page that has a typo in it: a better copier can't fix the page. Calibration (your pick) is already done, and re-doing it can't help: a correct copy of a wrong figure scores high, just as a correct copy of a right figure does, so no cutoff can tell them apart. The exam guide says to send contradictory source documents to a person. So D: when the source gives 2 values, a scientist decides, whatever the score.</div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 2, 23 Oct, question 19</p>
+  <p class="mc-h">Weak-topics paper 2, 23 Oct, question 19</p>
   <p class="mc-stem">The 3 scientists can check 400 figures a month out of about 2,500 extracted, and every figure feeds a quota briefing. <mark>Field thresholds were calibrated last quarter on 1,500 hand-checked figures</mark>, and about 1,100 figures a month fall below them. A board member suggests the subagent's scores should not decide anything. <mark>How should the 400 checks be allocated?</mark></p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A random 400 of the 1,100, as a fair sample of the figures below threshold</div><div class="mc-k"><b>✓ Correct: C</b>The 400 figures with the lowest calibrated scores, lowest first</div></div>
   <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>The 400 figures for the species with the largest quotas this year</span></li><li><span class="mc-l">D</span><span>Explicit criteria for the subagent to rank its own figures by doubt</span></li></ul></details>
@@ -195,7 +195,7 @@ cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that 
     <tr><td>Calibrated, too few checks</td><td>Lowest calibrated score first</td><td>A random sample</td></tr>
     <tr><td>How accurate is it, per type?</td><td>Stratified random sample</td><td>The overall average; the model rating itself</td></tr>
   </table>
-  <p>One habit from the survey-data card in Part 2 (Weak Rows Paper 2, question 13: you picked the right answer first, then switched because 10% looked too big): once you have found the option with the right method, keep it, even if one number in it looks a little off. Change a first pick only if a phrase in the stem breaks it.</p>
+  <p>One habit from the survey-data card in Part 2 (weak-topics paper 2, question 13: you picked the right answer first, then switched because 10% looked too big): once you have found the option with the right method, keep it, even if one number in it looks a little off. Change a first pick only if a phrase in the stem breaks it.</p>
 
   <h2>Explain it back</h2>
   <p>I'll ask these in chat, one at a time, after you've read the page. No need to write anything here.</p>
@@ -216,7 +216,6 @@ cosmetic wear.</pre>Each line names a thing. A routine note now has a rule that 
   <p class="footer">
     <strong>Primary source:</strong> the official exam guide (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 4.1, 4.2, 5.5.<br>
     <strong>Course notes:</strong> <a href="../notes/domain-4-prompt-engineering.md">notes/domain-4-prompt-engineering.md</a> §4.1 and §4.2 · <a href="../notes/domain-5-context-reliability.md">notes/domain-5-context-reliability.md</a> §5.5.<br>
-    <strong>Miss history:</strong> learning records 0041 (Weak Rows Paper 1), 0042 (Weak Rows Paper 2) and 0043 (Representative Mock 3), all 23 Oct.<br>
     <strong>Previous:</strong> <a href="0026-which-server-entry-wins.html">Lesson 26 — Which server entry wins?</a> · <a href="0013-io-examples.html">Lesson 13 — Input/output examples</a> · <a href="0017-check-each-part-before-skipping-review.html">Lesson 17 — Check each part before skipping review</a>
   </p>
 </main>

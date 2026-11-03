@@ -197,7 +197,7 @@ const Q = [
         "text": "Finds the bad texts after customers and strangers have received them."
       }
     },
-    "cite": "Exam guide §2.3; notes/domain-2 §2.3 (constrained alternatives, least privilege); LR-0033 (Q4 shape)"
+    "cite": "Exam guide §2.3; notes/domain-2 §2.3 (constrained alternatives, least privilege)"
   },
   {
     "id": "H06",
@@ -601,7 +601,7 @@ const Q = [
         "text": "Right trigger, but personal copies drift for a procedure the whole team shares."
       }
     },
-    "cite": "notes/domain-3 §3.2 (skills on demand vs CLAUDE.md always loaded); notes/2026-09-docs-delta §3.2; LR-0034 (on request → skill)"
+    "cite": "notes/domain-3 §3.2 (skills on demand vs CLAUDE.md always loaded); notes/2026-09-docs-delta §3.2"
   },
   {
     "id": "H18",
@@ -669,7 +669,7 @@ const Q = [
         "text": "Lasts beyond today and applies to anyone who touches the parser."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1; LR-0033 (trigger table: prompt → this session only)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1"
   },
   {
     "id": "H20",
@@ -769,7 +769,7 @@ const Q = [
         "text": "Loads the Rust rule in every session, including portal work."
       }
     },
-    "cite": "notes/domain-3 §3.3 (paths globs such as **/*.test.tsx); notes/2026-09-docs-delta §3.3; LR-0033 (glob syntax)"
+    "cite": "notes/domain-3 §3.3 (paths globs such as **/*.test.tsx); notes/2026-09-docs-delta §3.3"
   },
   {
     "id": "H23",
@@ -837,7 +837,7 @@ const Q = [
         "text": "Right trigger, but personal copies drift for a procedure the whole team uses."
       }
     },
-    "cite": "notes/domain-3 §3.2, §3.3; notes/2026-09-docs-delta §3.2, §3.3; LR-0034 (on request → skill)"
+    "cite": "notes/domain-3 §3.2, §3.3; notes/2026-09-docs-delta §3.2, §3.3"
   },
   {
     "id": "H25",

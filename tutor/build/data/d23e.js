@@ -264,7 +264,7 @@ const Q = [
         "text": "It hasn't failed to connect. claude mcp list already says what's needed: approval."
       }
     },
-    "cite": "Lesson 26 §4 (claude mcp list statuses; ⏸ Pending approval; run claude in the project to approve); LR-0038 (lesson 26 quiz Q6); exam guide §2.4"
+    "cite": "Lesson 26 §4 (claude mcp list statuses; ⏸ Pending approval; run claude in the project to approve); exam guide §2.4"
   },
   {
     "id": "J08",
@@ -298,7 +298,7 @@ const Q = [
         "text": "A louder instruction is still an instruction. The connection stays on production."
       }
     },
-    "cite": "Lesson 26 §1–2 (scopes; same-name precedence local > project > user; whole entry used; a server entry, never a CLAUDE.md line, changes the connection); LR-0036 (Paper 4 Q9); exam guide §2.4"
+    "cite": "Lesson 26 §1–2 (scopes; same-name precedence local > project > user; whole entry used; a server entry, never a CLAUDE.md line, changes the connection); exam guide §2.4"
   },
   {
     "id": "J09",
@@ -398,7 +398,7 @@ const Q = [
         "text": "Lists commits by date, not which files change the sailings table."
       }
     },
-    "cite": "Exam guide §2.5; notes/domain-2 §2.5; LR-0037 (M20: an exclusion in the stem decides)"
+    "cite": "Exam guide §2.5; notes/domain-2 §2.5"
   },
   {
     "id": "J12",
@@ -467,7 +467,7 @@ const Q = [
         "text": "The rule loads when a matching file is read, after Claude has opened it, and it is still only guidance."
       }
     },
-    "cite": "notes/domain-3 §3.1 (CLAUDE.md is guidance, not enforcement; deny rules evaluated deterministically) and its traps table (security boundary → permission deny rules); notes/docs-delta §3.1 (path rules load when a matching file is read); LR-0036 (Paper 4 Q9: an instruction file cannot change a connection or setting)"
+    "cite": "notes/domain-3 §3.1 (CLAUDE.md is guidance, not enforcement; deny rules evaluated deterministically) and its traps table (security boundary → permission deny rules); notes/docs-delta §3.1 (path rules load when a matching file is read)"
   },
   {
     "id": "J14",
@@ -502,7 +502,7 @@ const Q = [
         "text": "Personal: the other 10 developers don't have it."
       }
     },
-    "cite": "Exam guide §3.2; notes/docs-delta §3.2 ($ARGUMENTS); LR-0037 (M17: a person starts it → command or skill)"
+    "cite": "Exam guide §3.2; notes/docs-delta §3.2 ($ARGUMENTS)"
   },
   {
     "id": "J15",

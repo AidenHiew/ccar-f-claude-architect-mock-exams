@@ -164,7 +164,7 @@ const Q = [
         "text": "Leaves a full shell in place and relies on the model staying inside the rule."
       }
     },
-    "cite": "Exam guide §2.3; notes/domain-2 §2.3; LR-0031 (F06); LR-0033 (Q4)"
+    "cite": "Exam guide §2.3; notes/domain-2 §2.3"
   },
   {
     "id": "C05",
@@ -197,7 +197,7 @@ const Q = [
         "text": "A new agent and a new hop for one lookup a single tool covers."
       }
     },
-    "cite": "Exam guide §2.3; notes/domain-2 §2.3; LR-0033 (Q5)"
+    "cite": "Exam guide §2.3; notes/domain-2 §2.3"
   },
   {
     "id": "C06",
@@ -396,7 +396,7 @@ const Q = [
         "text": "File names and current content can't say which of 186 commits broke it."
       }
     },
-    "cite": "Exam guide §2.5; notes/domain-2 §2.5; LR-0031 (F12)"
+    "cite": "Exam guide §2.5; notes/domain-2 §2.5"
   },
   {
     "id": "C12",
@@ -430,7 +430,7 @@ const Q = [
         "text": "23 people's sessions follow it as written. Emphasis doesn't explain the 2."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1 (/memory to verify loaded files); LR-0033 (Q16)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1 (/memory to verify loaded files)"
   },
   {
     "id": "C13",
@@ -465,7 +465,7 @@ const Q = [
         "text": "Rules for editing code should apply whenever that code is touched, not when someone remembers a skill."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1; notes/2026-09-docs-delta §3.1 (subdirectory files load when Claude reads files there); LR-0033 (Q20)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1; notes/2026-09-docs-delta §3.1 (subdirectory files load when Claude reads files there)"
   },
   {
     "id": "C14",
@@ -603,7 +603,7 @@ const Q = [
         "text": "Conventions should apply whenever matching files are edited, not when someone remembers a skill."
       }
     },
-    "cite": "notes/2026-09-docs-delta §3.1 (rules without paths load at launch); Exam guide §3.3; notes/domain-3 §3.3; LR-0033 (Q24)"
+    "cite": "notes/2026-09-docs-delta §3.1 (rules without paths load at launch); Exam guide §3.3; notes/domain-3 §3.3"
   },
   {
     "id": "C18",
@@ -638,7 +638,7 @@ const Q = [
         "text": "Still loads only when files there are read, which is after the export has started."
       }
     },
-    "cite": "Exam guide §3.2; Exam guide §3.3; notes/domain-3 §3.2, §3.3; LR-0033 (Q25)"
+    "cite": "Exam guide §3.2; Exam guide §3.3; notes/domain-3 §3.2, §3.3"
   },
   {
     "id": "C19",
@@ -673,7 +673,7 @@ const Q = [
         "text": "A standing preference should apply in every session, not only when a skill runs."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1; lesson 0023; LR-0031 (F14)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1; lesson 0023"
   },
   {
     "id": "C20",
@@ -777,7 +777,7 @@ const Q = [
         "text": "Loads in all their projects, and stays until someone removes it."
       }
     },
-    "cite": "Exam guide §3.3; notes/domain-3 §3.1; lesson 0023; LR-0031 (F22)"
+    "cite": "Exam guide §3.3; notes/domain-3 §3.1; lesson 0023"
   },
   {
     "id": "C23",
@@ -845,7 +845,7 @@ const Q = [
         "text": "Planning adds nothing here: the cause, the line and the fix are already agreed."
       }
     },
-    "cite": "Exam guide §3.4; notes/domain-3 §3.4; LR-0027 (S24)"
+    "cite": "Exam guide §3.4; notes/domain-3 §3.4"
   },
   {
     "id": "C25",
@@ -879,7 +879,7 @@ const Q = [
         "text": "The gaps show up after the code is written."
       }
     },
-    "cite": "Exam guide §3.5; notes/domain-3 §3.5; LR-0033 (Q29)"
+    "cite": "Exam guide §3.5; notes/domain-3 §3.5"
   },
   {
     "id": "C26",
@@ -1013,7 +1013,7 @@ const Q = [
         "text": "Structures the output but doesn't tell Claude what exists."
       }
     },
-    "cite": "Exam guide §3.6; notes/domain-3 §3.6; LR-0033 (Q30)"
+    "cite": "Exam guide §3.6; notes/domain-3 §3.6"
   },
   {
     "id": "C30",

@@ -104,7 +104,7 @@
   <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>What is missing here is <em>knowledge</em>: the developer can't yet say which promotion effects matter, and last quarter the first version missed 2 effects nobody had thought of.</li><li>Examples (your pick) show Claude a change you can already describe: this input should become that output. You can't write the expected output for an effect you haven't thought of yet.</li><li>B, the interview: Claude asks <em>you</em> questions before writing any code (what counts as a promotion, what happens to demand the week after, and so on). That is how the effects nobody listed come out before the build, not after it.</li></ul></div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 4, 25 Oct, question 13</p>
+  <p class="mc-h">Weak-topics paper 4, 25 Oct, question 13</p>
   <p class="mc-stem">A developer who <mark>has never worked with payment webhooks</mark> must add refunds for cancelled concerts through the payment provider. Last week, in plan mode, Claude wrote a plan the developer approved, but testing showed it missed that the provider can send the same webhook twice and that a refund can fail 1 hour after it starts. <mark>Neither had occurred to the developer</mark>. How should they start the next feature in this area?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Write tests for the refund flow first, then share the failures</div><div class="mc-k"><b>✓ Correct: B</b>Have Claude ask them about failure cases before it builds anything</div></div>
   <details open><summary>The other two options (A, D)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>Use plan mode again, with a longer description of the refund flow</span></li><li><span class="mc-l">D</span><span>Give Claude 2 example refunds with the expected result of each</span></li></ul></details>
@@ -114,7 +114,7 @@
   <p>Now the same line from the other side: a question where the cases <em>were</em> known, so tests were the answer and plan mode was your pick.</p>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 3, 24 Oct, question 15</p>
+  <p class="mc-h">Weak-topics paper 3, 24 Oct, question 15</p>
   <p class="mc-stem">A developer wants Claude to rewrite the delivery-slot allocation function to run in under 50 ms for 5,000 orders; it takes 900 ms today. The function has <mark>about 30 edge cases</mark>, including order cut-off times, public holidays and drivers' maximum shifts. Last quarter a faster version from Claude broke public-holiday handling, and <mark>the break was found in production</mark>. How should the developer approach the rewrite?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>Use plan mode to have Claude design the faster algorithm before coding it</div><div class="mc-k"><b>✓ Correct: A</b>Write tests for the edge cases and the 50 ms target first, then share failures</div></div>
   <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>Give Claude 3 orders with the exact slots each should get, holidays included</span></li><li><span class="mc-l">D</span><span>Ask Claude to explain in prose how its new version handles each edge case</span></li></ul></details>
@@ -159,14 +159,14 @@
   <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>Rules were written (9 of them), a 10th made no difference, and the mixed cases are still decided unevenly. That is the moment for examples: 2–4 worked mixed cases, each showing <em>why</em> one outcome beat the other two.</li><li>A severity score the agent gives itself (your pick) is one more judgement it makes unevenly. It doesn't show the agent what a right decision looks like.</li><li>B, an 11th rule, is more of what already failed.</li></ul></div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 3, 24 Oct, question 30</p>
+  <p class="mc-h">Weak-topics paper 3, 24 Oct, question 30</p>
   <p class="mc-stem">The pipeline classifies each claim's cause of loss as drought, frost, hail or other. Last month the team <mark>added 8 tie-break rules</mark> for reports that mention more than one cause, and the share of mixed reports that get the same cause on 2 runs <mark>rose only from 75% to 78%</mark>. Assessors keep finding mixed cases, such as frost damage on a crop already stressed by a dry month, <mark>that no rule settles</mark>. <mark>What should you add to the prompt?</mark></p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A step that sends each mixed report to an assessor to pick the cause</div><div class="mc-k"><b>✓ Correct: A</b>3 mixed reports, each with the cause chosen and why not the others</div></div>
   <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A ninth tie-break rule for frost damage on a crop stressed by drought</span></li><li><span class="mc-l">C</span><span>20 examples: 5 clear-cut reports for each of the 4 causes</span></li></ul></details>
   <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>The question asks what to add <em>to the prompt</em>. A step that sends reports to an assessor is not something you write into the prompt. It hands the decision to people and leaves the model just as unsure.</li><li>Rules were tried: 8 of them moved consistency only from 75% to 78%, and new mixed cases keep turning up that no rule settles. So, examples: 3 mixed reports, each with the cause chosen and why not the others (A).</li><li>C has examples too, but of easy cases. Nothing in them shows how to decide a mixed report.</li><li>When we went over this question in chat on 25 Oct, you put it as: no rules → set rules; rules set and still wrong → give examples.</li></ul></div>
 </section>
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 4, 25 Oct, question 18</p>
+  <p class="mc-h">Weak-topics paper 4, 25 Oct, question 18</p>
   <p class="mc-stem">The pipeline sorts each charge on a carrier invoice into freight, fuel surcharge, port fees or other. <mark>After 11 rules were added</mark> for charges with unclear names, the share of those charges that land in the same category on 2 runs <mark>rose only from 68% to 71%</mark>. Reviewers keep finding new names, such as &quot;BAF adj. Q3 emergency&quot;, <mark>that no rule covers</mark>. <mark>What should you add to the prompt?</mark></p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: C</b>A step that sends each unclear charge to a reviewer to pick</div><div class="mc-k"><b>✓ Correct: A</b>3 hard charge names, each with its category and the reason</div></div>
   <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A 12th rule for charges that combine &quot;BAF&quot; with other words</span></li><li><span class="mc-l">D</span><span>40 examples: 10 clearly named charges for each of the 4 categories</span></li></ul></details>
@@ -206,7 +206,6 @@
   <p class="footer">
     <strong>Primary source:</strong> the official exam guide (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 3.5, 4.1, 4.2.<br>
     <strong>Course notes:</strong> <a href="../notes/domain-3-claude-code-config.md">notes/domain-3-claude-code-config.md</a> §3.5 · <a href="../notes/domain-4-prompt-engineering.md">notes/domain-4-prompt-engineering.md</a> §4.1 and §4.2.<br>
-    <strong>Miss history:</strong> learning records 0040 (Representative Mock 2), 0045 (Weak Rows Paper 3) and 0046 (Weak Rows Paper 4); D2/D3 Papers 2 and 4 in <a href="../tutor/question-bank.md">tutor/question-bank.md</a>.<br>
     <strong>Previous:</strong> <a href="0028-same-steps-or-decide-as-you-go.html">Lesson 28 — Same steps every time, or decide as you go?</a> · <a href="0027-write-down-the-line-or-show-hard-cases.html">Lesson 27 — Write down the line, or show the hard cases?</a> · <a href="0018-one-message-or-one-at-a-time.html">Lesson 18 — One message or one at a time</a> · <a href="0013-io-examples.html">Lesson 13 — Input/output examples</a>
   </p>
 </main>

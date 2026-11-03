@@ -377,7 +377,7 @@ const Q = [
         "text": "Finds the bad texts after customers and strangers have received them."
       }
     },
-    "cite": "Exam guide §2.3; notes/domain-2 §2.3 (constrained alternatives, least privilege); LR-0033 (Q4 shape)"
+    "cite": "Exam guide §2.3; notes/domain-2 §2.3 (constrained alternatives, least privilege)"
   },
   // A12 · cs 4.2 · adapted from sim/S11
   {
@@ -687,7 +687,7 @@ const Q = [
         "text": "Moves a step the pipeline should run to people, and it doesn't fix the prompt."
       }
     },
-    "cite": "Exam guide §1.6; notes/domain-1 §1.6; LR-0045 T08"
+    "cite": "Exam guide §1.6; notes/domain-1 §1.6"
   },
   // A22 · ma 1.7 · new (2026-11-01)
   {
@@ -997,7 +997,7 @@ const Q = [
         "text": "A prompt line is guidance the model may not follow; it gives no guaranteed stop for a runaway run."
       }
     },
-    "cite": "Exam guide §1.1; notes/domain-1 §1.1 (caps fine as a safety net, wrong as the control signal); LR-0045 T05"
+    "cite": "Exam guide §1.1; notes/domain-1 §1.1 (caps fine as a safety net, wrong as the control signal)"
   },
   // A32 · dp 1.2 · adapted from sim3/N33
   {
@@ -1276,7 +1276,7 @@ const Q = [
         "text": "Rules for editing code should apply whenever that code is touched, not when someone remembers a skill."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1; notes/2026-09-docs-delta §3.1 (subdirectory files load when Claude reads files there); LR-0033 (Q20)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1; notes/2026-09-docs-delta §3.1 (subdirectory files load when Claude reads files there)"
   },
   // A41 · dp 3.2 · adapted from d23c/C16
   {
@@ -1338,7 +1338,7 @@ const Q = [
         "text": "Conventions should apply whenever matching files are edited, not when someone remembers a skill."
       }
     },
-    "cite": "notes/2026-09-docs-delta §3.1 (rules without paths load at launch); Exam guide §3.3; notes/domain-3 §3.3; LR-0033 (Q24)"
+    "cite": "notes/2026-09-docs-delta §3.1 (rules without paths load at launch); Exam guide §3.3; notes/domain-3 §3.3"
   },
   // A43 · dp 3.5 · new (2026-11-01)
   {
@@ -1679,7 +1679,7 @@ const Q = [
         "text": "A second reviewer checks against the same vague standard; nothing defines which conventions issues matter."
       }
     },
-    "cite": "Exam guide §4.1; notes/domain-4 §4.1; LR-0040 M29"
+    "cite": "Exam guide §4.1; notes/domain-4 §4.1"
   },
   // A54 · ci 4.1 · adapted from gauntlet/G33
   {

@@ -167,7 +167,7 @@ const Q = [
         "text": "Leaves the broad tool in place and relies on the model following a rule it already breaks."
       }
     },
-    "cite": "Exam guide §2.3; notes/domain-2 §2.3; LR-0031 (F06)"
+    "cite": "Exam guide §2.3; notes/domain-2 §2.3"
   },
   {
     "id": "P05",
@@ -368,7 +368,7 @@ const Q = [
         "text": "CLAUDE.md holds instructions. Claude Code doesn't start MCP servers from it."
       }
     },
-    "cite": "Exam guide §2.4; notes/domain-2 §2.4; lesson 0023; LR-0031 (F07)"
+    "cite": "Exam guide §2.4; notes/domain-2 §2.4; lesson 0023"
   },
   {
     "id": "P11",
@@ -401,7 +401,7 @@ const Q = [
         "text": "May not mention an internal method at all, and gives a release, not the commit."
       }
     },
-    "cite": "Exam guide §2.5; notes/domain-2 §2.5; LR-0031 (F12)"
+    "cite": "Exam guide §2.5; notes/domain-2 §2.5"
   },
   {
     "id": "P12",
@@ -708,7 +708,7 @@ const Q = [
         "text": "Right for the connection, but a docstring style should apply whenever Claude writes code, not only when a skill runs."
       }
     },
-    "cite": "Exam guide §3.1; notes/domain-3 §3.1 (who × where); lesson 0019; lesson 0023; LR-0031 (F14)"
+    "cite": "Exam guide §3.1; notes/domain-3 §3.1 (who × where); lesson 0019; lesson 0023"
   },
   {
     "id": "P21",
@@ -743,7 +743,7 @@ const Q = [
         "text": "Edits the shared skill for one person's preference, and the team's /backfill changes with it."
       }
     },
-    "cite": "Exam guide §3.2; notes/domain-3 §3.2; lesson 0021; LR-0030"
+    "cite": "Exam guide §3.2; notes/domain-3 §3.2; lesson 0021"
   },
   {
     "id": "P22",
@@ -813,7 +813,7 @@ const Q = [
         "text": "Loads in each of their projects, and stays until someone removes it."
       }
     },
-    "cite": "Exam guide §3.3; notes/domain-3 §3.1; lesson 0023; LR-0031 (F22)"
+    "cite": "Exam guide §3.3; notes/domain-3 §3.1; lesson 0023"
   },
   {
     "id": "P24",
@@ -917,7 +917,7 @@ const Q = [
         "text": "Hides every future error on that line, not just the known empty-history case."
       }
     },
-    "cite": "Exam guide §3.4; notes/domain-3 §3.4; LR-0027 (S24); lesson 0020"
+    "cite": "Exam guide §3.4; notes/domain-3 §3.4; lesson 0020"
   },
   {
     "id": "P27",

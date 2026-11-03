@@ -300,7 +300,7 @@ const Q = [
         "text": "CLAUDE.md doesn't configure MCP servers. Listing tools the session doesn't have changes nothing."
       }
     },
-    "cite": "Exam guide §2.4; notes/domain-2 §2.4; lesson 0019; LR-0027"
+    "cite": "Exam guide §2.4; notes/domain-2 §2.4; lesson 0019"
   },
   {
     "id": "F09",
@@ -401,7 +401,7 @@ const Q = [
         "text": "Finishes a bulk read that has already failed for 11 files, on a list built from file names."
       }
     },
-    "cite": "Exam guide §2.5; notes/domain-2 §2.5; lesson 0020; LR-0027 (S43)"
+    "cite": "Exam guide §2.5; notes/domain-2 §2.5; lesson 0020"
   },
   {
     "id": "F12",
@@ -772,7 +772,7 @@ const Q = [
         "text": "A reusable workflow, kept in their personal folder, for something that happens once and is thrown away."
       }
     },
-    "cite": "Exam guide §3.3; notes/domain-3 §3.3; lesson 0020 (needed once → prompt, not a rules file); LR-0027 (S18)"
+    "cite": "Exam guide §3.3; notes/domain-3 §3.3; lesson 0020 (needed once → prompt, not a rules file)"
   },
   {
     "id": "F23",
@@ -840,7 +840,7 @@ const Q = [
         "text": "Adds a refactor nobody asked for to a bug fix, and plans both."
       }
     },
-    "cite": "Exam guide §3.4; notes/domain-3 §3.4; lesson 0020; LR-0027 (S24), d34 P01"
+    "cite": "Exam guide §3.4; notes/domain-3 §3.4; lesson 0020"
   },
   {
     "id": "F25",
@@ -941,7 +941,7 @@ const Q = [
         "text": "A clean context doesn't stop the next fix breaking an earlier case. There is still no check."
       }
     },
-    "cite": "Exam guide §3.5; notes/domain-3 §3.5; LR-0027 (S26)"
+    "cite": "Exam guide §3.5; notes/domain-3 §3.5"
   },
   {
     "id": "F28",

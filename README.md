@@ -29,7 +29,11 @@ The official exam guide is the blueprint: its domains, task statements and scena
 
 ### A. Sit a ready-made paper (no install)
 
-Open any `tutor/mock-*.html` file in a browser. Choose exam mode for a timed sitting: one question at a time, a question grid, flag for review, and cross-out for options, like the real exam screen. Submit to see your score, each answer's rationale and the task statement it tests. Print the graded page to PDF to keep a record.
+**Online:** open the website link in this repo's "About" box. It lists every paper, and each one opens in your browser. Your answers stay in your browser.
+
+**Offline:** download the repo and open any `tutor/mock-*.html` file in a browser.
+
+Choose exam mode for a timed sitting: one question at a time, a question grid, flag for review, and cross-out for options, like the real exam screen. Submit to see your score, each answer's rationale and the task statement it tests. Print the graded page to PDF to keep a record.
 
 | File | Questions | What it is |
 |---|---|---|
@@ -42,7 +46,7 @@ Open any `tutor/mock-*.html` file in a browser. Choose exam mode for a timed sit
 | `mock-fresh-1.html` | 15 | A short mixed paper |
 | `mock-exam.html`, `d3-exam-quiz-*.html`, `d4-exam-quiz-*.html` | | Early quizzes |
 
-The papers share some questions: full1 and full2 were partly assembled from the older papers. Every question is single-answer. Guide Version 1.0 says items may also be multiple-response; to practise that format, ask `mock-exam` for some.
+The papers share some questions: full1 and full2 were partly assembled from the older papers. Every question has one answer. The guide allows multiple-response items, but the author's two sittings had none.
 
 ### B. Generate new mocks and get them graded (Claude Code)
 
@@ -70,7 +74,7 @@ This repo can't ship the guide itself, so the kit's record of Version 1.0 is `tu
 - `exercises.md`, `practice-questions.md`: hands-on builds and an early question set.
 - **Lessons with `/teach`:** `/teach` turns a topic, plus your own mistakes, into a long HTML lesson you work through in a browser. It is **not** included here. Install it from **[mattpocock/skills](https://github.com/mattpocock/skills)** (Matt Pocock, MIT) to get the current version. `lessons/` holds sample lessons built with it. They were written for one candidate's misses, so they speak to them ("your pick"), and lessons 3–8 are left out.
 
-Some files carry labels from the private repo this kit came from ("LR-0033", "Weak Rows Paper 6", "wr7", "sim4"). They name records and papers that aren't published. You can ignore them.
+Some files still name records and papers from the private repo this kit came from, which aren't published: the builder's code comments ("wr4/T16", "sim4"), a few explanations ("D2 drill D11"), and the learning-record numbers in the sample lessons. You can ignore them.
 
 ## The builder
 

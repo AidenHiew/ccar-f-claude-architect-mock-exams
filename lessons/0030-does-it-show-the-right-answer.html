@@ -86,7 +86,7 @@
   <p>Your picks on the 3 cards in this part each fail one of these. The first 2 fail step 2; the third fails step 3.</p>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 5, 26 Oct, question 4</p>
+  <p class="mc-h">Weak-topics paper 5, 26 Oct, question 4</p>
   <p class="mc-stem">A developer asked Claude for a function that turns free-text shelf locations from 9 branches, such as &quot;2nd flr, bay 14 L&quot; and &quot;Level 2 / Bay 14 / left&quot;, into one standard format. <mark>After 3 rounds of describing the target format in prose</mark>, each new version still formats some branches' locations differently. <mark>The developer has the correct result for each branch's style of location</mark>. What should they give Claude next?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>A test that checks each output matches the format's regular expression</div><div class="mc-k"><b>✓ Correct: C</b>3 raw locations, each with the exact output the function should return</div></div>
   <details open><summary>The other two options (A, B)</summary><ul class="mc-o"><li><span class="mc-l">A</span><span>A longer prose description of the target format, part by part</span></li><li><span class="mc-l">B</span><span>Questions from Claude about each branch before it rewrites the code</span></li></ul></details>
@@ -94,7 +94,7 @@
 </section>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 6, question 1</p>
+  <p class="mc-h">Weak-topics paper 6, question 1</p>
   <p class="mc-stem">A developer asked Claude for a function that maps tracking updates from 6 carriers, such as &quot;OUT FOR DEL&quot; and &quot;With driver - final mile&quot;, to the company's 8 status codes. After 2 rounds of prose corrections, <mark>each output is one of the 8 codes, but about 1 in 10 is the wrong one</mark>, and which carriers go wrong changes with each version. <mark>The developer knows the right code for each carrier's updates</mark>. What should they give Claude next?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: A</b>A test that checks each result is one of the 8 valid status codes</div><div class="mc-k"><b>✓ Correct: C</b>4 raw carrier updates, each with the exact status code it should map to</div></div>
   <details open><summary>The other two options (B, D)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A fuller prose description of what each of the 8 status codes means</span></li><li><span class="mc-l">D</span><span>Questions from Claude about each carrier before it rewrites the map</span></li></ul></details>
@@ -102,11 +102,11 @@
 </section>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 6, question 7</p>
+  <p class="mc-h">Weak-topics paper 6, question 7</p>
   <p class="mc-stem">A developer asked Claude Code for a function that splits the owner name on each claim form, such as &quot;Dr and Mrs J. Okafor&quot; or &quot;Okafor, Jane (Ms)&quot;, into title, first name and surname. After 2 rounds of prose corrections, about 1 in 8 names still splits wrongly, <mark>mostly the less common styles</mark>, though each result has all 3 fields filled. <mark>The developer knows the right split for each style</mark>. What should they give Claude next?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: D</b>Tests for the 2 most common name styles, then share the failures</div><div class="mc-k"><b>✓ Correct: A</b>3 raw names, each with the exact title, first name and surname</div></div>
   <details open><summary>The other two options (B, C)</summary><ul class="mc-o"><li><span class="mc-l">B</span><span>A JSON schema check that each result fills all 3 name fields</span></li><li><span class="mc-l">C</span><span>A longer prose description of how each name style should split</span></li></ul></details>
-  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>This time the test option did carry real answers, but for the wrong names. The wrong splits are "mostly the less common styles"; tests on the 2 most common styles check names that already work.</li><li>A gives 3 names with their exact title, first name and surname. Pick the 3 that are going wrong and Claude sees exactly what right looks like for them.</li><li>B, the schema check, is the same trap as the valid-code test in the carrier card (Weak Rows Paper 6, question 1): every result already fills all 3 fields, so the wrong splits pass it.</li></ul></div>
+  <div class="mc-why"><strong>Where it went wrong:</strong><ul><li>This time the test option did carry real answers, but for the wrong names. The wrong splits are "mostly the less common styles"; tests on the 2 most common styles check names that already work.</li><li>A gives 3 names with their exact title, first name and surname. Pick the 3 that are going wrong and Claude sees exactly what right looks like for them.</li><li>B, the schema check, is the same trap as the valid-code test in the carrier card (weak-topics paper 6, question 1): every result already fills all 3 fields, so the wrong splits pass it.</li></ul></div>
 </section>
 
 
@@ -130,7 +130,7 @@
   </table>
 
 <section class="mc">
-  <p class="mc-h">Weak Rows Paper 6, question 8</p>
+  <p class="mc-h">Weak-topics paper 6, question 8</p>
   <p class="mc-stem">Assessors want each claim flagged when the condition may have started before the policy did. <mark>The prompt says only &quot;flag likely pre-existing conditions&quot;</mark>. The insurer's policy wording <mark>defines this exactly</mark>: signs recorded in the pet's history before the start date, or in the first 14 days of cover. Assessors overturn 40% of the flags. What should you add to the prompt first?</p>
   <div class="mc-vs"><div class="mc-p"><b>✗ Your pick: B</b>3 hard claims, each marked flag or no flag, with the reason for the call</div><div class="mc-k"><b>✓ Correct: A</b>The policy wording: signs before cover began or in its first 14 days</div></div>
   <details open><summary>The other two options (C, D)</summary><ul class="mc-o"><li><span class="mc-l">C</span><span>A step that sends each flagged claim to an assessor before it is paid</span></li><li><span class="mc-l">D</span><span>A rule to flag a claim only when the model is highly confident</span></li></ul></details>
@@ -166,7 +166,6 @@
   <p class="footer">
     <strong>Primary source:</strong> the official exam guide (<a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification">Anthropic&rsquo;s exam page</a>), task statements 3.5, 4.1, 4.2.<br>
     <strong>Course notes:</strong> <a href="../notes/domain-3-claude-code-config.md">notes/domain-3-claude-code-config.md</a> §3.5 · <a href="../notes/domain-4-prompt-engineering.md">notes/domain-4-prompt-engineering.md</a> §4.1 and §4.2.<br>
-    <strong>Miss history:</strong> learning records 0048 (Weak Rows Paper 5) and 0049 (Weak Rows Paper 6).<br>
     <strong>Previous:</strong> <a href="0029-tests-questions-or-examples.html">Lesson 29 — Tests, questions or examples?</a> · <a href="0027-write-down-the-line-or-show-hard-cases.html">Lesson 27 — Write down the line, or show the hard cases?</a> · <a href="0013-io-examples.html">Lesson 13 — Input/output examples</a>
   </p>
 </main>

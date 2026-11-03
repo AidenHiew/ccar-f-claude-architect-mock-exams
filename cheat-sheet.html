@@ -103,14 +103,13 @@
     <div class="t">The neighbouring fix</div>
     You picked a real fix from a different problem: plan mode on a testing question, routing to a person on a prompt question, or examples on a workflow question.
     <div class="fix">Ask: what exactly is missing here? Pick the option that supplies that, not the one that sounds most capable.</div>
-    <div class="src">Weak Rows Papers 2–4 (LR-0042, 0045, 0046)</div>
   </div>
 
   <div class="trapcard">
     <div class="t">A test or check when the right outputs are known (3.5)</div>
     Example: Claude maps carrier tracking updates to 8 status codes. After 2 rounds of written corrections, every output is a valid code but 1 in 10 is the wrong one, and the developer knows the right code for each update. You picked "a test that checks each result is one of the 8 valid codes". It passes on the wrong ones.
     <div class="fix">A shape check passes wrong answers. Show Claude real inputs with their exact right outputs, for the inputs that are going wrong.</div>
-    <div class="src">Weak Rows Papers 5–6 · Lesson 30</div>
+    <div class="src">Lesson 30</div>
   </div>
 
   <div class="trapcard">
@@ -125,7 +124,7 @@
     <div class="t">Plan mode as the answer to everything</div>
     Plan mode plans how to build a big change before any edits. It doesn't supply tests, examples or missing knowledge, and it doesn't set a fixed order of steps.
     <div class="fix">Plan mode is for a big multi-file change with several possible designs. It's not the fix for "outputs are wrong" or "we don't know the cases".</div>
-    <div class="src">Mock 3 N25 · Weak Rows Paper 3 T06, T15 · Lesson 28</div>
+    <div class="src">Lesson 28</div>
   </div>
 </div>
 
@@ -134,7 +133,6 @@
     <div class="t">Prompt question, answered with a person (4.2)</div>
     Example: a classifier prompt has 11 rules, consistency only rose from 68% to 71%, and the question asks what to add to the prompt. You picked "a step that sends each unclear item to a reviewer". You made this pick twice in a row.
     <div class="fix">If the question says "add to the prompt", an option that hands the decision to a person isn't a prompt change.</div>
-    <div class="src">Weak Rows Paper 3 T30 · Paper 4 T18</div>
   </div>
 
   <div class="trapcard">
@@ -142,21 +140,20 @@
     <div class="fix">No exact definition in the prompt yet → write it in first (what to flag, what to skip).<br>
     Rules already written and new cases still slip past → a few hard cases, each with the reason.</div>
     Examples of clear, easy cases teach nothing about where the line falls.
-    <div class="src">Lesson 27 · Weak Rows Paper 6 T08</div>
+    <div class="src">Lesson 27</div>
   </div>
 
   <div class="trapcard">
     <div class="t">The model's own confidence score</div>
     Options that have the model rate its own confidence or severity, then filter or route on that score. This cost you 4 questions on Mock 2.
     <div class="fix">For escalation or severity, a confidence score the model gives itself isn't reliable: use explicit criteria. Routing low-confidence fields to human review is right only when accuracy has been checked against labelled data for each document type and field (5.5).</div>
-    <div class="src">Mock 2 (LR-0040) · fixed on Mock 3</div>
   </div>
 
   <div class="trapcard">
     <div class="t">Replacing the signal instead of adding a guard (1.1)</div>
     Example: an incident agent's normal runs take 25 to 30 tool calls, and one run repeated the same search 312 times. You picked "replace the stop_reason check with a cap of 30 tool calls", which cuts normal runs short. The key kept stop_reason and added a 60-call cap that alerts on-call.
     <div class="fix">Keep <code>stop_reason</code> as the loop's signal, and add a cap as a safety net that alerts or escalates.</div>
-    <div class="src">Weak Rows Paper 3 T05 · Lesson 25</div>
+    <div class="src">Lesson 25</div>
   </div>
 </div>
 </div>
